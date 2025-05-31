@@ -1,39 +1,31 @@
 {
   "name": "csb-app",
   "version": "1.0.0",
-  "author": "Charles Stover <with-router@charlesstover.com>",
-  "bugs": {
-    "email": "with-router@charlesstover.com",
-    "url": "https://github.com/CharlesStover/with-router/issues"
-  },
-  "directories": {
-    "lib": "src"
-  },
-  "files": [
-    "index.js",
-    "package.json"
-  ],
-  "homepage": "https://github.com/CharlesStover/with-router#readme",
-  "license": "MIT",
-  "main": "index.js",
+  "main": "node_modules/expo-router/entry",
   "scripts": {
-    "build": "webpack",
-    "dev": "set NODE_ENV=development&& webpack",
-    "prepublishOnly": "webpack",
-    "test": "echo \"No tests exist.\" && exit 0"
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@react-native-async-storage/async-storage": "^2.1.2",
+    "@tamagui/config": "^1.126.4",
+    "@tamagui/core": "^1.126.4",
+    "@tamagui/theme": "^1.126.4",
+    "@types/react": "~19.0.10",
+    "expo": "^53.0.5",
+    "expo-router": "~5.0.4",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "react-native": "0.79.2",
+    "react-native-safe-area-context": "5.4.0",
+    "react-native-svg": "15.11.2",
+    "react-native-web": "^0.20.0",
+    "tamagui": "^1.126.4"
+  },
   "devDependencies": {
-    "@babel/core": "^7.1.2",
-    "@babel/plugin-proposal-object-rest-spread": "^7.0.0",
-    "@babel/preset-env": "^7.1.0",
-    "@babel/preset-react": "^7.0.0",
-    "babel-core": "7.0.0-bridge.0",
-    "babel-loader": "^8.0.0-beta.6",
-    "react": "^16.6.0",
-    "react-router": "^4.3.1",
-    "webpack": "^4.23.1",
-    "webpack-cli": "^3.1.2"
+    "typescript": "^5.2.2"
   },
   "private": true
 }
