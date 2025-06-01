@@ -7,13 +7,13 @@ export default function TorneiosScreen() {
   const router = useRouter()
   const theme = useTheme()
 
-  const handleSelecionar = (categoria: string) => {
-    router.push(`/categorias?cat=${categoria}`)
+  const handleSelecionar = (torneioId: string) => {
+    router.push(`/selecionar-equipe?torneio=${torneioId}`)
   }
 
   return (
     <Theme name={theme}>
-      <YStack f={1} p="$4" space="$3" bg="$background">
+      <YStack f={1} p="$4" space="$3" bg="$background" pt="$12" pb="$12">
         <Text fontSize={20} fontWeight="600" ta="center">
           Selecione o Torneio
         </Text>
