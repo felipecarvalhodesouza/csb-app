@@ -1,40 +1,67 @@
 import { useState } from 'react'
 import { useRouter } from 'expo-router'
-import { YStack, XStack, Text, Input, Button, Image, Separator, Theme, useTheme } from 'tamagui'
+import { YStack, Text, Input, Button, Image, Separator, Theme, useTheme } from 'tamagui'
 import { TouchableOpacity } from 'react-native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { getFavoriteModality } from '../utils/preferences'
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('')
-  const [senha, setSenha] = useState('')
+  const [password, setPassword] = useState('')
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [emailError, setEmailError] = useState<string | null>(null)
+
   const router = useRouter()
   const theme = useTheme()
 
+  const isValidEmail = (value: string) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+
+  const handleEmailChange = (value: string) => {
+    setEmail(value)
+    if (value.length > 0 && !isValidEmail(value)) {
+      setEmailError('E-mail inválido.')
+    } else {
+      setEmailError(null)
+    }
+  }
+
   const handleLogin = async () => {
-    if (!email || !senha) {
-      alert('Preencha e-mail e senha.')
+    if (!email || !password) {
+      setErrorMessage('Preencha e-mail e senha.')
       return
     }
-  
+
+    if (emailError) {
+      setErrorMessage('Corrija o e-mail antes de continuar.')
+      return
+    }
+
+    setErrorMessage(null)
+
     try {
-      // Simulação de autenticação
-      const mockUser = {
-        email,
-        name: 'Usuário Exemplo',
+      const response = await fetch('http://localhost:8080/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.message || 'Erro desconhecido ao fazer login.')
       }
-  
-      await AsyncStorage.setItem('session_user', JSON.stringify(mockUser))
-  
+
+      const data = await response.json()
+      await AsyncStorage.setItem('session_user', JSON.stringify(data.user))
+
       const modalidade = await getFavoriteModality()
-  
       if (modalidade) {
         router.replace(`/modalidades?mod=${modalidade}`)
       } else {
         router.replace('/modalidades')
       }
-    } catch (err) {
-      alert('Erro ao fazer login.')
+    } catch (err: any) {
+      setErrorMessage(err.message || 'Falha ao realizar login. Tente novamente.')
     }
   }
 
@@ -51,9 +78,7 @@ export default function LoginScreen() {
         />
 
         {/* Título */}
-        <Text fontSize={20} fontWeight="700" mb="$4">
-          SportSync
-        </Text>
+        <Text fontSize={20} fontWeight="700" mb="$4">SportSync</Text>
 
         {/* Inputs */}
         <YStack w="100%" space="$3">
@@ -62,20 +87,31 @@ export default function LoginScreen() {
             placeholder="Digite o seu e-mail"
             keyboardType="email-address"
             value={email}
-            onChangeText={setEmail}
+            onChangeText={handleEmailChange}
             autoCapitalize="none"
+            borderColor={emailError ? '$red10' : undefined}
           />
+          {emailError && (
+            <Text color="$red10" fontSize="$2">{emailError}</Text>
+          )}
 
           <Text fontSize="$2" mb={-6}>Senha</Text>
           <Input
             placeholder="Digite sua senha"
             secureTextEntry
-            value={senha}
-            onChangeText={setSenha}
+            value={password}
+            onChangeText={setPassword}
           />
         </YStack>
 
-        {/* Entrar */}
+        {/* Mensagem de erro geral */}
+        {errorMessage && (
+          <Text color="$red10" mt="$2" textAlign="center">
+            {errorMessage}
+          </Text>
+        )}
+
+        {/* Botão Entrar */}
         <Button mt="$4" w="100%" backgroundColor="black" color="white" onPress={handleLogin}>
           Entrar
         </Button>
@@ -104,13 +140,10 @@ export default function LoginScreen() {
   )
 }
 
-// Ícone do Google (simples)
 function GoogleIcon() {
   return (
     <Image
-      source={{
-        uri: 'https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg',
-      }}
+      source={require('../assets/google.png')}
       width={20}
       height={20}
       resizeMode="contain"
