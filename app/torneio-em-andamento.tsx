@@ -14,10 +14,10 @@ export default function TorneiosScreen() {
   useEffect(() => {
     const fetchTorneios = async (options:RequestInit = {}) => {
       try {
-          const token = await AsyncStorage.getItem('session_user');
+          const user = await AsyncStorage.getItem('session_user');
           const headers = {
           ...(options.headers || {}),
-          'Authorization': `Bearer ${JSON.parse(token)}`,
+          'Authorization': `Bearer ${JSON.parse(user).token}`,
           'Content-Type': 'application/json',
         };
 

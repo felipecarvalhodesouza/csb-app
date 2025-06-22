@@ -62,7 +62,7 @@ export default function ModalidadesScreen() {
               >
                 <MaterialCommunityIcons name={mod.icone as any} size={24} color="white" />
               </View>
-              <Text fontSize={16} color={mod.disable ? "$gray8" : "black"}> {/* Texto desabilitado */}
+              <Text fontSize={16} color={mod.disable ? "$gray8" : "white"}> {/* Texto desabilitado */}
                 {mod.nome}
               </Text>
               <View f={1} />

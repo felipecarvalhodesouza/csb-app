@@ -1,15 +1,39 @@
 import { XStack, Text, Button, View } from 'tamagui'
 import { MaterialIcons } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'
-
-const bottomTabs = [
-  { nome: 'Início', icone: 'home', ativo: false, rota: "modalidades" },
-  { nome: 'Torneios', icone: 'sports', ativo: true, rota: "torneios" },
-  { nome: 'Resultados', icone: 'leaderboard', ativo: false, rota: "modalidades" },
-  { nome: 'Logout', icone: 'settings', ativo: false, rota: "login" },
-]
+import { useEffect, useState } from 'react'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 export default function Footer() {
+  const router = useRouter()
+  const [perfil, setPerfil] = useState<string | null>(null)
+
+  useEffect(() => {
+    const fetchPerfil = async () => {
+      const session = await AsyncStorage.getItem('session_user')
+      if (session) {
+        const user = JSON.parse(session)
+        setPerfil(user.role)
+      }
+    }
+    fetchPerfil()
+  }, [])
+
+  const handleConfirmar = (rota: string) => {
+    router.replace(`/${rota}`)
+  }
+
+  const tabsBase = [
+    { nome: 'Início', icone: 'home', ativo: false, rota: 'modalidades' },
+    { nome: 'Torneios', icone: 'sports', ativo: true, rota: 'torneios' },
+    { nome: 'Resultados', icone: 'leaderboard', ativo: false, rota: 'modalidades' },
+    { nome: 'Logout', icone: 'settings', ativo: false, rota: 'login' },
+  ]
+
+  const tabs = perfil === 'ADMIN'
+    ? [...tabsBase, { nome: 'Administração', icone: 'admin-panel-settings', ativo: false, rota: 'admin' }]
+    : tabsBase
+
   return (
     <XStack
       bg="$color1"
@@ -18,16 +42,16 @@ export default function Footer() {
       borderTopWidth={1}
       borderColor="$color4"
     >
-      {bottomTabs.map((tab) => (
+      {tabs.map((tab) => (
         <View key={tab.nome} f={1} ai="stretch">
           <Button
             size="$3"
             circular={false}
-            onPress={() => {handleConfirmar(tab.rota)}}
+            onPress={() => handleConfirmar(tab.rota)}
             fd="column"
             ai="center"
             jc="center"
-            h={'$6'}
+            h="$6"
           >
             <MaterialIcons
               name={tab.icone as any}
@@ -42,9 +66,4 @@ export default function Footer() {
       ))}
     </XStack>
   )
-}
-
-const handleConfirmar = async (rota:string) => {
-    const router = useRouter()
-    router.replace(`/${rota}`)
 }

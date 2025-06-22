@@ -52,7 +52,7 @@ export default function LoginScreen() {
       }
 
       const data = await response.json()
-      await AsyncStorage.setItem('session_user', JSON.stringify(data.token))
+      await AsyncStorage.setItem('session_user', JSON.stringify(data))
 
       const modalidade = await getFavoriteModality()
       if (modalidade) {

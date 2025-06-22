@@ -27,10 +27,10 @@ export default function HomeEquipe() {
     const fetchJogos = async (options: RequestInit = {}) => {
       try {
         setLoading(true)
-        const token = await AsyncStorage.getItem('session_user')
+        const user = await AsyncStorage.getItem('session_user')
         const headers = {
           ...(options.headers || {}),
-          Authorization: `Bearer ${JSON.parse(token)}`,
+          Authorization: `Bearer ${JSON.parse(user).token}`,
           'Content-Type': 'application/json',
         }
 
