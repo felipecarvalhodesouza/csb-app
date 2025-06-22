@@ -1,7 +1,7 @@
 import { useRouter, useLocalSearchParams } from 'expo-router'
 import { useEffect, useState } from 'react'
 import { ScrollView, Text } from 'react-native';
-import { Torneio } from './domain/torneio';
+import Torneio from './domain/torneio';
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
 export default function TorneiosScreen() {
