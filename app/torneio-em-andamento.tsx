@@ -10,7 +10,7 @@ export default function TorneiosScreen() {
   const id = params.id;
   const [torneioEmAndamento, setTorneioEmAndamento] = useState<Torneio | null>(null);
   const [torneios, setTorneios] = useState<Torneio[]>([]);
-  
+
   useEffect(() => {
     const fetchTorneios = async (options:RequestInit = {}) => {
       try {
@@ -40,7 +40,7 @@ export default function TorneiosScreen() {
 
   useEffect(() => {
     if (torneioEmAndamento) {
-      router.replace(`/selecionar-equipe?torneio=${torneioEmAndamento}`)
+      router.replace(`/selecionar-equipe?torneio=${torneioEmAndamento.id}`)
     }
   }, [torneioEmAndamento])
 
@@ -51,8 +51,8 @@ export default function TorneiosScreen() {
   return (
     <ScrollView contentContainerStyle={{ padding: 16 }}>
       {torneios.map((torneio) => (
-        <Text key={torneio} style={{ marginBottom: 8 }}>
-          {torneio}
+        <Text key={torneio.id} style={{ marginBottom: 8 }}>
+          {torneio.nome}
         </Text>
       ))}
     </ScrollView>
