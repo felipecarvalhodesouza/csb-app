@@ -6,8 +6,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { getFavoriteModality } from '../utils/preferences'
 
 export default function LoginScreen() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [email, setEmail] = useState('felipe_iverson@hotmail.com')
+  const [password, setPassword] = useState('12345678')
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [emailError, setEmailError] = useState<string | null>(null)
 
@@ -78,7 +78,7 @@ export default function LoginScreen() {
         />
 
         {/* Título */}
-        <Text fontSize={20} fontWeight="700" mb="$4">SportSync</Text>
+        <Text fontSize={20} fontWeight="700" mb="$4">CSB</Text>
 
         {/* Inputs */}
         <YStack w="100%" space="$3">

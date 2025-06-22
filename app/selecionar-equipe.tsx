@@ -28,16 +28,21 @@ export default function SelecionarEquipe() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const fetchEquipes = async (options:RequestInit = {}) => {
+    const checkFavoriteAndFetch = async () => {
+      const fav = await AsyncStorage.getItem('equipe_favorita')
+      if (fav) {
+        const equipe = JSON.parse(fav)
+        router.replace(`/equipe?eq=${equipe.id}`)
+        return
+      }
+      // Fetch teams if no favorite
       try {
-          const token = await AsyncStorage.getItem('session_user');
-          const headers = {
-          ...(options.headers || {}),
+        const token = await AsyncStorage.getItem('session_user');
+        const headers = {
           'Authorization': `Bearer ${JSON.parse(token)}`,
           'Content-Type': 'application/json',
         };
-
-        const response = await fetch(`http://localhost:8080/torneios/${torneio}/equipes`, {...options, headers})
+        const response = await fetch(`http://localhost:8080/torneios/${torneio}/equipes`, { headers })
         const data = await response.json() as Equipe[];
         setEquipes(data)
       } catch (e) {
@@ -46,7 +51,7 @@ export default function SelecionarEquipe() {
         setLoading(false)
       }
     }
-    fetchEquipes()
+    checkFavoriteAndFetch()
   }, [torneio])
 
   const handleConfirmar = async () => {

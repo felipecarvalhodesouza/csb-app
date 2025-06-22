@@ -4,9 +4,9 @@ import { useRouter } from 'expo-router'
 
 const bottomTabs = [
   { nome: 'Início', icone: 'home', ativo: false, rota: "modalidades" },
-  { nome: 'Modalidades', icone: 'sports', ativo: true, rota: "index" },
-  { nome: 'Resultados', icone: 'leaderboard', ativo: false, rota: "index" },
-  { nome: 'Ajustes', icone: 'settings', ativo: false, rota: "login" },
+  { nome: 'Torneios', icone: 'sports', ativo: true, rota: "torneios" },
+  { nome: 'Resultados', icone: 'leaderboard', ativo: false, rota: "modalidades" },
+  { nome: 'Logout', icone: 'settings', ativo: false, rota: "login" },
 ]
 
 export default function Footer() {

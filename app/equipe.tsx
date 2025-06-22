@@ -7,72 +7,102 @@ import {
   Theme,
   useTheme,
   ScrollView,
+  Spinner,
 } from 'tamagui'
 import { useRouter } from 'expo-router'
 import Footer from './footer'
 import Header from './header'
-
-const mockDados = {
-  nome: 'Chicago Bulls',
-  categorias: [
-    {
-      nome: 'Sub 17',
-      jogos: [
-        {
-          id: '1',
-          status: 'live', // 'live', 'final', 'future'
-          adversario: 'Dallas Mavericks',
-          adversarioLogo: 'https://via.placeholder.com/40x40?text=P',
-          equipePontuacao: 28,
-          adversarioPontuacao: 21,
-          transmissao: ['League Pass', 'Prime Video'],
-        },
-        {
-          id: '2',
-          status: 'future',
-          horario: '22:30',
-          adversario: 'OKC',
-          adversarioLogo: 'https://via.placeholder.com/40x40?text=T',
-          transmissao: ['League Pass', 'ESPN'],
-        },
-        {
-          id: '3',
-          status: 'final',
-          resultado: '94 - 93',
-          adversario: 'Internacional de Regatas',
-          adversarioLogo: 'https://via.placeholder.com/40x40?text=L',
-        },
-      ],
-    },
-    {
-      nome: 'Open',
-      jogos: [
-        {
-          id: '4',
-          status: 'final',
-          resultado: '85 - 80',
-          adversario: 'Boston Celtics',
-          adversarioLogo: 'https://via.placeholder.com/40x40?text=D',
-        },
-      ],
-    },
-  ],
-}
+import { useEffect, useState } from 'react'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import Jogo from './domain/jogo'
 
 export default function HomeEquipe() {
   const { id } = useLocalSearchParams()
   const theme = useTheme()
-  const equipe = mockDados // substituir futuramente com fetch por id
+  const [jogos, setJogos] = useState<Jogo[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const jogosAoVivo = equipe.categorias.flatMap((cat) =>
-    cat.jogos.filter((j) => j.status === 'live').map((j) => ({ ...j, categoria: cat.nome }))
+  useEffect(() => {
+    const fetchJogos = async (options: RequestInit = {}) => {
+      try {
+        setLoading(true)
+        const token = await AsyncStorage.getItem('session_user')
+        const headers = {
+          ...(options.headers || {}),
+          Authorization: `Bearer ${JSON.parse(token)}`,
+          'Content-Type': 'application/json',
+        }
+
+        const response = await fetch(
+          `http://localhost:8080/torneios/1/equipes/1/jogos`,
+          { ...options, headers }
+        )
+
+        if (!response.ok) {
+          const errorData = await response.json()
+          throw new Error(
+            errorData.message || 'Erro desconhecido ao buscar os jogos.'
+          )
+        }
+
+        const data = (await response.json()) as Jogo[]
+        setJogos(data)
+      } catch (error) {
+        console.error('Error fetching jogos:', error)
+        setError((error as Error).message)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchJogos()
+  }, [])
+
+  function agruparPorCategoria(jogos: Jogo[]) {
+    const agrupado: { [categoriaNome: string]: Jogo[] } = {}
+
+    jogos.forEach((jogo) => {
+      const nomeCategoria = jogo.categoria?.nome || 'Sem Categoria'
+      if (!agrupado[nomeCategoria]) {
+        agrupado[nomeCategoria] = []
+      }
+      agrupado[nomeCategoria].push(jogo)
+    })
+
+    return agrupado
+  }
+
+  const jogosAoVivo = jogos.filter((jogo) => jogo.transmissao?.toLowerCase() === 'live')
+  const jogosPorCategoria = agruparPorCategoria(
+    jogos.filter((jogo) => jogo.transmissao?.toLowerCase() !== 'live')
   )
+
+  if (loading) {
+    return (
+      <YStack f={1} jc="center" ai="center">
+        <Spinner size="large" />
+      </YStack>
+    )
+  }
+
+  if (error) {
+    return (
+      <YStack f={1} jc="center" ai="center">
+        <Text color="$red10">{error}</Text>
+      </YStack>
+    )
+  }
 
   return (
     <Theme name={theme}>
-      <YStack f={1} bg="$background" jc="space-between" pb={"$9"} pt={"$6"}>
-        <Header title={equipe.nome} />
-        <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32 }} space="$4">
+      <YStack f={1} bg="$background" jc="space-between" pb="$9" pt="$6">
+        <Header title="Calendário de Jogos" />
+
+        <ScrollView
+          contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32 }}
+          space="$4"
+        >
           {/* Ao Vivo */}
           {jogosAoVivo.length > 0 && (
             <YStack mb="$4" space>
@@ -84,57 +114,55 @@ export default function HomeEquipe() {
               ))}
             </YStack>
           )}
-          
 
-          {/* Restante por categoria */}
-          {equipe.categorias.map((cat) => {
-            const jogos = cat.jogos.filter((j) => j.status !== 'live')
-            if (jogos.length === 0) return null
+          {/* Demais jogos agrupados por categoria */}
+          {Object.entries(jogosPorCategoria).map(([categoriaNome, jogosCategoria]) => (
+            <YStack key={categoriaNome} space="$2" mt="$3">
+              <Text fontWeight="600" fontSize={16} color="$gray10">
+                {categoriaNome}
+              </Text>
+              {jogosCategoria.map((jogo) => (
+                <GameCard key={jogo.id} jogo={jogo} />
+              ))}
+            </YStack>
+          ))}
+        </ScrollView>
 
-            return (
-              <YStack key={cat.nome} space="$2" mt="$3">
-                <Text fontWeight="600" fontSize={16} color="$gray10">
-                  {cat.nome}
-                </Text>
-                {jogos.map((jogo) => (
-                  <GameCard key={jogo.id} jogo={jogo} />
-                ))}
-              </YStack>
-            )
-          })}
-          </ScrollView>
-        <Footer/>
+        <Footer />
       </YStack>
     </Theme>
   )
 }
 
-function GameCard({ jogo, destaque }: { jogo: any; destaque?: boolean }) {
+function GameCard({ jogo, destaque }: { jogo: Jogo; destaque?: boolean }) {
   const bg = destaque ? '$gray5Dark' : '$gray3'
   const router = useRouter()
 
   const handlePress = () => {
-    router.push(`/jogo?id=${jogo.id}`)  // Redireciona para a tela de detalhes com o ID do jogo
+    router.push(`/jogo?id=${jogo.id}`)
   }
 
   return (
-    <YStack bg={bg} br="$3" p="$3" space="$2" onPress={handlePress}>
-      <Text fontSize={12} fontWeight="600">
-        {jogo.categoria ? `Categoria ${jogo.categoria}` : 'Jogo'}
-      </Text>
+    <YStack bg={bg} br="$3" p="$3" space="$2" onPress={handlePress} m="$2">
 
       <XStack jc="space-between" ai="center">
         <XStack ai="center" space="$2">
-          <Image source={{ uri: 'https://via.placeholder.com/40x40?text=L' }} width={40} height={40} />
-          <Text fontWeight="600">Chicago Bulls</Text>
+          <Image
+              source={
+              jogo.mandante.imagemPath
+                ? { uri: jogo.mandante.imagemPath }
+                : require('../assets/team.png')
+              }
+            width={40}
+            height={40}
+          />
+          <Text fontWeight="600">{jogo.mandante.nome}</Text>
         </XStack>
 
-        <Text fontSize={20} fontWeight="700">
-          {jogo.status === 'live'
-            ? jogo.equipePontuacao + ' - ' + jogo.adversarioPontuacao
-            : jogo.status === 'final'
-            ? jogo.resultado
-            : jogo.horario}
+        <Text fontSize={20} fontWeight="200">
+          {jogo.transmissao?.toLowerCase() === 'live'
+            ? 'AO VIVO'
+            : jogo.data}
         </Text>
 
         <XStack ai="center" space="$2">
@@ -144,21 +172,24 @@ function GameCard({ jogo, destaque }: { jogo: any; destaque?: boolean }) {
             ellipsizeMode="tail"
             maxWidth={100}
           >
-            {jogo.adversario}
+            {jogo.visitante.nome}
           </Text>
-          <Image source={{ uri: jogo.adversarioLogo }} width={40} height={40} />
+          <Image
+              source={
+              jogo.visitante.imagemPath
+                ? { uri: jogo.visitante.imagemPath }
+                : require('../assets/team.png')
+              }
+            width={40}
+            height={40}
+          />
         </XStack>
       </XStack>
 
       {jogo.transmissao && (
-        <XStack ai="center" space="$2">
-          {jogo.transmissao.map((t: string, idx: number) => (
-            <Text key={idx} fontSize={11} color="$gray10">
-              {t}
-              {idx < jogo.transmissao.length - 1 ? ' · ' : ''}
-            </Text>
-          ))}
-        </XStack>
+        <Text fontSize={11} color="$gray10">
+          {jogo.transmissao}
+        </Text>
       )}
     </YStack>
   )

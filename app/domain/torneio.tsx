@@ -1,4 +1,4 @@
-export interface Torneio {
+export default interface Torneio {
   id: number;
   nome: string;
   modalidade: string;
