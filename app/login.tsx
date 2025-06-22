@@ -52,7 +52,7 @@ export default function LoginScreen() {
       }
 
       const data = await response.json()
-      await AsyncStorage.setItem('session_user', JSON.stringify(data.user))
+      await AsyncStorage.setItem('session_user', JSON.stringify(data.token))
 
       const modalidade = await getFavoriteModality()
       if (modalidade) {
@@ -66,7 +66,7 @@ export default function LoginScreen() {
   }
 
   return (
-    <Theme name={theme}>
+    <Theme name={theme.name}>
       <YStack f={1} jc="center" ai="center" p="$4" bg="$background">
         {/* Logo */}
         <Image
