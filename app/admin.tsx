@@ -14,6 +14,7 @@ import Footer from './footer'
 
 const opcoesAdmin = [
   { nome: 'Inclusão de Torneio', icone: 'trophy-outline', rota: '/admin/incluir-torneio', disable: false },
+  { nome: 'Inclusão de Categoria', icone: 'medal', rota: '/admin/incluir-categoria', disable: false },
   { nome: 'Inclusão de Equipe', icone: 'account-group-outline', rota: '/admin/incluir-equipe', disable: false },
   { nome: 'Inclusão de Atleta', icone: 'account-plus-outline', rota: '/admin/incluir-atleta', disable: false },
   { nome: 'Alteração de Permissões', icone: 'shield-account-outline', rota: '/admin/alterar-permissoes', disable: false },
