@@ -27,7 +27,8 @@ export default function Footer() {
   const tabsBase = [
     { nome: 'Início', icone: 'home', rota: 'modalidades', path: '/modalidades' },
     { nome: 'Torneios', icone: 'sports', rota: 'torneios', path: '/torneios' },
-    { nome: 'Resultados', icone: 'leaderboard', rota: 'modalidades', path: '/resultados' }, // Ajuste a rota real depois
+    { nome: 'Equipes', icone: 'groups', rota: 'equipes', path: '/equipes' },
+    { nome: 'Estatísticas', icone: 'leaderboard', rota: 'modalidades', path: '/estatisticas' },
     { nome: 'Logout', icone: 'settings', rota: 'login', path: '/login' },
   ]
 
@@ -36,34 +37,21 @@ export default function Footer() {
     : tabsBase
 
   return (
-    <XStack
-      bg="$color1"
-      jc="space-evenly"
-      ai="center"
-      borderTopWidth={1}
-      borderColor="$color4"
-    >
+    <XStack>
       {tabs.map((tab) => {
         const ativo = pathname.startsWith(tab.path)
         return (
-          <View key={tab.nome} f={1} ai="stretch">
+          <View key={tab.nome} f={1}>
             <Button
-              size="$3"
-              circular={false}
+              size="$6"
               onPress={() => handleConfirmar(tab.rota)}
-              fd="column"
-              ai="center"
-              jc="center"
-              h="$6"
+              backgroundColor={'$color1'}
             >
               <MaterialIcons
                 name={tab.icone as any}
-                size={24}
+                size={32}
                 color={ativo ? 'white' : '#999'}
               />
-              <Text fontSize={8} color={ativo ? 'white' : '#999'}>
-                {tab.nome}
-              </Text>
             </Button>
           </View>
         )

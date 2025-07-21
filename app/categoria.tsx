@@ -44,8 +44,14 @@ export default function CategoriaJogosScreen() {
           throw new Error('Erro ao buscar os jogos.')
         }
 
-        const data = (await response.json()) as Jogo[]
+        const text = await response.text()
+
+        if (text) {
+        const data = JSON.parse(text) as Jogo[]
         setJogos(data)
+        } else {
+        setJogos([]) // ou algum fallback
+        }
       } catch (err: any) {
         setError(err.message || 'Erro desconhecido.')
       } finally {
@@ -106,7 +112,7 @@ export default function CategoriaJogosScreen() {
           ) : (
             <YStack jc="center" ai="center" mt="$6">
               <Text fontSize="$4" color="$gray10">
-                Esse torneio não possui nenhuma categoria cadastrada.
+                Categoria sem jogos vinculados.
               </Text>
             </YStack>
           )}
