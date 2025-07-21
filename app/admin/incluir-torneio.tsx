@@ -55,8 +55,11 @@ const handleCloseDialog = () => {
       })
 
       if (response.ok) {
-        alert('Torneio criado com sucesso!')
+        setErrorMessage('Torneio criado com sucesso.')
+        setShowErrorDialog(true)
+        setTimeout(() => {
         router.replace('/admin')
+      }, 2000)
       } else {
         const responseError = await response.json();
         setErrorMessage(responseError.message || 'Erro ao criar o torneio.')
@@ -107,7 +110,7 @@ const handleCloseDialog = () => {
                 {modalidades
                   .filter((m) => !m.disable)
                   .map((m) => (
-                    <Picker.Item key={m.id} label={m.nome} value={m.id} />
+                    <Picker.Item key={m.id} label={m.nome} value={m.label} />
                   ))}
               </Picker>
             </YStack>

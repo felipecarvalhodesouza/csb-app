@@ -24,7 +24,7 @@ export default function ModalidadesScreen() {
     if (disable) {
       return
     }
-    await setFavoriteModality(mod.toLowerCase())
+    await setFavoriteModality("" + id);
     router.replace(`torneio-em-andamento?id=${id}`)
   }
 

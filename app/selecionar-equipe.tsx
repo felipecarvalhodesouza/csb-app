@@ -37,9 +37,9 @@ export default function SelecionarEquipe() {
       }
       // Fetch teams if no favorite
       try {
-        const token = await AsyncStorage.getItem('session_user');
+        const user = await AsyncStorage.getItem('session_user');
         const headers = {
-          'Authorization': `Bearer ${JSON.parse(token)}`,
+          'Authorization': `Bearer ${JSON.parse(user).token}`,
           'Content-Type': 'application/json',
         };
         const response = await fetch(`http://localhost:8080/torneios/${torneio}/equipes`, { headers })

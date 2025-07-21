@@ -16,7 +16,7 @@ const opcoesAdmin = [
   { nome: 'Inclusão de Torneio', icone: 'trophy-outline', rota: '/admin/incluir-torneio', disable: false },
   { nome: 'Inclusão de Categoria', icone: 'medal', rota: '/admin/incluir-categoria', disable: false },
   { nome: 'Inclusão de Equipe', icone: 'account-group-outline', rota: '/admin/incluir-equipe', disable: false },
-  { nome: 'Vincular Equipe no Torneio', icone: 'account-group-outline', rota: '/admin/vincular-equipe', disable: true },
+  { nome: 'Vincular Equipe no Torneio', icone: 'account-group-outline', rota: '/admin/vincular-equipe', disable: false },
   { nome: 'Inclusão de Atleta', icone: 'account-plus-outline', rota: '/admin/incluir-atleta', disable: false },
   { nome: 'Transferir Atleta', icone: 'account-plus-outline', rota: '/admin/transferir-atleta', disable: true },
   { nome: 'Alteração de Permissões', icone: 'shield-account-outline', rota: '/admin/alterar-permissoes', disable: false },
