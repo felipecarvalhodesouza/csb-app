@@ -31,7 +31,7 @@ export default function TorneiosScreen() {
 
       const modality = await getFavoriteModality();
 
-      const response = await fetch(`http://localhost:8080/torneios/modalidade/${modality}`, { headers })
+      const response = await fetch(`http://192.168.1.11:8080/torneios/modalidade/${modality}`, { headers })
       const data = await response.json()
       setTorneios(data)
     } catch (error) {
@@ -50,7 +50,7 @@ export default function TorneiosScreen() {
   return (
     <Theme name={theme.name}>
       <YStack f={1} bg="$background" jc="space-between" pb="$9" pt="$6">
-        <Header title="Selecione o Torneio" />
+        <Header title="Campeonato Santista" subtitle='Basquete' />
 
         <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32 }} space="$4">
           {torneios.map((torneio) => {

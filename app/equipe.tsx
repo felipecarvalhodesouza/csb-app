@@ -15,6 +15,7 @@ import Header from './header'
 import { useEffect, useState } from 'react'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import Jogo from './domain/jogo'
+import GameCard from './componente/game-card'
 
 export default function HomeEquipe() {
   const { id } = useLocalSearchParams()
@@ -22,6 +23,8 @@ export default function HomeEquipe() {
   const [jogos, setJogos] = useState<Jogo[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const router = useRouter()
+  
 
   useEffect(() => {
     const fetchJogos = async (options: RequestInit = {}) => {
@@ -35,7 +38,7 @@ export default function HomeEquipe() {
         }
 
         const response = await fetch(
-          `http://localhost:8080/torneios/1/equipes/1/jogos`,
+          `http://192.168.1.11:8080/torneios/1/equipes/1/jogos`,
           { ...options, headers }
         )
 
@@ -97,7 +100,7 @@ export default function HomeEquipe() {
   return (
     <Theme name={theme}>
       <YStack f={1} bg="$background" jc="space-between" pb="$9" pt="$6">
-        <Header title="Calendário de Jogos" />
+        <Header title="Trovões Azuais" subtitle="Calendário de Jogos" />
 
         <ScrollView
           contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32 }}
@@ -110,7 +113,7 @@ export default function HomeEquipe() {
                 AO VIVO
               </Text>
               {jogosAoVivo.map((jogo) => (
-                <GameCard key={jogo.id} jogo={jogo} destaque />
+                <GameCard key={jogo.id} jogo={jogo} onPress={() =>  router.push(`/jogo?id=${jogo.id}`)} />
               ))}
             </YStack>
           )}
@@ -122,7 +125,7 @@ export default function HomeEquipe() {
                 {categoriaNome}
               </Text>
               {jogosCategoria.map((jogo) => (
-                <GameCard key={jogo.id} jogo={jogo} />
+                <GameCard key={jogo.id} jogo={jogo} onPress={() =>  router.push(`/jogo?id=${jogo.id}`)} />
               ))}
             </YStack>
           ))}
@@ -131,66 +134,5 @@ export default function HomeEquipe() {
         <Footer />
       </YStack>
     </Theme>
-  )
-}
-
-function GameCard({ jogo, destaque }: { jogo: Jogo; destaque?: boolean }) {
-  const bg = destaque ? '$gray5Dark' : '$gray3'
-  const router = useRouter()
-
-  const handlePress = () => {
-    router.push(`/jogo?id=${jogo.id}`)
-  }
-
-  return (
-    <YStack bg={bg} br="$3" p="$3" space="$2" onPress={handlePress} m="$2">
-
-      <XStack jc="space-between" ai="center">
-        <XStack ai="center" space="$2">
-          <Image
-              source={
-              jogo.mandante.imagemPath
-                ? { uri: jogo.mandante.imagemPath }
-                : require('../assets/team.png')
-              }
-            width={40}
-            height={40}
-          />
-          <Text fontWeight="600">{jogo.mandante.nome}</Text>
-        </XStack>
-
-        <Text fontSize={20} fontWeight="200">
-          {jogo.transmissao?.toLowerCase() === 'live'
-            ? 'AO VIVO'
-            : jogo.data}
-        </Text>
-
-        <XStack ai="center" space="$2">
-          <Text
-            fontWeight="600"
-            numberOfLines={1}
-            ellipsizeMode="tail"
-            maxWidth={100}
-          >
-            {jogo.visitante.nome}
-          </Text>
-          <Image
-              source={
-              jogo.visitante.imagemPath
-                ? { uri: jogo.visitante.imagemPath }
-                : require('../assets/team.png')
-              }
-            width={40}
-            height={40}
-          />
-        </XStack>
-      </XStack>
-
-      {jogo.transmissao && (
-        <Text fontSize={11} color="$gray10">
-          {jogo.transmissao}
-        </Text>
-      )}
-    </YStack>
   )
 }

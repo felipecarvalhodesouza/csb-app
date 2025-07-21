@@ -42,7 +42,7 @@ export default function SelecionarEquipe() {
           'Authorization': `Bearer ${JSON.parse(user).token}`,
           'Content-Type': 'application/json',
         };
-        const response = await fetch(`http://localhost:8080/torneios/${torneio}/equipes`, { headers })
+        const response = await fetch(`http://192.168.1.11:8080/torneios/${torneio}/equipes`, { headers })
         const data = await response.json() as Equipe[];
         setEquipes(data)
       } catch (e) {

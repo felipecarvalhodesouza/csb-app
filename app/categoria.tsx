@@ -36,7 +36,7 @@ export default function CategoriaJogosScreen() {
         }
 
         const response = await fetch(
-          `http://localhost:8080/torneios/${torneioId}/categorias/${categoriaId}/jogos`,
+          `http://192.168.1.11:8080/torneios/${torneioId}/categorias/${categoriaId}/jogos`,
           { headers }
         )
 
@@ -86,7 +86,7 @@ export default function CategoriaJogosScreen() {
   return (
     <Theme name={theme.name}>
       <YStack f={1} bg="$background" jc="space-between" pb="$9" pt="$6">
-        <Header title="Jogos da Categoria" />
+        <Header title="Adulto" subtitle='Torneio da Marinha' />
 
         <ScrollView
           contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32 }}

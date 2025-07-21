@@ -47,7 +47,7 @@ const handleCloseDialog = () => {
         'Content-Type': 'application/json',
       }
 
-      const response = await fetch('http://localhost:8080/torneios', {
+      const response = await fetch('http://192.168.1.11:8080/torneios', {
         ...options,
         method: 'POST',
         headers,

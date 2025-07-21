@@ -31,7 +31,7 @@ export default function ModalidadesScreen() {
   return (
     <Theme name={theme.name}>
       <YStack f={1} bg="$background" jc="space-between" pb={"$9"} pt={"$6"}>
-      <Header title="Selecione a Modalidade" />
+      <Header title="Campeonato Santista" />
 
         {/* Modalidades */}
         <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32 }} space="$4">

@@ -9,4 +9,6 @@ export default interface Jogo {
     visitante: Equipe;
     eventos: any[];
     transmissao: string;
+    pontuacaoMandante: number;
+    pontuacaoVisitante: number;
 }

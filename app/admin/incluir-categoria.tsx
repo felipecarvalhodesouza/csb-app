@@ -48,7 +48,7 @@ export default function IncluirCategoriaScreen() {
         'Content-Type': 'application/json',
       }
 
-      const response = await fetch(`http://localhost:8080/torneios/modalidade/${modalidadeId}`, { headers })
+      const response = await fetch(`http://192.168.1.11:8080/torneios/modalidade/${modalidadeId}`, { headers })
       const torneios = await response.json()
       setTorneios(torneios)
     } catch (error) {
@@ -75,7 +75,7 @@ export default function IncluirCategoriaScreen() {
         console.log(nomeCategoria)
         console.log(torneioSelecionado)
 
-        const response = await fetch(`http://localhost:8080/torneios/${novaCategoria.torneio.id}/categorias`, {
+        const response = await fetch(`http://192.168.1.11:8080/torneios/${novaCategoria.torneio.id}/categorias`, {
           method: 'POST',
           headers,
           body: JSON.stringify(novaCategoria),

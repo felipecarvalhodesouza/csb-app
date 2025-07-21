@@ -12,31 +12,34 @@ import {
 } from 'tamagui'
 import Footer from './footer'
 import Header from './header'
-import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { MaterialIcons } from '@expo/vector-icons'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
-export default function CategoriasScreen() {
+export default function SelecaoEquipesScreen() {
   const theme = useTheme()
   const router = useRouter()
-  const { torneio } = useLocalSearchParams<{ torneio: string }>()
-  
-  const [categorias, setCategorias] = useState<any[]>([])
+  const { torneioId, categoriaId } = useLocalSearchParams<{ torneioId: string; categoriaId: string }>()
+
+  const [equipes, setEquipes] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const loadCategorias = async () => {
+    const fetchEquipes = async () => {
       try {
         const user = await AsyncStorage.getItem('session_user')
         const headers = {
-          'Authorization': `Bearer ${JSON.parse(user).token}`,
+          Authorization: `Bearer ${JSON.parse(user).token}`,
           'Content-Type': 'application/json',
         }
 
-        const response = await fetch(`http://192.168.1.11:8080/torneios/${torneio}/categorias`, { headers })
-        if (!response.ok) throw new Error('Erro ao carregar categorias.')
+        const response = await fetch(`http://192.168.1.11:8080/torneios/${torneioId}/categorias/${categoriaId}/equipes`, {
+          headers,
+        })
+
+        if (!response.ok) throw new Error('Erro ao carregar equipes.')
 
         const data = await response.json()
-        setCategorias(data)
+        setEquipes(data)
       } catch (error) {
         console.error(error)
       } finally {
@@ -44,38 +47,38 @@ export default function CategoriasScreen() {
       }
     }
 
-    if (torneio) loadCategorias()
-  }, [torneio])
+    if (torneioId && categoriaId) fetchEquipes()
+  }, [torneioId, categoriaId])
 
-  const handleSelecionarCategoria = (torneioId: number, categoriaId: number) => {
-    router.push(`/categoria?torneioId=${torneioId}&categoriaId=${categoriaId}`)
+  const handleSelecionarEquipe = (equipeId: number) => {
+    router.push(`/equipe?id=${equipeId}`)
   }
 
   return (
     <Theme name={theme.name}>
       <YStack f={1} bg="$background" jc="space-between" pt="$6" pb="$9">
-        <Header title="Torneio da Marinha" subtitle='Basquete'/>
+        <Header title="Selecione a Equipe" />
 
         {loading ? (
           <YStack f={1} jc="center" ai="center">
             <Spinner size="large" color="$blue10" />
           </YStack>
-        ) : categorias.length === 0 ? (
+        ) : equipes.length === 0 ? (
           <YStack f={1} jc="center" ai="center" px="$4">
             <Text fontSize={16} color="$gray10" textAlign="center">
-              Esse torneio não possui nenhuma categoria cadastrada
+              Nenhuma equipe cadastrada nessa categoria
             </Text>
           </YStack>
         ) : (
           <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32 }} space="$4">
-            {categorias.map((categoria) => (
+            {equipes.map((equipe) => (
               <XStack
-                key={categoria.id}
+                key={equipe.id}
                 bg="$color2"
                 p="$4"
                 br="$4"
                 ai="center"
-                onPress={() => handleSelecionarCategoria(Number(torneio), categoria.id)}
+                onPress={() => handleSelecionarEquipe(equipe.id)}
                 hoverStyle={{ bg: '$color3' }}
                 pressStyle={{ bg: '$color4' }}
               >
@@ -87,16 +90,16 @@ export default function CategoriasScreen() {
                   ai="center"
                   jc="center"
                 >
-                  <MaterialCommunityIcons name="account-group" size={24} color="white" />
+                  <MaterialIcons name="groups" size={24} color="white" />
                 </View>
 
                 <YStack>
-                  <Text fontSize={16} color="white">{categoria.nome}</Text>
-                  <Text fontSize={12} color="$gray10">{categoria.genero}</Text>
+                  <Text fontSize={16} color="white">{equipe.nome}</Text>
+                  <Text fontSize={12} color="$gray10">#{equipe.sigla}</Text>
                 </YStack>
 
                 <View f={1} />
-                <MaterialCommunityIcons name="chevron-right" size={24} color="#ccc" />
+                <MaterialIcons name="chevron-right" size={24} color="#ccc" />
               </XStack>
             ))}
           </ScrollView>

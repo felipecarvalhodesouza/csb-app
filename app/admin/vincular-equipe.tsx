@@ -43,7 +43,7 @@ export default function VincularEquipeTorneioScreen() {
         'Content-Type': 'application/json',
       }
 
-      const response = await fetch(`http://localhost:8080/torneios/modalidade/${modalidadeId}`, { headers })
+      const response = await fetch(`http://192.168.1.11:8080/torneios/modalidade/${modalidadeId}`, { headers })
       const data = await response.json()
       setTorneios(data)
       setTorneioSelecionado(null)
@@ -68,8 +68,8 @@ export default function VincularEquipeTorneioScreen() {
       }
 
       const [disponiveisRes, vinculadasRes] = await Promise.all([
-        fetch(`http://localhost:8080/modalidade/${modalidade}/equipes`, { headers }),
-        fetch(`http://localhost:8080/torneios/${torneioId}/equipes`, { headers })
+        fetch(`http://192.168.1.11:8080/modalidade/${modalidade}/equipes`, { headers }),
+        fetch(`http://192.168.1.11:8080/torneios/${torneioId}/equipes`, { headers })
       ])
 
       const equipesDisponiveisData = await disponiveisRes.json()
@@ -104,7 +104,7 @@ export default function VincularEquipeTorneioScreen() {
           'Content-Type': 'application/json',
         }
 
-        const response = await fetch(`http://localhost:8080/torneios/${torneioSelecionado}/equipes`, {headers})
+        const response = await fetch(`http://192.168.1.11:8080/torneios/${torneioSelecionado}/equipes`, {headers})
 
         if (response.ok) {
           setErrorMessage('Equipe vinculada com sucesso!')

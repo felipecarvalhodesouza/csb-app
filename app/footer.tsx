@@ -29,7 +29,6 @@ export default function Footer() {
     { nome: 'Torneios', icone: 'sports', rota: 'torneios', path: '/torneios' },
     { nome: 'Equipes', icone: 'groups', rota: 'equipes', path: '/equipes' },
     { nome: 'Estatísticas', icone: 'leaderboard', rota: 'modalidades', path: '/estatisticas' },
-    { nome: 'Logout', icone: 'settings', rota: 'login', path: '/login' },
   ]
 
   const tabs = perfil === 'ADMIN'
@@ -37,19 +36,26 @@ export default function Footer() {
     : tabsBase
 
   return (
-    <XStack>
+    <XStack
+      jc="space-evenly"
+      ai="center"
+    >
       {tabs.map((tab) => {
         const ativo = pathname.startsWith(tab.path)
         return (
-          <View key={tab.nome} f={1}>
+          <View key={tab.nome} f={1} ai="stretch">
             <Button
-              size="$6"
+              size="$3"
               onPress={() => handleConfirmar(tab.rota)}
-              backgroundColor={'$color1'}
+              fd="column"
+              ai="center"
+              jc="center"
+              h="$6"
+              backgroundColor={"$color1"}
             >
               <MaterialIcons
                 name={tab.icone as any}
-                size={32}
+                size={28}
                 color={ativo ? 'white' : '#999'}
               />
             </Button>
