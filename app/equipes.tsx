@@ -14,11 +14,11 @@ import Footer from './footer'
 import Header from './header'
 import { MaterialIcons } from '@expo/vector-icons'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { getFavoriteModality } from '../utils/preferences'
 
 export default function SelecaoEquipesScreen() {
   const theme = useTheme()
   const router = useRouter()
-  const { torneioId, categoriaId } = useLocalSearchParams<{ torneioId: string; categoriaId: string }>()
 
   const [equipes, setEquipes] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -32,7 +32,13 @@ export default function SelecaoEquipesScreen() {
           'Content-Type': 'application/json',
         }
 
-        const response = await fetch(`http://192.168.1.11:8080/torneios/${torneioId}/categorias/${categoriaId}/equipes`, {
+        const modality = await getFavoriteModality()
+        
+        if (!modality) {
+          router.replace('/modalidades')
+        }
+
+        const response = await fetch(`http://192.168.1.11:8080/equipes?codigoModalidade=${modality}`, {
           headers,
         })
 
@@ -47,11 +53,11 @@ export default function SelecaoEquipesScreen() {
       }
     }
 
-    if (torneioId && categoriaId) fetchEquipes()
-  }, [torneioId, categoriaId])
+    fetchEquipes()
+  }, [])
 
   const handleSelecionarEquipe = (equipeId: number) => {
-    router.push(`/equipe?id=${equipeId}`)
+    router.push(`/detalhes-equipe?id=${equipeId}`)
   }
 
   return (
@@ -95,7 +101,6 @@ export default function SelecaoEquipesScreen() {
 
                 <YStack>
                   <Text fontSize={16} color="white">{equipe.nome}</Text>
-                  <Text fontSize={12} color="$gray10">#{equipe.sigla}</Text>
                 </YStack>
 
                 <View f={1} />
