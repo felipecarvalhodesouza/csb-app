@@ -35,7 +35,7 @@ export default function SelecionarEquipe() {
         router.replace(`/equipe?eq=${equipe.id}`)
         return
       }
-      // Fetch teams if no favorite
+
       try {
         const user = await AsyncStorage.getItem('session_user');
         const headers = {

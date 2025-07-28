@@ -56,8 +56,8 @@ export default function SelecaoEquipesScreen() {
     fetchEquipes()
   }, [])
 
-  const handleSelecionarEquipe = (equipeId: number) => {
-    router.push(`/detalhes-equipe?id=${equipeId}`)
+  const handleSelecionarEquipe = (equipeId: number, nomeEquipe: string) => {
+    router.push(`/detalhes-equipe?id=${equipeId}&nome=${nomeEquipe}`)
   }
 
   return (
@@ -84,7 +84,7 @@ export default function SelecaoEquipesScreen() {
                 p="$4"
                 br="$4"
                 ai="center"
-                onPress={() => handleSelecionarEquipe(equipe.id)}
+                onPress={() => handleSelecionarEquipe(equipe.id, equipe.nome)}
                 hoverStyle={{ bg: '$color3' }}
                 pressStyle={{ bg: '$color4' }}
               >

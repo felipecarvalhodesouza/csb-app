@@ -15,6 +15,7 @@ import Header from './header'
 import { useEffect, useState } from 'react'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import Jogo from './domain/jogo'
+import GameCard from './componente/game-card'
 
 export default function CategoriaJogosScreen() {
   const { torneioId, categoriaId } = useLocalSearchParams()
@@ -99,7 +100,7 @@ export default function CategoriaJogosScreen() {
                 AO VIVO
               </Text>
               {jogosAoVivo.map((jogo) => (
-                <GameCard key={jogo.id} jogo={jogo} destaque />
+                <GameCard key={jogo.id} jogo={jogo} onPress={() =>  router.push(`/jogo?id=${jogo.id}`)}/>
               ))}
             </YStack>
           )}
@@ -107,7 +108,7 @@ export default function CategoriaJogosScreen() {
           {/* Demais jogos */}
           {jogosNormais.length > 0 ? (
             jogosNormais.map((jogo) => (
-              <GameCard key={jogo.id} jogo={jogo} />
+              <GameCard key={jogo.id} jogo={jogo} onPress={() =>  router.push(`/jogo?id=${jogo.id}`)}/>
             ))
           ) : (
             <YStack jc="center" ai="center" mt="$6">
@@ -121,65 +122,5 @@ export default function CategoriaJogosScreen() {
         <Footer />
       </YStack>
     </Theme>
-  )
-}
-
-function GameCard({ jogo, destaque }: { jogo: Jogo; destaque?: boolean }) {
-  const bg = destaque ? '$gray5Dark' : '$gray3'
-  const router = useRouter()
-
-  const handlePress = () => {
-    router.push(`/jogo?id=${jogo.id}`)
-  }
-
-  return (
-    <YStack bg={bg} br="$3" p="$3" space="$2" onPress={handlePress} m="$2">
-      <XStack jc="space-between" ai="center">
-        <XStack ai="center" space="$2">
-          <Image
-            source={
-              jogo.mandante.imagemPath
-                ? { uri: jogo.mandante.imagemPath }
-                : require('../assets/team.png')
-            }
-            width={40}
-            height={40}
-          />
-          <Text fontWeight="600">{jogo.mandante.nome}</Text>
-        </XStack>
-
-        <Text fontSize={20} fontWeight="200">
-          {jogo.transmissao?.toLowerCase() === 'live'
-            ? 'AO VIVO'
-            : jogo.data}
-        </Text>
-
-        <XStack ai="center" space="$2">
-          <Text
-            fontWeight="600"
-            numberOfLines={1}
-            ellipsizeMode="tail"
-            maxWidth={100}
-          >
-            {jogo.visitante.nome}
-          </Text>
-          <Image
-            source={
-              jogo.visitante.imagemPath
-                ? { uri: jogo.visitante.imagemPath }
-                : require('../assets/team.png')
-            }
-            width={40}
-            height={40}
-          />
-        </XStack>
-      </XStack>
-
-      {jogo.transmissao && (
-        <Text fontSize={11} color="$gray10">
-          {jogo.transmissao}
-        </Text>
-      )}
-    </YStack>
   )
 }

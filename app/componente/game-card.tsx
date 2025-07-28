@@ -35,7 +35,7 @@ export default function GameCard({ jogo, onPress }: GameCardProps) {
           />
           {hasScore && (
             <Text fontSize={24} fontWeight="800" color="$color">
-              {jogo.pontuacaoMandante || 64}
+              {jogo.pontuacaoMandante || '-'}
             </Text>
           )}
           <Text
@@ -80,7 +80,7 @@ export default function GameCard({ jogo, onPress }: GameCardProps) {
           />
           {hasScore && (
             <Text fontSize={24} fontWeight="800" color="$color">
-              {jogo.pontuacaoVisitante || 89}
+              {jogo.pontuacaoVisitante || '-'}
             </Text>
           )}
           <Text

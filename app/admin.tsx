@@ -19,7 +19,8 @@ const opcoesAdmin = [
   { nome: 'Vincular Equipe no Torneio', icone: 'account-group-outline', rota: '/admin/vincular-equipe', disable: false },
   { nome: 'Inclusão de Atleta', icone: 'account-plus-outline', rota: '/admin/incluir-atleta', disable: false },
   { nome: 'Transferir Atleta', icone: 'account-plus-outline', rota: '/admin/transferir-atleta', disable: true },
-  { nome: 'Alteração de Permissões', icone: 'shield-account-outline', rota: '/admin/alterar-permissoes', disable: false },
+  { nome: 'Inclusão de Jogos', icone: 'account-plus-outline', rota: '/admin/incluir-jogo', disable: false },
+  { nome: 'Alteração de Permissões', icone: 'shield-account-outline', rota: '/admin/alterar-permissoes', disable: true },
 ]
 
 export default function AdminScreen() {
