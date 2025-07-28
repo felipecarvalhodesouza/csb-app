@@ -43,8 +43,8 @@ export default function TorneiosScreen() {
     loadTorneios()
   }, [])
 
-  const handleSelecionar = (torneioId: number) => {
-    router.replace(`/categorias?torneio=${torneioId}`)
+  const handleSelecionar = (torneioId: number, nomeTorneio: string) => {
+    router.replace(`/categorias?torneio=${torneioId}&nomeTorneio=${nomeTorneio}`)
   }
 
   return (
@@ -63,7 +63,7 @@ export default function TorneiosScreen() {
                 p="$4"
                 br="$4"
                 ai="center"
-                onPress={() => handleSelecionar(torneio.id)}
+                onPress={() => handleSelecionar(torneio.id, torneio.nome)}
                 hoverStyle={{ bg: isEmAndamento ? '$color2' : '$color3' }}
                 pressStyle={{ bg: isEmAndamento ? '$color3' : '$color4' }}
               >

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'expo-router'
 import {
-  YStack, Text, Input, Button, Separator, Theme, useTheme
+  YStack, Text, Input, Button, Separator, Theme, useTheme, Label, ScrollView
 } from 'tamagui'
 import { Picker } from '@react-native-picker/picker'
 import Header from '../header'
@@ -32,6 +32,8 @@ export default function IncluirJogoScreen() {
   const [showTimePicker, setShowTimePicker] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [showErrorDialog, setShowErrorDialog] = useState(false)
+  const [erroLink, setErroLink] = useState<string | null>(null)
+  const [youtubeLink, setYoutubeLink] = useState<string>('')
 
   const handleCloseDialog = () => {
     setShowErrorDialog(false)
@@ -112,6 +114,14 @@ export default function IncluirJogoScreen() {
 
   const handleSalvar = async () => {
     try {
+
+      
+      if (!isValidYoutubeUrl(youtubeLink)) {
+        setErrorMessage('Link inválido.')
+        setShowErrorDialog(true)
+        return
+      }
+
       const user = await AsyncStorage.getItem('session_user')
       const headers = {
         'Authorization': `Bearer ${JSON.parse(user).token}`,
@@ -137,7 +147,8 @@ export default function IncluirJogoScreen() {
         mandante: { id: Number(equipeMandante) },
         visitante: { id: Number(equipeVisitante) },
         torneio: { id: Number(torneioSelecionado) },
-        categoria: { id: Number(categoriaSelecionada) }
+        categoria: { id: Number(categoriaSelecionada) },
+        streamUrl: youtubeLink || null,
       }
 
       const response = await fetch('http://192.168.1.11:8080/jogos', {
@@ -172,117 +183,140 @@ export default function IncluirJogoScreen() {
     <Theme name={theme.name}>
       <YStack f={1} bg="$background" pt="$6" pb="$9" jc="space-between">
         <Header title="Incluir Jogo" />
+          <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32 }} space="$4">{
+          <YStack p="$4" space="$4">
+            <YStack space="$1">
+              <Text>Torneio</Text>
+              <Picker
+                selectedValue={torneioSelecionado}
+                onValueChange={(v) => setTorneioSelecionado(v)}
+                enabled={!!modalidade}
+                style={{ height: 40, paddingHorizontal: 8 }}
+              >
+                <Picker.Item label="Selecione um torneio" value={null} />
+                {torneios.map((t) => (
+                  <Picker.Item key={t.id} label={t.nome} value={t.id} />
+                ))}
+              </Picker>
+            </YStack>
 
-          {/* Torneio */}
-          <YStack space="$1">
-            <Text>Torneio</Text>
-            <Picker
-              selectedValue={torneioSelecionado}
-              onValueChange={(v) => setTorneioSelecionado(v)}
-              enabled={!!modalidade}
-              style={{ height: 40, paddingHorizontal: 8 }}
+            <YStack space="$1">
+              <Text>Categoria</Text>
+              <Picker
+                selectedValue={categoriaSelecionada}
+                onValueChange={(v) => setCategoriaSelecionada(v)}
+                enabled={!!torneioSelecionado}
+                style={{ height: 40, paddingHorizontal: 8 }}
+              >
+                <Picker.Item label="Selecione uma categoria" value={null} />
+                {categorias.map((m) => (
+                  <Picker.Item key={m.id} label={m.nome} value={m.id} />
+                ))}
+              </Picker>
+            </YStack>
+
+            {/* Equipes */}
+            <YStack space="$1">
+              <Text>Equipe Mandante</Text>
+              <Picker
+                selectedValue={equipeMandante}
+                onValueChange={(v) => setEquipeMandante(v)}
+                enabled={!!categoriaSelecionada}
+                style={{ height: 40, paddingHorizontal: 8 }}
+              >
+                <Picker.Item label="Selecione uma equipe" value={null} />
+                {equipes.map((e) => (
+                  <Picker.Item key={e.id} label={e.nome} value={e.id} />
+                ))}
+              </Picker>
+            </YStack>
+
+            <YStack space="$1">
+              <Text>Equipe Visitante</Text>
+              <Picker
+                selectedValue={equipeVisitante}
+                onValueChange={(v) => setEquipeVisitante(v)}
+                enabled={!!categoriaSelecionada}
+                style={{ height: 40, paddingHorizontal: 8 }}
+              >
+                <Picker.Item label="Selecione uma equipe" value={null} />
+                {equipes.map((e) => (
+                  <Picker.Item key={e.id} label={e.nome} value={e.id} />
+                ))}
+              </Picker>
+            </YStack>
+
+            {/* Data e Hora */}
+            <YStack space="$1">
+              <Text>Data do Jogo</Text>
+              <Button onPress={() => setShowDatePicker(true)}>{dataJogo ? format(dataJogo, 'dd/MM/yyyy') : 'Selecionar Data'}</Button>
+              <DatePickerModal
+                locale="pt-BR"
+                mode="single"
+                visible={showDatePicker}
+                date={dataJogo || new Date()}
+                onDismiss={() => setShowDatePicker(false)}
+                onConfirm={({ date }) => {
+                  setShowDatePicker(false)
+                  setDataJogo(date)
+                }}
+              />
+            </YStack>
+
+            <YStack space="$1">
+              <Text>Hora do Jogo</Text>
+              <Button onPress={() => setShowTimePicker(true)}>{horaJogo ? format(horaJogo, 'HH:mm') : 'Selecionar Hora'}</Button>
+              <TimePickerModal
+                visible={showTimePicker}
+                onDismiss={() => setShowTimePicker(false)}
+                onConfirm={({ hours, minutes }) => {
+                  setShowTimePicker(false)
+                  setHoraJogo(new Date(0, 0, 0, hours, minutes))
+                }}
+                hours={horaJogo?.getHours() || 12}
+                minutes={horaJogo?.getMinutes() || 0}
+              />
+            </YStack>
+
+            {/* Link do YouTube */}
+            <YStack space="$1">
+              <Label>Link do YouTube (opcional)</Label>
+              <Input
+                placeholder="https://youtube.com/..."
+                value={youtubeLink}
+                onChangeText={setYoutubeLink}
+                autoCapitalize="none"
+                keyboardType="url"
+              />
+              {erroLink && <Text color="red">{erroLink}</Text>}
+            </YStack>
+
+            <Separator my="$3" />
+
+            <Button
+              backgroundColor={!isFormValid ? 'grey' : 'black'}
+              color="white"
+              onPress={handleSalvar}
+              disabled={!isFormValid}
             >
-              <Picker.Item label="Selecione um torneio" value={null} />
-              {torneios.map((t) => (
-                <Picker.Item key={t.id} label={t.nome} value={t.id} />
-              ))}
-            </Picker>
+              Salvar Jogo
+            </Button>
           </YStack>
-
-        <YStack p="$4" space="$4">
-          <YStack space="$1">
-            <Text>Categoria</Text>
-            <Picker
-              selectedValue={categoriaSelecionada}
-              onValueChange={(v) => setCategoriaSelecionada(v)}
-              enabled={!!torneioSelecionado}
-              style={{ height: 40, paddingHorizontal: 8 }}
-            >
-              <Picker.Item label="Selecione uma categoria" value={null} />
-              {categorias.map((m) => (
-                <Picker.Item key={m.id} label={m.nome} value={m.id} />
-              ))}
-            </Picker>
-          </YStack>
-
-          {/* Equipes */}
-          <YStack space="$1">
-            <Text>Equipe Mandante</Text>
-            <Picker
-              selectedValue={equipeMandante}
-              onValueChange={(v) => setEquipeMandante(v)}
-              enabled={!!categoriaSelecionada}
-              style={{ height: 40, paddingHorizontal: 8 }}
-            >
-              <Picker.Item label="Selecione uma equipe" value={null} />
-              {equipes.map((e) => (
-                <Picker.Item key={e.id} label={e.nome} value={e.id} />
-              ))}
-            </Picker>
-          </YStack>
-
-          <YStack space="$1">
-            <Text>Equipe Visitante</Text>
-            <Picker
-              selectedValue={equipeVisitante}
-              onValueChange={(v) => setEquipeVisitante(v)}
-              enabled={!!categoriaSelecionada}
-              style={{ height: 40, paddingHorizontal: 8 }}
-            >
-              <Picker.Item label="Selecione uma equipe" value={null} />
-              {equipes.map((e) => (
-                <Picker.Item key={e.id} label={e.nome} value={e.id} />
-              ))}
-            </Picker>
-          </YStack>
-
-          {/* Data e Hora */}
-          <YStack space="$1">
-            <Text>Data do Jogo</Text>
-            <Button onPress={() => setShowDatePicker(true)}>{dataJogo ? format(dataJogo, 'dd/MM/yyyy') : 'Selecionar Data'}</Button>
-            <DatePickerModal
-              locale="pt-BR"
-              mode="single"
-              visible={showDatePicker}
-              date={dataJogo || new Date()}
-              onDismiss={() => setShowDatePicker(false)}
-              onConfirm={({ date }) => {
-                setShowDatePicker(false)
-                setDataJogo(date)
-              }}
-            />
-          </YStack>
-
-          <YStack space="$1">
-            <Text>Hora do Jogo</Text>
-            <Button onPress={() => setShowTimePicker(true)}>{horaJogo ? format(horaJogo, 'HH:mm') : 'Selecionar Hora'}</Button>
-            <TimePickerModal
-              visible={showTimePicker}
-              onDismiss={() => setShowTimePicker(false)}
-              onConfirm={({ hours, minutes }) => {
-                setShowTimePicker(false)
-                setHoraJogo(new Date(0, 0, 0, hours, minutes))
-              }}
-              hours={horaJogo?.getHours() || 12}
-              minutes={horaJogo?.getMinutes() || 0}
-            />
-          </YStack>
-
-          <Separator my="$3" />
-
-          <Button
-            backgroundColor={!isFormValid ? 'grey' : 'black'}
-            color="white"
-            onPress={handleSalvar}
-            disabled={!isFormValid}
-          >
-            Salvar Jogo
-          </Button>
-        </YStack>
-
-        <Footer />
+        }
+        </ScrollView>
         <DialogError open={showErrorDialog} onClose={handleCloseDialog} message={errorMessage} />
+        <Footer />
       </YStack>
     </Theme>
   )
 }
+
+  function isValidYoutubeUrl(url: string): boolean {
+    if (!url) return true // é opcional
+    try {
+      const parsed = new URL(url)
+      return parsed.hostname.includes('youtube.com') || parsed.hostname.includes('youtu.be')
+    } catch {
+      return false
+    }
+  }

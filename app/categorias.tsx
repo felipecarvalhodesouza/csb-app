@@ -14,12 +14,12 @@ import Footer from './footer'
 import Header from './header'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { getFavoriteModality } from '../utils/preferences'
 
 export default function CategoriasScreen() {
   const theme = useTheme()
   const router = useRouter()
-  const { torneio } = useLocalSearchParams<{ torneio: string }>()
-  
+  const { torneio, nomeTorneio } = useLocalSearchParams<{ torneio: string, nomeTorneio: string }>() 
   const [categorias, setCategorias] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -47,14 +47,14 @@ export default function CategoriasScreen() {
     if (torneio) loadCategorias()
   }, [torneio])
 
-  const handleSelecionarCategoria = (torneioId: number, categoriaId: number) => {
-    router.push(`/categoria?torneioId=${torneioId}&categoriaId=${categoriaId}`)
+  const handleSelecionarCategoria = (torneioId: number, categoriaId: number, nomeCategoria: string) => {
+    router.push(`/categoria?torneioId=${torneioId}&categoriaId=${categoriaId}&nomeCategoria=${nomeCategoria}&nomeTorneio=${nomeTorneio}`)
   }
 
   return (
     <Theme name={theme.name}>
       <YStack f={1} bg="$background" jc="space-between" pt="$6" pb="$9">
-        <Header title="Torneio da Marinha" subtitle='Basquete'/>
+        <Header title={nomeTorneio} subtitle='Basquete'/>
 
         {loading ? (
           <YStack f={1} jc="center" ai="center">
@@ -75,7 +75,7 @@ export default function CategoriasScreen() {
                 p="$4"
                 br="$4"
                 ai="center"
-                onPress={() => handleSelecionarCategoria(Number(torneio), categoria.id)}
+                onPress={() => handleSelecionarCategoria(Number(torneio), categoria.id, categoria.nome)}
                 hoverStyle={{ bg: '$color3' }}
                 pressStyle={{ bg: '$color4' }}
               >

@@ -16,6 +16,9 @@ export default function VincularEquipeTorneioScreen() {
   const [torneios, setTorneios] = useState<any[]>([])
   const [torneioSelecionado, setTorneioSelecionado] = useState<string | null>(null)
 
+  const [categorias, setCategorias] = useState<any[]>([])
+  const [categoriaSelecionada, setCategoriaSelecionada] = useState<string | null>(null)
+
   const [equipesDisponiveis, setEquipesDisponiveis] = useState<any[]>([])
   const [equipeSelecionada, setEquipeSelecionada] = useState<string | null>(null)
 
@@ -52,8 +55,37 @@ export default function VincularEquipeTorneioScreen() {
     }
   }
 
-  const loadEquipes = async (torneioId: string) => {
+  const loadCategorias = async (torneioId: string) => {
     if (!torneioId) {
+      setCategorias([])
+      setCategoriaSelecionada(null)
+      setEquipesDisponiveis([])
+      setEquipesVinculadas([])
+      setEquipeSelecionada(null)
+      return
+    }
+
+    try {
+      const user = await AsyncStorage.getItem('session_user')
+      const headers = {
+        'Authorization': `Bearer ${JSON.parse(user).token}`,
+        'Content-Type': 'application/json',
+      }
+
+      const response = await fetch(`http://192.168.1.11:8080/torneios/${torneioId}/categorias`, { headers })
+      const data = await response.json()
+      setCategorias(data)
+      setCategoriaSelecionada(null)
+      setEquipesDisponiveis([])
+      setEquipesVinculadas([])
+      setEquipeSelecionada(null)
+    } catch (error) {
+      console.error('Erro ao carregar categorias:', error)
+    }
+  }
+
+  const loadEquipes = async (torneioId:string, categoriaId: string) => {
+    if (!categoriaId || !torneioId) {
       setEquipesDisponiveis([])
       setEquipesVinculadas([])
       setEquipeSelecionada(null)
@@ -68,12 +100,24 @@ export default function VincularEquipeTorneioScreen() {
       }
 
       const [disponiveisRes, vinculadasRes] = await Promise.all([
-        fetch(`http://192.168.1.11:8080/modalidade/${modalidade}/equipes`, { headers }),
-        fetch(`http://192.168.1.11:8080/torneios/${torneioId}/equipes`, { headers })
+        fetch(`http://192.168.1.11:8080/equipes?codigoModalidade=${modalidade}`, { headers }),
+        fetch(`http://192.168.1.11:8080/torneios/${torneioId}/equipes`, { headers }) // ainda não está funcionando
       ])
 
-      const equipesDisponiveisData = await disponiveisRes.json()
-      const equipesVinculadasData = await vinculadasRes.json()
+
+      let equipesDisponiveisData: any[] = []
+      let equipesVinculadasData: any[] = []
+
+      if (disponiveisRes.status !== 204) {
+        if (!disponiveisRes.ok) throw new Error('Erro ao buscar equipes disponíveis.')
+        equipesDisponiveisData = await disponiveisRes.json()
+      }
+
+      if (vinculadasRes.status !== 204) {
+        if (!vinculadasRes.ok) throw new Error('Erro ao buscar equipes vinculadas.')
+        equipesVinculadasData = await vinculadasRes.json()
+      }
+
 
       const equipesDisponiveisFiltradas = equipesDisponiveisData.filter((equipeDisponivel: any) =>
         !equipesVinculadasData.some((equipeVinculada: any) => equipeVinculada.id === equipeDisponivel.id)
@@ -92,8 +136,12 @@ export default function VincularEquipeTorneioScreen() {
   }, [modalidade])
 
   useEffect(() => {
-    if (torneioSelecionado) loadEquipes(torneioSelecionado)
+    if (torneioSelecionado) loadCategorias(torneioSelecionado)
   }, [torneioSelecionado])
+
+    useEffect(() => {
+    if (categoriaSelecionada) loadEquipes(torneioSelecionado, categoriaSelecionada)
+  }, [torneioSelecionado, categoriaSelecionada])
 
   const handleVincular = () => {
     const vincularEquipe = async () => {
@@ -172,6 +220,24 @@ export default function VincularEquipeTorneioScreen() {
             </YStack>
           </YStack>
 
+          {/* Categoria */}
+          <YStack space="$1">
+            <Text fontSize={14} color="$gray10">Categoria</Text>
+            <YStack borderRadius="$3" borderWidth={1} borderColor="$color4" bg="$color2" overflow="hidden">
+              <Picker
+                selectedValue={categoriaSelecionada}
+                onValueChange={(itemValue) => setCategoriaSelecionada(itemValue)}
+                style={{ height: 40, paddingHorizontal: 8 }}
+                enabled={torneioSelecionado !== null}
+              >
+                <Picker.Item label="Selecione uma categoria" value={null} />
+                {Array.isArray(categorias) && categorias.map((t) => (
+                  <Picker.Item key={t.id} label={t.nome} value={t.id} />
+                ))}
+              </Picker>
+            </YStack>
+          </YStack>
+
           {/* Equipe Disponível */}
           <YStack space="$1">
             <Text fontSize={14} color="$gray10">Equipe</Text>
@@ -180,7 +246,7 @@ export default function VincularEquipeTorneioScreen() {
                 selectedValue={equipeSelecionada}
                 onValueChange={(itemValue) => setEquipeSelecionada(itemValue)}
                 style={{ height: 40, paddingHorizontal: 8 }}
-                enabled={torneioSelecionado !== null}
+                enabled={categoriaSelecionada !== null}
               >
                 <Picker.Item label="Selecione uma equipe" value={null} />
                 {Array.isArray(equipesDisponiveis) && equipesDisponiveis.map((e) => (

@@ -1,6 +1,6 @@
 import { YStack, XStack, Text, Image, useWindowDimensions } from 'tamagui'
 import Jogo from '../domain/jogo'
-import format from '../utils/date-formatter'
+import format, { formatHour } from '../utils/date-formatter'
 
 export default function GameCard({ jogo, onPress }: GameCardProps) {
   const { width } = useWindowDimensions()
@@ -63,6 +63,15 @@ export default function GameCard({ jogo, onPress }: GameCardProps) {
               : jogo.data
               ? format(jogo.data)
               : 'Data não definida'}
+          </Text>
+          <Text
+            fontSize={16}
+            fontWeight="700"
+            color={'$color'}
+          >
+            { jogo.data
+              ? formatHour(jogo.data)
+              : 'Horário não definido'}
           </Text>
         </YStack>
 

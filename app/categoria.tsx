@@ -18,7 +18,7 @@ import Jogo from './domain/jogo'
 import GameCard from './componente/game-card'
 
 export default function CategoriaJogosScreen() {
-  const { torneioId, categoriaId } = useLocalSearchParams()
+  const { torneioId, categoriaId, nomeCategoria, nomeTorneio } = useLocalSearchParams<{ torneioId:string, categoriaId: string, nomeCategoria:string, nomeTorneio: string}>()
   const theme = useTheme()
   const router = useRouter()
 
@@ -87,7 +87,7 @@ export default function CategoriaJogosScreen() {
   return (
     <Theme name={theme.name}>
       <YStack f={1} bg="$background" jc="space-between" pb="$9" pt="$6">
-        <Header title="Adulto" subtitle='Torneio da Marinha' />
+        <Header title={nomeTorneio} subtitle={nomeCategoria}  />
 
         <ScrollView
           contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32 }}
