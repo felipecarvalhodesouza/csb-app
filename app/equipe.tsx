@@ -38,7 +38,7 @@ export default function HomeEquipe() {
         }
 
         const response = await fetch(
-          `http://192.168.1.11:8080/torneios/1/equipes/1/jogos`,
+          `http://192.168.1.13:8080/torneios/1/equipes/1/jogos`,
           { ...options, headers }
         )
 

@@ -40,7 +40,7 @@ const [loading, setLoading] = useState(true)
 
         const token = JSON.parse(user).token
 
-        const response = await fetch(`http://192.168.1.11:8080/equipes/${id}/atletas`, {
+        const response = await fetch(`http://192.168.1.13:8080/equipes/${id}/atletas`, {
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',

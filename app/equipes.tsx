@@ -38,7 +38,7 @@ export default function SelecaoEquipesScreen() {
           router.replace('/modalidades')
         }
 
-        const response = await fetch(`http://192.168.1.11:8080/equipes?codigoModalidade=${modality}`, {
+        const response = await fetch(`http://192.168.1.13:8080/equipes?codigoModalidade=${modality}`, {
           headers,
         })
 

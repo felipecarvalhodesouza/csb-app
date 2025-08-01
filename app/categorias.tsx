@@ -32,7 +32,7 @@ export default function CategoriasScreen() {
           'Content-Type': 'application/json',
         }
 
-        const response = await fetch(`http://192.168.1.11:8080/torneios/${torneio}/categorias`, { headers })
+        const response = await fetch(`http://192.168.1.13:8080/torneios/${torneio}/categorias`, { headers })
         if (!response.ok) throw new Error('Erro ao carregar categorias.')
 
         const data = await response.json()

@@ -46,7 +46,7 @@ export default function VincularEquipeTorneioScreen() {
         'Content-Type': 'application/json',
       }
 
-      const response = await fetch(`http://192.168.1.11:8080/torneios/modalidade/${modalidadeId}`, { headers })
+      const response = await fetch(`http://192.168.1.13:8080/torneios/modalidade/${modalidadeId}`, { headers })
       const data = await response.json()
       setTorneios(data)
       setTorneioSelecionado(null)
@@ -72,7 +72,7 @@ export default function VincularEquipeTorneioScreen() {
         'Content-Type': 'application/json',
       }
 
-      const response = await fetch(`http://192.168.1.11:8080/torneios/${torneioId}/categorias`, { headers })
+      const response = await fetch(`http://192.168.1.13:8080/torneios/${torneioId}/categorias`, { headers })
       const data = await response.json()
       setCategorias(data)
       setCategoriaSelecionada(null)
@@ -100,8 +100,8 @@ export default function VincularEquipeTorneioScreen() {
       }
 
       const [disponiveisRes, vinculadasRes] = await Promise.all([
-        fetch(`http://192.168.1.11:8080/equipes?codigoModalidade=${modalidade}`, { headers }),
-        fetch(`http://192.168.1.11:8080/torneios/${torneioId}/equipes`, { headers }) // ainda não está funcionando
+        fetch(`http://192.168.1.13:8080/equipes?codigoModalidade=${modalidade}`, { headers }),
+        fetch(`http://192.168.1.13:8080/torneios/${torneioId}/equipes`, { headers }) // ainda não está funcionando
       ])
 
 
@@ -152,7 +152,7 @@ export default function VincularEquipeTorneioScreen() {
           'Content-Type': 'application/json',
         }
 
-        const response = await fetch(`http://192.168.1.11:8080/torneios/${torneioSelecionado}/equipes`, {headers})
+        const response = await fetch(`http://192.168.1.13:8080/torneios/${torneioSelecionado}/equipes`, {headers})
 
         if (response.ok) {
           setErrorMessage('Equipe vinculada com sucesso!')

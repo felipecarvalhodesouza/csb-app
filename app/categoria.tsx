@@ -37,7 +37,7 @@ export default function CategoriaJogosScreen() {
         }
 
         const response = await fetch(
-          `http://192.168.1.11:8080/torneios/${torneioId}/categorias/${categoriaId}/jogos`,
+          `http://192.168.1.13:8080/torneios/${torneioId}/categorias/${categoriaId}/jogos`,
           { headers }
         )
 

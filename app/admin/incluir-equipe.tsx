@@ -46,7 +46,7 @@ export default function IncluirEquipeScreen() {
           'Content-Type': 'application/json',
         }
 
-        const response = await fetch('http://192.168.1.11:8080/equipes', {
+        const response = await fetch('http://192.168.1.13:8080/equipes', {
           method: 'POST',
           headers,
           body: JSON.stringify(novaEquipe),

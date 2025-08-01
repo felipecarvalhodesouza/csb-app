@@ -101,7 +101,7 @@ export default function CadastroScreen() {
     if (hasError) return
 
     try {
-      const response = await fetch('http://192.168.1.11:8080/usuarios/cadastrar', {
+      const response = await fetch('http://192.168.1.13:8080/usuarios/cadastrar', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

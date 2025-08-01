@@ -31,7 +31,7 @@ export default function TorneiosScreen() {
 
       const modality = await getFavoriteModality();
 
-      const response = await fetch(`http://192.168.1.11:8080/torneios/modalidade/${modality}`, { headers })
+      const response = await fetch(`http://192.168.1.13:8080/torneios/modalidade/${modality}`, { headers })
       const data = await response.json()
       setTorneios(data)
     } catch (error) {

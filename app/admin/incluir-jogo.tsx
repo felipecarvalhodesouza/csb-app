@@ -15,15 +15,17 @@ import { getFavoriteModality } from '../../utils/preferences'
 export default function IncluirJogoScreen() {
   const theme = useTheme()
   const router = useRouter()
-  const modalidade = getFavoriteModality();
+  const modalidade = getFavoriteModality()
 
   const [torneios, setTorneios] = useState<any[]>([])
   const [torneioSelecionado, setTorneioSelecionado] = useState<string | null>(null)
   const [categoriaSelecionada, setCategoriaSelecionada] = useState<string | null>(null)
-  const [categorias, setCategorias]  = useState<any[]>([])
+  const [categorias, setCategorias] = useState<any[]>([])
   const [equipes, setEquipes] = useState<any[]>([])
   const [equipeMandante, setEquipeMandante] = useState<string | null>(null)
   const [equipeVisitante, setEquipeVisitante] = useState<string | null>(null)
+  const [locais, setLocais] = useState<any[]>([])
+  const [localSelecionado, setLocalSelecionado] = useState<string | null>(null)
 
   const [dataJogo, setDataJogo] = useState<Date | null>(null)
   const [horaJogo, setHoraJogo] = useState<Date | null>(null)
@@ -48,7 +50,7 @@ export default function IncluirJogoScreen() {
         'Content-Type': 'application/json',
       }
 
-      const response = await fetch(`http://192.168.1.11:8080/torneios/modalidade/${modalidadeId}`, { headers })
+      const response = await fetch(`http://192.168.1.13:8080/torneios/modalidade/${modalidadeId}`, { headers })
       const data = await response.json()
       setTorneios(data)
       setTorneioSelecionado(null)
@@ -68,7 +70,7 @@ export default function IncluirJogoScreen() {
         'Content-Type': 'application/json',
       }
 
-      const response = await fetch(`http://192.168.1.11:8080/torneios/${torneioId}/categorias`, { headers })
+      const response = await fetch(`http://192.168.1.13:8080/torneios/${torneioId}/categorias`, { headers })
       const data = await response.json()
       setCategorias(data)
       setCategoriaSelecionada(null)
@@ -86,7 +88,7 @@ export default function IncluirJogoScreen() {
         'Content-Type': 'application/json',
       }
 
-      const response = await fetch(`http://192.168.1.11:8080/torneios/${torneioId}/equipes`, { headers })
+      const response = await fetch(`http://192.168.1.13:8080/torneios/${torneioId}/equipes`, { headers })
       const data = await response.json()
       setEquipes(data)
     } catch (error) {
@@ -94,28 +96,42 @@ export default function IncluirJogoScreen() {
     }
   }
 
-  useEffect(() => {
+  const loadLocais = async () => {
+    try {
+      const user = await AsyncStorage.getItem('session_user')
+      const headers = {
+        'Authorization': `Bearer ${JSON.parse(user).token}`,
+        'Content-Type': 'application/json',
+      }
 
-    const fetchTorneios = async () => {
-        const modalidadeAwait = await modalidade;
-        loadTorneios(modalidadeAwait)
+      const response = await fetch(`http://192.168.1.13:8080/locais`, { headers })
+      const data = await response.json()
+      setLocais(data)
+    } catch (error) {
+      console.error('Erro ao carregar locais:', error)
+    }
+  }
+
+  useEffect(() => {
+    const fetchTorneiosELocais = async () => {
+      const modalidadeAwait = await modalidade
+      loadTorneios(modalidadeAwait)
+      loadLocais()
     }
 
-    fetchTorneios()
+    fetchTorneiosELocais()
   }, [])
 
   useEffect(() => {
     if (torneioSelecionado) loadCategorias(torneioSelecionado)
   }, [torneioSelecionado])
 
-    useEffect(() => {
+  useEffect(() => {
     if (categoriaSelecionada) loadEquipes(categoriaSelecionada)
   }, [categoriaSelecionada])
 
   const handleSalvar = async () => {
     try {
-
-      
       if (!isValidYoutubeUrl(youtubeLink)) {
         setErrorMessage('Link inválido.')
         setShowErrorDialog(true)
@@ -142,7 +158,7 @@ export default function IncluirJogoScreen() {
         horaJogo.getMinutes()
       )
 
-      const novoJogo = {
+      const novoJogo: any = {
         data,
         mandante: { id: Number(equipeMandante) },
         visitante: { id: Number(equipeVisitante) },
@@ -151,7 +167,11 @@ export default function IncluirJogoScreen() {
         streamUrl: youtubeLink || null,
       }
 
-      const response = await fetch('http://192.168.1.11:8080/jogos', {
+      if (localSelecionado) {
+        novoJogo.local = { id: Number(localSelecionado) }
+      }
+
+      const response = await fetch('http://192.168.1.13:8080/jogos', {
         method: 'POST',
         headers,
         body: JSON.stringify(novoJogo),
@@ -183,7 +203,7 @@ export default function IncluirJogoScreen() {
     <Theme name={theme.name}>
       <YStack f={1} bg="$background" pt="$6" pb="$9" jc="space-between">
         <Header title="Incluir Jogo" />
-          <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32 }} space="$4">{
+        <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32 }} space="$4">
           <YStack p="$4" space="$4">
             <YStack space="$1">
               <Text>Torneio</Text>
@@ -215,7 +235,6 @@ export default function IncluirJogoScreen() {
               </Picker>
             </YStack>
 
-            {/* Equipes */}
             <YStack space="$1">
               <Text>Equipe Mandante</Text>
               <Picker
@@ -246,7 +265,21 @@ export default function IncluirJogoScreen() {
               </Picker>
             </YStack>
 
-            {/* Data e Hora */}
+            <YStack space="$1">
+              <Text>Local (opcional)</Text>
+              <Picker
+                selectedValue={localSelecionado}
+                onValueChange={(v) => setLocalSelecionado(v)}
+                enabled={locais.length > 0}
+                style={{ height: 40, paddingHorizontal: 8 }}
+              >
+                <Picker.Item label="Selecione um local" value={null} />
+                {locais.map((l) => (
+                  <Picker.Item key={l.id} label={l.nome} value={l.id} />
+                ))}
+              </Picker>
+            </YStack>
+
             <YStack space="$1">
               <Text>Data do Jogo</Text>
               <Button onPress={() => setShowDatePicker(true)}>{dataJogo ? format(dataJogo, 'dd/MM/yyyy') : 'Selecionar Data'}</Button>
@@ -278,7 +311,6 @@ export default function IncluirJogoScreen() {
               />
             </YStack>
 
-            {/* Link do YouTube */}
             <YStack space="$1">
               <Label>Link do YouTube (opcional)</Label>
               <Input
@@ -302,7 +334,6 @@ export default function IncluirJogoScreen() {
               Salvar Jogo
             </Button>
           </YStack>
-        }
         </ScrollView>
         <DialogError open={showErrorDialog} onClose={handleCloseDialog} message={errorMessage} />
         <Footer />
@@ -311,12 +342,12 @@ export default function IncluirJogoScreen() {
   )
 }
 
-  function isValidYoutubeUrl(url: string): boolean {
-    if (!url) return true // é opcional
-    try {
-      const parsed = new URL(url)
-      return parsed.hostname.includes('youtube.com') || parsed.hostname.includes('youtu.be')
-    } catch {
-      return false
-    }
+function isValidYoutubeUrl(url: string): boolean {
+  if (!url) return true
+  try {
+    const parsed = new URL(url)
+    return parsed.hostname.includes('youtube.com') || parsed.hostname.includes('youtu.be')
+  } catch {
+    return false
   }
+}

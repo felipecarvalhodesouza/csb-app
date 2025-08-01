@@ -21,7 +21,7 @@ export default function TorneiosScreen() {
           'Content-Type': 'application/json',
         };
 
-        const response = await fetch(`http://192.168.1.11:8080/torneios/modalidade/${id}`, {...options, headers})
+        const response = await fetch(`http://192.168.1.13:8080/torneios/modalidade/${id}`, {...options, headers})
         const data = (await response.json()) as Torneio[];
         const torneioEmAndamento = data.find(torneio => torneio.status === 'EM_ANDAMENTO');
 

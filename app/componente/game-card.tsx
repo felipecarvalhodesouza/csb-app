@@ -51,7 +51,7 @@ export default function GameCard({ jogo, onPress }: GameCardProps) {
         {/* Centro - Informações */}
         <YStack flex={1} ai="center" space="$2">
           <Text fontSize={12} color="$gray10" ta="center">
-            📍 {jogo.local || 'Local não definido'}
+            📍 {jogo.local &&  jogo.local.nome || 'Local não definido'}
           </Text>
           <Text
             fontSize={16}
