@@ -13,7 +13,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import Footer from './footer'
 import Header from './header'
 import { Dimensions } from 'react-native'
-import { Equipe } from './domain/equipe'
+import Equipe from './domain/equipe'
 
 const { width: screenWidth } = Dimensions.get('window')
 const placeholder = require('../assets/team.png')
@@ -32,7 +32,7 @@ export default function SelecionarEquipe() {
       const fav = await AsyncStorage.getItem('equipe_favorita')
       if (fav) {
         const equipe = JSON.parse(fav)
-        router.replace(`/equipe?eq=${equipe.id}`)
+        router.replace(`/equipe?equipeId=${equipe.id}&nomeEquipe=${equipe.nome}`)
         return
       }
 

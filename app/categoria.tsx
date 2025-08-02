@@ -13,9 +13,9 @@ import { useRouter } from 'expo-router'
 import Footer from './footer'
 import Header from './header'
 import { useEffect, useState } from 'react'
-import AsyncStorage from '@react-native-async-storage/async-storage'
 import Jogo from './domain/jogo'
 import GameCard from './componente/game-card'
+import { apiFetch } from './utils/api'
 
 export default function CategoriaJogosScreen() {
   const { torneioId, categoriaId, nomeCategoria, nomeTorneio } = useLocalSearchParams<{ torneioId:string, categoriaId: string, nomeCategoria:string, nomeTorneio: string}>()
@@ -30,29 +30,8 @@ export default function CategoriaJogosScreen() {
     const fetchJogos = async () => {
       try {
         setLoading(true)
-        const user = await AsyncStorage.getItem('session_user')
-        const headers = {
-          Authorization: `Bearer ${JSON.parse(user).token}`,
-          'Content-Type': 'application/json',
-        }
-
-        const response = await fetch(
-          `http://192.168.1.13:8080/torneios/${torneioId}/categorias/${categoriaId}/jogos`,
-          { headers }
-        )
-
-        if (!response.ok) {
-          throw new Error('Erro ao buscar os jogos.')
-        }
-
-        const text = await response.text()
-
-        if (text) {
-        const data = JSON.parse(text) as Jogo[]
+        const data = await apiFetch<Jogo[]>(`http://192.168.1.13:8080/torneios/${torneioId}/categorias/${categoriaId}/jogos`)
         setJogos(data)
-        } else {
-        setJogos([]) // ou algum fallback
-        }
       } catch (err: any) {
         setError(err.message || 'Erro desconhecido.')
       } finally {

@@ -1,9 +1,7 @@
 import { useLocalSearchParams } from 'expo-router'
 import {
   YStack,
-  XStack,
   Text,
-  Image,
   Theme,
   useTheme,
   ScrollView,
@@ -13,12 +11,12 @@ import { useRouter } from 'expo-router'
 import Footer from './footer'
 import Header from './header'
 import { useEffect, useState } from 'react'
-import AsyncStorage from '@react-native-async-storage/async-storage'
 import Jogo from './domain/jogo'
 import GameCard from './componente/game-card'
+import { apiFetch } from './utils/api'
 
 export default function HomeEquipe() {
-  const { id } = useLocalSearchParams()
+  const { equipeId, nomeEquipe } = useLocalSearchParams<{equipeId:string, nomeEquipe:string}>()
   const theme = useTheme()
   const [jogos, setJogos] = useState<Jogo[]>([])
   const [loading, setLoading] = useState(true)
@@ -29,27 +27,7 @@ export default function HomeEquipe() {
   useEffect(() => {
     const fetchJogos = async (options: RequestInit = {}) => {
       try {
-        setLoading(true)
-        const user = await AsyncStorage.getItem('session_user')
-        const headers = {
-          ...(options.headers || {}),
-          Authorization: `Bearer ${JSON.parse(user).token}`,
-          'Content-Type': 'application/json',
-        }
-
-        const response = await fetch(
-          `http://192.168.1.13:8080/torneios/1/equipes/1/jogos`,
-          { ...options, headers }
-        )
-
-        if (!response.ok) {
-          const errorData = await response.json()
-          throw new Error(
-            errorData.message || 'Erro desconhecido ao buscar os jogos.'
-          )
-        }
-
-        const data = (await response.json()) as Jogo[]
+        const data = await apiFetch<Jogo[]>(`http://192.168.1.13:8080/torneios/1/equipes/${equipeId}/jogos`, options)
         setJogos(data)
       } catch (error) {
         console.error('Error fetching jogos:', error)
@@ -100,7 +78,7 @@ export default function HomeEquipe() {
   return (
     <Theme name={theme}>
       <YStack f={1} bg="$background" jc="space-between" pb="$9" pt="$6">
-        <Header title="Trovões Azuais" subtitle="Calendário de Jogos" />
+        <Header title={nomeEquipe} subtitle="Calendário de Jogos" />
 
         <ScrollView
           contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32 }}
@@ -129,6 +107,14 @@ export default function HomeEquipe() {
               ))}
             </YStack>
           ))}
+
+          {jogos.length === 0 && (
+              <YStack f={1} jc="center" ai="center" px="$4">
+              <Text fontSize={16} color="$gray10" textAlign="center">
+                Nenhum jogo encontrado para esta equipe.
+              </Text>
+            </YStack>
+          )}
         </ScrollView>
 
         <Footer />
