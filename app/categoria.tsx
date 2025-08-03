@@ -79,7 +79,16 @@ export default function CategoriaJogosScreen() {
                 AO VIVO
               </Text>
               {jogosAoVivo.map((jogo) => (
-                <GameCard key={jogo.id} jogo={jogo} onPress={() =>  router.push(`/jogo?id=${jogo.id}`)}/>
+                <GameCard
+                  key={jogo.id}
+                  jogo={jogo}
+                  onPress={() =>
+                    router.push({
+                      pathname: '/splash-patrocinador',
+                      params: { next: `/jogo?id=${jogo.id}` },
+                    })
+                  }
+                />
               ))}
             </YStack>
           )}
@@ -87,7 +96,16 @@ export default function CategoriaJogosScreen() {
           {/* Demais jogos */}
           {jogosNormais.length > 0 ? (
             jogosNormais.map((jogo) => (
-              <GameCard key={jogo.id} jogo={jogo} onPress={() =>  router.push(`/jogo?id=${jogo.id}`)}/>
+              <GameCard
+                key={jogo.id}
+                jogo={jogo}
+                onPress={() =>
+                  router.push({
+                    pathname: '/splash-patrocinador',
+                    params: { next: `/jogo?id=${jogo.id}` },
+                  })
+                }
+              />
             ))
           ) : (
             <YStack jc="center" ai="center" mt="$6">
