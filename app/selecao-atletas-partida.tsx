@@ -19,6 +19,7 @@ type EquipeSelecaoProps = {
   onToggleTitular: (atletaId: number) => void
   onToggleConvocado: (atletaId: number) => void
   onSetNumero: (atletaId: number, numero: string) => void
+  onSetTodosConvocados: (valor: boolean) => void
   maxTitulares: number
   maxJogadores: number
   equipeNome: string
@@ -29,81 +30,110 @@ function EquipeSelecao({
   onToggleTitular,
   onToggleConvocado,
   onSetNumero,
+  onSetTodosConvocados,
   maxTitulares,
   maxJogadores,
 }: EquipeSelecaoProps) {
   const titularesSelecionados = atletas.filter(a => a.titular).length
   const jogadoresSelecionados = atletas.filter(a => a.convocado).length
 
+  const todosConvocados = atletas.length > 0 && atletas.every(a => a.convocado)
+
+  function handleToggleTodosConvocados() {
+    onSetTodosConvocados(!todosConvocados)
+  }
+
   return (
     <Theme>
-    <YStack>
-      <XStack ai="center" jc="space-between" mb="$2" px="$2">
-        <Text width={150} fontWeight="700">Nome</Text>
-        <Text width={20} fontWeight="700">Nº</Text>
-        <Text width={15} fontWeight="700">T</Text>
-        <Text width={15} fontWeight="700">E</Text>
-      </XStack>
-      {atletas.map(atleta => (
-        <XStack
-          key={atleta.id}
-          ai="center"
-          jc="space-between"
-          mb="$1"
-          px="$2"
-          py="$1"
-          borderRadius={8}
-          backgroundColor={atleta.titular ? "$green5" : "transparent"}
-        >
-          <Text width={150} numberOfLines={1} ellipsizeMode="tail">
-            {atleta.nome}
-          </Text>
-          <Input
-            width={20}
-            placeholder="Nº"
-            value={atleta.numero || ''}
-            keyboardType="numeric"
-            onChangeText={num => onSetNumero(atleta.id, num)}
-            disabled={!atleta.convocado} // só pode definir número se convocado
-            backgroundColor="$backgroundStrong" // cor de fundo mais forte
-            color="$white" // cor do texto (ajuste conforme seu tema)
-            borderColor="$gray8" // opcional: borda para destacar
-            placeholderTextColor="#888"
-          />
+      <YStack>
+        <XStack justifyContent="space-between" mb="$2" px="$2" ai="center"
+            jc="space-between"
+            py="$1"
+            borderRadius={8}>
+          <Text width={150} fontWeight="700"></Text>
+          <Text width={50} fontWeight="700" style={{ textAlign: 'center' }}></Text>
+          <Text width={15} fontWeight="700"></Text>
           <Checkbox
-            checked={!!atleta.titular}
-            onCheckedChange={() => onToggleTitular(atleta.id)}
-            disabled={
-              (!atleta.titular && titularesSelecionados >= maxTitulares) ||
-              !atleta.convocado // só pode ser titular se vai para o jogo
-            }
-            backgroundColor="$backgroundStrong"
-            borderColor="$gray8"
-          >
-          <Checkbox.Indicator>
-            <Check />
-          </Checkbox.Indicator>
-          </Checkbox>
-          <Checkbox
-            checked={!!atleta.convocado}
-            onCheckedChange={() => onToggleConvocado(atleta.id)}
-            disabled={!atleta.convocado && jogadoresSelecionados >= maxJogadores}
-            backgroundColor="$backgroundStrong"
-            borderColor="$gray8"
-          >
-            <Checkbox.Indicator>
-              <Check />
-            </Checkbox.Indicator>
-          </Checkbox>
+              checked={todosConvocados}
+              onCheckedChange={handleToggleTodosConvocados}
+              backgroundColor="$backgroundStrong"
+              borderColor="$gray8"
+            >
+              <Checkbox.Indicator>
+                <Check size={12} />
+              </Checkbox.Indicator>
+            </Checkbox>
         </XStack>
-      ))}
-      {atletas.length === 0 && (
-        <Text color="$gray10">Nenhum atleta encontrado</Text>
-      )}
-      <Text mt="$2" fontSize={12} color="$gray10">
-        {titularesSelecionados}/{maxTitulares} titulares, {jogadoresSelecionados}/{maxJogadores} no jogo
-      </Text>
-    </YStack>
+        <XStack justifyContent="space-between" mb="$2" px="$2" ai="center">
+          <Text width={150} fontWeight="700">Nome</Text>
+          <Text width={50} fontWeight="700" style={{ textAlign: 'center' }}>Nº</Text>
+          <Text width={15} fontWeight="700">T</Text>
+          <Text width={15} fontWeight="700" fontSize={12}>E</Text>
+        </XStack>
+        {atletas.map(atleta => (
+          <XStack
+            key={atleta.id}
+            ai="center"
+            jc="space-between"
+            mb="$1"
+            px="$2"
+            py="$1"
+            borderRadius={8}
+            backgroundColor={atleta.titular ? "$green5" : "transparent"}
+          >
+            <Text width={150} numberOfLines={1} ellipsizeMode="tail">
+              {atleta.nome}
+            </Text>
+            <Input
+              width={50}
+              placeholder="Nº"
+              value={atleta.numero || ''}
+              keyboardType="numeric"
+              onChangeText={num => onSetNumero(atleta.id, num)}
+              disabled={!atleta.convocado}
+              backgroundColor="$backgroundStrong"
+              color="$white"
+              borderColor="$gray8"
+              placeholderTextColor="#888"
+              maxLength={2}
+              style={{ textAlign: 'center' }}
+            />
+            <Checkbox ai='center'
+              checked={!!atleta.titular}
+              onCheckedChange={() =>
+                onToggleTitular(atleta.id)
+              }
+              disabled={
+                (!atleta.titular && titularesSelecionados >= maxTitulares) ||
+                !atleta.convocado
+              }
+              backgroundColor="$backgroundStrong"
+              borderColor="$gray8"
+            >
+              <Checkbox.Indicator>
+                <Check />
+              </Checkbox.Indicator>
+            </Checkbox>
+            <Checkbox
+              checked={!!atleta.convocado}
+              onCheckedChange={() => onToggleConvocado(atleta.id)}
+              disabled={!atleta.convocado && jogadoresSelecionados >= maxJogadores}
+              backgroundColor="$backgroundStrong"
+              borderColor="$gray8"
+            >
+              <Checkbox.Indicator>
+                <Check />
+              </Checkbox.Indicator>
+            </Checkbox>
+          </XStack>
+        ))}
+        {atletas.length === 0 && (
+          <Text color="$gray10">Nenhum atleta encontrado</Text>
+        )}
+        <Text mt="$2" fontSize={12} color="$gray10">
+          {titularesSelecionados}/{maxTitulares} titulares, {jogadoresSelecionados}/{maxJogadores} no jogo
+        </Text>
+      </YStack>
     </Theme>
   )
 }
@@ -175,10 +205,25 @@ export default function GameEditScreen({
     const lista = equipe === 'mandante' ? mandante : visitante
     setter(
       lista.map(a =>
-        a.id === atletaId ? { ...a, numero } : a
+        a.id === atletaId ? { ...a, numero} : a
       )
     )
   }
+
+function setTodosConvocados(equipe: 'mandante' | 'visitante', valor: boolean) {
+  const setter = equipe === 'mandante' ? setMandante : setVisitante
+  const lista = equipe === 'mandante' ? mandante : visitante
+  setter(
+    lista.map(a => {
+      // Se for para desmarcar (valor === false) e o atleta é titular, mantém convocado como true
+      if (!valor && a.titular) {
+        return { ...a, convocado: true }
+      }
+      // Caso contrário, aplica normalmente
+      return { ...a, convocado: valor }
+    })
+  )
+}
 
   function handleSalvar() {
     onSalvar({
@@ -224,6 +269,7 @@ export default function GameEditScreen({
               onToggleTitular={id => toggleTitular('mandante', id)}
               onToggleConvocado={id => toggleConvocado('mandante', id)}
               onSetNumero={(id, num) => setNumero('mandante', id, num)}
+              onSetTodosConvocados={valor => setTodosConvocados('mandante', valor)}
               maxTitulares={5}
               maxJogadores={12}
               equipeNome={jogo.mandante.nome}
@@ -235,6 +281,7 @@ export default function GameEditScreen({
               onToggleTitular={id => toggleTitular('visitante', id)}
               onToggleConvocado={id => toggleConvocado('visitante', id)}
               onSetNumero={(id, num) => setNumero('visitante', id, num)}
+              onSetTodosConvocados={valor => setTodosConvocados('visitante', valor)}
               maxTitulares={5}
               maxJogadores={12}
               equipeNome={jogo.visitante.nome}
