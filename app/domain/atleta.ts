@@ -7,4 +7,7 @@ export interface Atleta {
   altura: number;
   peso: number;
   equipe: Equipe;
+  numero: string;
+  titular: boolean;
+  convocado: boolean;
 }

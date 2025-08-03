@@ -15,7 +15,7 @@ import GameCard from './componente/game-card'
 import { apiFetch } from './utils/api'
 
 export default function HomeEquipe() {
-  const { equipeId, nomeEquipe } = useLocalSearchParams<{equipeId:string, nomeEquipe:string}>()
+  const { equipeId, nomeEquipe, torneioId } = useLocalSearchParams<{equipeId: string, nomeEquipe: string, torneioId: string}>()
   const [jogos, setJogos] = useState<Jogo[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -25,7 +25,7 @@ export default function HomeEquipe() {
   useEffect(() => {
     const fetchJogos = async (options: RequestInit = {}) => {
       try {
-        const data = await apiFetch<Jogo[]>(`http://192.168.1.13:8080/torneios/1/equipes/${equipeId}/jogos`, options)
+        const data = await apiFetch<Jogo[]>(`http://192.168.1.13:8080/torneios/${torneioId}/equipes/${equipeId}/jogos`, options)
         setJogos(data)
       } catch (error) {
         console.error('Error fetching jogos:', error)
@@ -37,6 +37,10 @@ export default function HomeEquipe() {
 
     fetchJogos()
   }, [])
+
+  function handleLongPress(jogo: Jogo) {
+    router.push(`/selecao-atletas-partida?jogoId=${jogo.id}&torneioId=${torneioId}`)
+  }
 
   function agruparPorCategoria(jogos: Jogo[]) {
     const agrupado: { [categoriaNome: string]: Jogo[] } = {}
@@ -52,9 +56,9 @@ export default function HomeEquipe() {
     return agrupado
   }
 
-  const jogosAoVivo = jogos.filter((jogo) => jogo.transmissao?.toLowerCase() === 'live')
+  const jogosAoVivo = jogos.filter((jogo) => jogo.streamUrl?.toLowerCase() === 'live')
   const jogosPorCategoria = agruparPorCategoria(
-    jogos.filter((jogo) => jogo.transmissao?.toLowerCase() !== 'live')
+    jogos.filter((jogo) => jogo.streamUrl?.toLowerCase() !== 'live')
   )
 
   if (loading) {
@@ -77,7 +81,7 @@ export default function HomeEquipe() {
     <Theme>
       <YStack f={1} bg="$background" jc="space-between" pb="$9" pt="$6">
         <Header title={nomeEquipe} subtitle="Calendário de Jogos" />
-
+    
         <ScrollView
           contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32 }}
           space="$4"
@@ -89,7 +93,12 @@ export default function HomeEquipe() {
                 AO VIVO
               </Text>
               {jogosAoVivo.map((jogo) => (
-                <GameCard key={jogo.id} jogo={jogo} onPress={() =>  router.push(`/jogo?id=${jogo.id}&categoriaNome=${jogo.categoria?.nome}`)} />
+                <GameCard key={jogo.id} 
+                          jogo={jogo} 
+                          onPress={() =>  router.push(`/jogo?jogoId=${jogo.id}&categoriaNome=${jogo.categoria?.nome}`)} 
+                          onLongPress={handleLongPress}
+                          isAdmin={true}
+                />
               ))}
             </YStack>
           )}
@@ -101,7 +110,12 @@ export default function HomeEquipe() {
                 {categoriaNome}
               </Text>
               {jogosCategoria.map((jogo) => (
-                <GameCard key={jogo.id} jogo={jogo} onPress={() =>  router.push(`/jogo?id=${jogo.id}`)} />
+                <GameCard key={jogo.id} 
+                          jogo={jogo} 
+                          onPress={() =>  router.push(`/jogo?jogoId=${jogo.id}&categoriaNome=${jogo.categoria?.nome}`)} 
+                          onLongPress={handleLongPress}
+                          isAdmin={true}
+                />
               ))}
             </YStack>
           ))}

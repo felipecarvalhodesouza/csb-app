@@ -1,22 +1,27 @@
 import { YStack, XStack, Text, Image, useWindowDimensions } from 'tamagui'
 import Jogo from '../domain/jogo'
 import format, { formatHour } from '../utils/date-formatter'
+import { Pressable } from 'react-native'
 
-export default function GameCard({ jogo, onPress }: GameCardProps) {
+export default function GameCard({ jogo, onPress, onLongPress, isAdmin  }: GameCardProps) {
   const { width } = useWindowDimensions()
-  const isLive = jogo.transmissao?.toLowerCase() === 'live'
+  const isLive = jogo.streamUrl?.toLowerCase() === 'live'
   const hasScore = true ||
-    jogo.pontuacaoMandante !== undefined &&
-    jogo.pontuacaoVisitante !== undefined
+    jogo?.placarMandante !== undefined &&
+    jogo?.placarVisitante !== undefined
 
   return (
-    <YStack
-      bg="$background"
-      br="$4"
-      p="$4"
-      m="$2"
+    <Pressable
+      //onPress={onPress}
+      onPress={isAdmin ? () => onLongPress?.(jogo) : undefined}
+      delayLongPress={600}
+    >
+      <YStack
+        bg="$background"
+        br="$4"
+        p="$4"
+        m="$2"
       space="$3"
-      onPress={onPress}
       width={width - 32}
       maxWidth="100%"
     >
@@ -35,7 +40,7 @@ export default function GameCard({ jogo, onPress }: GameCardProps) {
           />
           {hasScore && (
             <Text fontSize={24} fontWeight="800" color="$color">
-              {jogo.pontuacaoMandante || '-'}
+              {jogo.placarMandante || '-'}
             </Text>
           )}
           <Text
@@ -89,7 +94,7 @@ export default function GameCard({ jogo, onPress }: GameCardProps) {
           />
           {hasScore && (
             <Text fontSize={24} fontWeight="800" color="$color">
-              {jogo.pontuacaoVisitante || '-'}
+              {jogo.placarVisitante || '-'}
             </Text>
           )}
           <Text
@@ -104,16 +109,19 @@ export default function GameCard({ jogo, onPress }: GameCardProps) {
       </XStack>
 
       {/* Transmissão abaixo */}
-      {jogo.transmissao && (
+      {jogo.streamUrl && (
         <Text fontSize={11} color="$gray9" ta="center" mt="$2">
-          {jogo.transmissao}
+          {jogo.streamUrl}
         </Text>
       )}
     </YStack>
+    </Pressable>
   )
 }
 
 type GameCardProps = {
   jogo: Jogo
   onPress: () => void
+  onLongPress?: (jogo: Jogo) => void
+  isAdmin?: boolean
 }

@@ -1,3 +1,4 @@
+import { Atleta } from "./atleta";
 import Categoria from "./categoria";
 import Equipe from "./equipe";
 import Local from "./local";
@@ -10,7 +11,14 @@ export default interface Jogo {
     visitante: Equipe;
     local: Local;
     eventos: any[];
-    transmissao: string;
-    pontuacaoMandante: number;
-    pontuacaoVisitante: number;
+    streamUrl: string;
+    placarMandante: number;
+    placarVisitante: number;
+    periodo: string;
+    status: string;
+    atletasMandante: Atleta[];
+    atletasVisitante: Atleta[];
+    arbitroPrincipal: any;
+    arbitroAuxiliar: any;
+    mesario: any;
 }

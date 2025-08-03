@@ -1,20 +1,22 @@
 import { YStack, XStack, Text } from 'tamagui'
+import Jogo from '../domain/jogo'
+import format from '../utils/date-formatter'
+import { formatHour } from '../utils/date-formatter'
 
 
-export default function ResumoJogo({ jogo: Jogo }) {
+export default function ResumoJogo({ jogo }: { jogo: Jogo }) {
   return (
     <YStack space="$4" ai="center" width="100%">
 
-      {/* Local e Data (mockados, pois não há no mockJogo) */}
       { <YStack ai="center">
         <Text fontSize={16} fontWeight="600" mb="$2">
           Local e Data
         </Text>
-        <Text color="$gray10">Ginásio Central</Text>
-        <Text color="$gray10">2025/03/04 18:00</Text>
+        <Text color="$gray10">{jogo.local?.nome || 'Local não definido'}</Text>
+        <Text color="$gray10">{format(jogo.data) || 'Data não definida'}</Text>
+        <Text color="$gray10">{formatHour(jogo.data) || ''}</Text>
       </YStack>}
 
-      {/* Parciais de cada quarto (mockados para exemplo) */}
       <YStack width="100%" ai="center">
         <Text fontSize={16} fontWeight="600" mb="$2">
           Parciais
@@ -36,8 +38,9 @@ export default function ResumoJogo({ jogo: Jogo }) {
         <Text fontSize={16} fontWeight="600" mb="$2">
           Oficiais
         </Text>
-        <Text color="$gray10">Árbitros: João Silva, Maria Souza</Text>
-        <Text color="$gray10">Mesário: Carlos Pinto</Text>
+        <Text color="$gray10">Árbitro Principal: {jogo.arbitroPrincipal?.nome || 'Não definido'}</Text>
+        <Text color="$gray10">Árbitro Auxiliar: {jogo.arbitroAuxiliar?.nome || 'Não definido'}</Text>
+        <Text color="$gray10">Mesário: {jogo.mesario?.nome || 'Não definido'}</Text>
       </YStack>
     </YStack>
   )

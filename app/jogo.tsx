@@ -5,6 +5,7 @@ import {
   Button,
   ScrollView,
   Theme,
+  Spinner
 } from 'tamagui'
 import { useState } from 'react'
 import YoutubePlayer from 'react-native-youtube-iframe'
@@ -16,47 +17,8 @@ import { useRouter } from 'expo-router'
 import { apiFetch } from './utils/api'
 import Jogo from './domain/jogo'
 import ResumoJogo from './componente/resumo-jogo'
-
-const mockJogo = {
-  id: '1',
-  status: 'live',
-  periodo: 'Q1',
-  placar: {
-    CHI: 30,
-    DAL: 25,
-  },
-  transmissaoYoutubeId: 'dQw4w9WgXcQ',
-  estatisticas: {
-    CHI: [
-      { nome: 'J. Tatum', pos: 'SF', fault: '1', pts: 10, reb: 5, ast: 1 , titular: true},
-      { nome: 'A. Horford', pos: 'PF', fault: '0', pts: 2, reb: 1, ast: 1, titular: true },
-      { nome: 'J. Brown', pos: 'SG', fault: '0', pts: 8, reb: 2, ast: 3, titular: true },
-      { nome: 'D. White', pos: 'PG', fault: '0', pts: 5, reb: 1, ast: 4, titular: true },
-      { nome: 'K. Porzingis', pos: 'C', fault: '0', pts: 6, reb: 6, ast: 0, titular: true },
-      { nome: 'S. Hauser', pos: 'SF', fault: '0', pts: 3, reb: 2, ast: 1 },
-      { nome: 'P. Pritchard', pos: 'PG', fault: '0', pts: 4, reb: 1, ast: 2 },
-      { nome: 'L. Kornet', pos: 'C', fault: '0', pts: 2, reb: 3, ast: 0 },
-      { nome: 'O. Brissett', pos: 'PF', fault: '0', pts: 1, reb: 2, ast: 1 },
-      { nome: 'D. Banton', pos: 'SG', fault: '0', pts: 3, reb: 1, ast: 0 },
-      { nome: 'J. Walsh', pos: 'SF', fault: '0', pts: 2, reb: 0, ast: 0 },
-      { nome: 'N. Queta', pos: 'C', fault: '0', pts: 0, reb: 1, ast: 0 },
-    ],
-    DAL: [
-      { nome: 'F. Wagner', pos: 'SF', fault: '1', pts: 6, reb: 3, ast: 2 , titular: true},
-      { nome: 'P. Banchero', pos: 'PF', fault: '1', pts: 5, reb: 4, ast: 1, titular: true },
-      { nome: 'C. Anthony', pos: 'PG', fault: '1', pts: 7, reb: 2, ast: 3, titular: true },
-      { nome: 'M. Fultz', pos: 'SG', fault: '0', pts: 4, reb: 1, ast: 2, titular: true},
-      { nome: 'W. Carter Jr.', pos: 'C', fault: '0', pts: 6, reb: 5, ast: 1, titular: true },
-      { nome: 'J. Isaac', pos: 'PF', fault: '0', pts: 2, reb: 3, ast: 0 },
-      { nome: 'G. Harris', pos: 'SG', fault: '0', pts: 3, reb: 1, ast: 1 },
-      { nome: 'J. Suggs', pos: 'PG', fault: '0', pts: 5, reb: 1, ast: 3 },
-      { nome: 'M. Schofield', pos: 'SF', fault: '0', pts: 1, reb: 2, ast: 0 },
-      { nome: 'B. Bitadze', pos: 'C', fault: '0', pts: 2, reb: 2, ast: 1 },
-      { nome: 'K. Black', pos: 'PG', fault: '0', pts: 0, reb: 0, ast: 1 },
-      { nome: 'A. Inglis', pos: 'PF', fault: '0', pts: 1, reb: 1, ast: 0 },
-    ],
-  },
-}
+import EstatisticasJogo from './componente/estatisticas-jogo'
+import { useEffect } from 'react'
 
 export default function TelaJogo() {
 
@@ -64,7 +26,32 @@ export default function TelaJogo() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [timeSelecionado, setTimeSelecionado] = useState<'CHI' | 'DAL'>('CHI')
-  const [aba, setAba] = useState<'Resumo' | 'Estatísticas' | 'Lance a Lance' | 'Líderes'>('Resumo')
+  const [jogo, setJogo] = useState<Jogo>()
+  const [aba, setAba] = useState<'Resumo' | 'Estatísticas' | 'Lances' | 'Líderes'>('Resumo')
+
+    useEffect(() => {
+      const fetchJogos = async (options: RequestInit = {}) => {
+        try {
+          const data = await apiFetch<Jogo>(`http://192.168.1.13:8080/jogos/${jogoId}`, options)
+          setJogo(data)
+        } catch (error) {
+          console.error('Error fetching jogos:', error)
+          setError((error as Error).message)
+        } finally {
+          setLoading(false)
+        }
+      }
+  
+      fetchJogos()
+    }, [])
+
+  if (loading) {
+    return (
+      <YStack f={1} jc="center" ai="center">
+        <Spinner size="large" />
+      </YStack>
+    )
+  }
 
   return (
     <Theme>
@@ -72,28 +59,30 @@ export default function TelaJogo() {
       <ScrollView bg="$background" pr="$4" pl="$4">
         <Header title='Jogo' />
         {/* Header com placar */}
-        <XStack jc="space-between" ai="center" mb="$2">
+        <XStack jc="space-between" ai="center" m="$3">
           <Text fontSize={20} fontWeight="700">
-            {mockJogo.placar.CHI}
+            {jogo.placarMandante | 0}
           </Text>
           <Text fontSize={14} color="$gray10">
-            {mockJogo.periodo}
+            {jogo.periodo || 'Não iniciado'}
           </Text>
           <Text fontSize={20} fontWeight="700">
-            {mockJogo.placar.DAL}
+            {jogo.placarVisitante | 0}
           </Text>
         </XStack>
 
-        <XStack jc="space-between" mb="$4">
+        <XStack jc="space-between" mb="$4" ml={"$3"} mr={"$3"}>
           <Text fontSize={12} color="$gray10">BOS</Text>
           <Text fontSize={12} color="$gray10">ORL</Text>
         </XStack>
 
         {/* YouTube ao vivo */}
-        {mockJogo.transmissaoYoutubeId && (
+        {jogo.streamUrl && (
           <YStack mb="$4">
-            <YoutubePlayer height={200} play={false} videoId={mockJogo.transmissaoYoutubeId} />
-            <Text color="$red10" fontSize={12} mt="$1">Ao vivo</Text>
+            <YoutubePlayer height={200} play={false} videoId={jogo.streamUrl} />
+            { jogo.status === 'Em andamento' && (
+              <Text color="$red10" fontSize={12} mt="$1">Ao vivo</Text>
+            )}
           </YStack>
         )}
 
@@ -125,76 +114,18 @@ export default function TelaJogo() {
 
         {/* Conteúdo das abas */}
         {aba === 'Resumo' && (
-          <ResumoJogo jogo={mockJogo} />
+          <ResumoJogo jogo={jogo} />
         )}
 
         {aba === 'Estatísticas' && (
-          <>
-            {/* Botões para alternar time */}
-            <XStack jc="center" mb="$3" space>
-              <Button
-                size="$2"
-                variant="outlined"
-                backgroundColor={timeSelecionado === 'CHI' ? '$blue8' : undefined}
-                color={timeSelecionado === 'CHI' ? '$color' : undefined}
-                onPress={() => setTimeSelecionado('CHI')}
-              >
-                BOS
-              </Button>
-              <Button
-                size="$2"
-                variant="outlined"
-                backgroundColor={timeSelecionado === 'DAL' ? '$blue8' : undefined}
-                color={timeSelecionado === 'DAL' ? '$color' : undefined}
-                onPress={() => setTimeSelecionado('DAL')}
-              >
-                ORL
-              </Button>
-            </XStack>
-
-            {/* Tabela de estatísticas */}
-            <YStack borderWidth={1} borderColor="$gray6" br="$3" >
-              {/* Cabeçalho */}
-              <XStack bg="$gray5" p="$2">
-                <Text flex={2} fontWeight="600">Titulares</Text>
-                <Text flex={1} textAlign="center" fontWeight="600">PTS</Text>
-                <Text flex={1} textAlign="center" fontWeight="600">REB</Text>
-                <Text flex={1} textAlign="center" fontWeight="600">AST</Text>
-                <Text flex={1} textAlign="center" fontWeight="600">F</Text>
-              </XStack>
-
-              {/* Linhas */}
-              {mockJogo.estatisticas[timeSelecionado].filter((jogador) => jogador.titular).map((jogador, i) => (
-                <XStack key={i} p="$2" bg={i % 2 === 0 ? '$background' : '$gray2'}>
-                  <Text flex={2}>{jogador.nome} <Text fontSize={10} color="$gray10">{jogador.pos}</Text></Text>
-                  <Text flex={1} textAlign="center">{jogador.pts}</Text>
-                  <Text flex={1} textAlign="center">{jogador.reb}</Text>
-                  <Text flex={1} textAlign="center">{jogador.ast}</Text>
-                  <Text flex={1} textAlign="center">{jogador.fault}</Text>
-                </XStack>
-              ))}
-
-              <XStack bg="$gray5" p="$2">
-                <Text flex={2} fontWeight="600">Reservas</Text>
-                <Text flex={1} textAlign="center" fontWeight="600">PTS</Text>
-                <Text flex={1} textAlign="center" fontWeight="600">REB</Text>
-                <Text flex={1} textAlign="center" fontWeight="600">AST</Text>
-                <Text flex={1} textAlign="center" fontWeight="600">F</Text>
-              </XStack>
-              {mockJogo.estatisticas[timeSelecionado].filter((jogador) => !jogador.titular).map((jogador, i) => (
-                <XStack key={i} p="$2" bg={i % 2 === 0 ? '$background' : '$gray2'}>
-                  <Text flex={2}>{jogador.nome} <Text fontSize={10} color="$gray10">{jogador.pos}</Text></Text>
-                  <Text flex={1} textAlign="center">{jogador.pts}</Text>
-                  <Text flex={1} textAlign="center">{jogador.reb}</Text>
-                  <Text flex={1} textAlign="center">{jogador.ast}</Text>
-                  <Text flex={1} textAlign="center">{jogador.fault}</Text>
-                </XStack>
-              ))}
-            </YStack>
-          </>
+          <EstatisticasJogo
+            timeSelecionado={timeSelecionado}
+            setTimeSelecionado={setTimeSelecionado}
+            jogo={jogo}
+          />
         )}
 
-        {aba === 'Lance a Lance' && (
+        {aba === 'Lances' && (
           <YStack ai="center" mt="$4" mb="$4">
             <Text fontSize={16} color="$gray10">Lance a Lance (adicione conteúdo aqui)</Text>
           </YStack>
@@ -205,6 +136,7 @@ export default function TelaJogo() {
             <Text fontSize={16} color="$gray10">Líderes do jogo (adicione conteúdo aqui)</Text>
           </YStack>
         )}
+        
       </ScrollView>
       <Footer/>
     </YStack>

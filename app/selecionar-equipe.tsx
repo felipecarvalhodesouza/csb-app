@@ -32,7 +32,7 @@ export default function SelecionarEquipe() {
       const fav = await AsyncStorage.getItem('equipe_favorita')
       if (fav) {
         const equipe = JSON.parse(fav)
-        router.replace(`/equipe?equipeId=${equipe.id}&nomeEquipe=${equipe.nome}`)
+        router.replace(`/equipe?equipeId=${equipe.id}&nomeEquipe=${equipe.nome}&torneioId=${torneio}`)
         return
       }
 
