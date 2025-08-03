@@ -3,7 +3,6 @@ import {
   YStack,
   Text,
   Theme,
-  useTheme,
   ScrollView,
   Spinner,
 } from 'tamagui'
@@ -17,7 +16,6 @@ import { apiFetch } from './utils/api'
 
 export default function HomeEquipe() {
   const { equipeId, nomeEquipe } = useLocalSearchParams<{equipeId:string, nomeEquipe:string}>()
-  const theme = useTheme()
   const [jogos, setJogos] = useState<Jogo[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -76,7 +74,7 @@ export default function HomeEquipe() {
   }
 
   return (
-    <Theme name={theme}>
+    <Theme>
       <YStack f={1} bg="$background" jc="space-between" pb="$9" pt="$6">
         <Header title={nomeEquipe} subtitle="Calendário de Jogos" />
 
@@ -91,7 +89,7 @@ export default function HomeEquipe() {
                 AO VIVO
               </Text>
               {jogosAoVivo.map((jogo) => (
-                <GameCard key={jogo.id} jogo={jogo} onPress={() =>  router.push(`/jogo?id=${jogo.id}`)} />
+                <GameCard key={jogo.id} jogo={jogo} onPress={() =>  router.push(`/jogo?id=${jogo.id}&categoriaNome=${jogo.categoria?.nome}`)} />
               ))}
             </YStack>
           )}

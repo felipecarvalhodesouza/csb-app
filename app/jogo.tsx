@@ -5,18 +5,22 @@ import {
   Button,
   ScrollView,
   Theme,
-  useTheme
 } from 'tamagui'
 import { useState } from 'react'
 import YoutubePlayer from 'react-native-youtube-iframe'
 import Footer from './footer'
 import Header from './header'
+import { Pressable } from 'react-native'
+import { useLocalSearchParams } from 'expo-router'
+import { useRouter } from 'expo-router'
+import { apiFetch } from './utils/api'
+import Jogo from './domain/jogo'
+import ResumoJogo from './componente/resumo-jogo'
 
 const mockJogo = {
   id: '1',
   status: 'live',
   periodo: 'Q1',
-  tempo: '30.9',
   placar: {
     CHI: 30,
     DAL: 25,
@@ -55,11 +59,15 @@ const mockJogo = {
 }
 
 export default function TelaJogo() {
-  const theme = useTheme()
+
+  const { jogoId } = useLocalSearchParams<{jogoId:string}>()
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [timeSelecionado, setTimeSelecionado] = useState<'CHI' | 'DAL'>('CHI')
+  const [aba, setAba] = useState<'Resumo' | 'Estatísticas' | 'Lance a Lance' | 'Líderes'>('Resumo')
 
   return (
-    <Theme name={theme}>
+    <Theme>
       <YStack f={1} bg="$background" jc="space-between" pb={"$9"} pt={"$6"}>
       <ScrollView bg="$background" pr="$4" pl="$4">
         <Header title='Jogo' />
@@ -69,7 +77,7 @@ export default function TelaJogo() {
             {mockJogo.placar.CHI}
           </Text>
           <Text fontSize={14} color="$gray10">
-            {mockJogo.periodo} · {mockJogo.tempo}
+            {mockJogo.periodo}
           </Text>
           <Text fontSize={20} fontWeight="700">
             {mockJogo.placar.DAL}
@@ -84,68 +92,119 @@ export default function TelaJogo() {
         {/* YouTube ao vivo */}
         {mockJogo.transmissaoYoutubeId && (
           <YStack mb="$4">
-            <YoutubePlayer height={200} play={true} videoId={mockJogo.transmissaoYoutubeId} />
+            <YoutubePlayer height={200} play={false} videoId={mockJogo.transmissaoYoutubeId} />
             <Text color="$red10" fontSize={12} mt="$1">Ao vivo</Text>
           </YStack>
         )}
 
-        {/* Botões para alternar time */}
-        <XStack jc="center" mb="$3" space>
-          <Button
-            size="$2"
-            variant={timeSelecionado === 'CHI' ? 'active' : 'outlined'}
-            onPress={() => setTimeSelecionado('CHI')}
-          >
-            BOS
-          </Button>
-          <Button
-            size="$2"
-            variant={timeSelecionado === 'DAL' ? 'active' : 'outlined'}
-            onPress={() => setTimeSelecionado('DAL')}
-          >
-            ORL
-          </Button>
+        {/* Carrossel de abas */}
+        <XStack jc="center" mb="$3" width="100%" bg="$background" borderRadius="$4" overflow="hidden">
+          {['Resumo', 'Estatísticas', 'Lances', 'Líderes'].map((tab) => (
+            <Pressable
+              key={tab}
+              style={{
+                flex: 1,
+                alignItems: 'center',
+                paddingVertical: 10,
+                backgroundColor: aba === tab ? '$background ' : '$color',
+                borderBottomWidth: aba === tab ? 0 : 1,
+                borderBottomColor: '$gray6',
+              }}
+              onPress={() => setAba(tab as typeof aba)}
+            >
+              <Text
+                fontWeight={aba === tab ? '700' : '400'}
+                color={aba === tab ? '$gray1 ' : '$color'}
+                fontSize={14}
+              >
+                {tab}
+              </Text>
+            </Pressable>
+          ))}
         </XStack>
 
-        {/* Tabela de estatísticas */}
-        <YStack borderWidth={1} borderColor="$gray6" br="$3" >
-          {/* Cabeçalho */}
-          <XStack bg="$gray5" p="$2">
-            <Text flex={2} fontWeight="600">Titulares</Text>
-            <Text flex={1} textAlign="center" fontWeight="600">PTS</Text>
-            <Text flex={1} textAlign="center" fontWeight="600">REB</Text>
-            <Text flex={1} textAlign="center" fontWeight="600">AST</Text>
-            <Text flex={1} textAlign="center" fontWeight="600">F</Text>
-          </XStack>
+        {/* Conteúdo das abas */}
+        {aba === 'Resumo' && (
+          <ResumoJogo jogo={mockJogo} />
+        )}
 
-          {/* Linhas */}
-          {mockJogo.estatisticas[timeSelecionado].filter((jogador) => jogador.titular).map((jogador, i) => (
-            <XStack key={i} p="$2" bg={i % 2 === 0 ? '$background' : '$gray2'}>
-              <Text flex={2}>{jogador.nome} <Text fontSize={10} color="$gray10">{jogador.pos}</Text></Text>
-              <Text flex={1} textAlign="center">{jogador.pts}</Text>
-              <Text flex={1} textAlign="center">{jogador.reb}</Text>
-              <Text flex={1} textAlign="center">{jogador.ast}</Text>
-              <Text flex={1} textAlign="center">{jogador.fault}</Text>
+        {aba === 'Estatísticas' && (
+          <>
+            {/* Botões para alternar time */}
+            <XStack jc="center" mb="$3" space>
+              <Button
+                size="$2"
+                variant="outlined"
+                backgroundColor={timeSelecionado === 'CHI' ? '$blue8' : undefined}
+                color={timeSelecionado === 'CHI' ? '$color' : undefined}
+                onPress={() => setTimeSelecionado('CHI')}
+              >
+                BOS
+              </Button>
+              <Button
+                size="$2"
+                variant="outlined"
+                backgroundColor={timeSelecionado === 'DAL' ? '$blue8' : undefined}
+                color={timeSelecionado === 'DAL' ? '$color' : undefined}
+                onPress={() => setTimeSelecionado('DAL')}
+              >
+                ORL
+              </Button>
             </XStack>
-          ))}
 
-          <XStack bg="$gray5" p="$2">
-            <Text flex={2} fontWeight="600">Reservas</Text>
-            <Text flex={1} textAlign="center" fontWeight="600">PTS</Text>
-            <Text flex={1} textAlign="center" fontWeight="600">REB</Text>
-            <Text flex={1} textAlign="center" fontWeight="600">AST</Text>
-            <Text flex={1} textAlign="center" fontWeight="600">F</Text>
-          </XStack>
-          {mockJogo.estatisticas[timeSelecionado].filter((jogador) => !jogador.titular).map((jogador, i) => (
-            <XStack key={i} p="$2" bg={i % 2 === 0 ? '$background' : '$gray2'}>
-              <Text flex={2}>{jogador.nome} <Text fontSize={10} color="$gray10">{jogador.pos}</Text></Text>
-              <Text flex={1} textAlign="center">{jogador.pts}</Text>
-              <Text flex={1} textAlign="center">{jogador.reb}</Text>
-              <Text flex={1} textAlign="center">{jogador.ast}</Text>
-              <Text flex={1} textAlign="center">{jogador.fault}</Text>
-            </XStack>
-          ))}
-        </YStack>
+            {/* Tabela de estatísticas */}
+            <YStack borderWidth={1} borderColor="$gray6" br="$3" >
+              {/* Cabeçalho */}
+              <XStack bg="$gray5" p="$2">
+                <Text flex={2} fontWeight="600">Titulares</Text>
+                <Text flex={1} textAlign="center" fontWeight="600">PTS</Text>
+                <Text flex={1} textAlign="center" fontWeight="600">REB</Text>
+                <Text flex={1} textAlign="center" fontWeight="600">AST</Text>
+                <Text flex={1} textAlign="center" fontWeight="600">F</Text>
+              </XStack>
+
+              {/* Linhas */}
+              {mockJogo.estatisticas[timeSelecionado].filter((jogador) => jogador.titular).map((jogador, i) => (
+                <XStack key={i} p="$2" bg={i % 2 === 0 ? '$background' : '$gray2'}>
+                  <Text flex={2}>{jogador.nome} <Text fontSize={10} color="$gray10">{jogador.pos}</Text></Text>
+                  <Text flex={1} textAlign="center">{jogador.pts}</Text>
+                  <Text flex={1} textAlign="center">{jogador.reb}</Text>
+                  <Text flex={1} textAlign="center">{jogador.ast}</Text>
+                  <Text flex={1} textAlign="center">{jogador.fault}</Text>
+                </XStack>
+              ))}
+
+              <XStack bg="$gray5" p="$2">
+                <Text flex={2} fontWeight="600">Reservas</Text>
+                <Text flex={1} textAlign="center" fontWeight="600">PTS</Text>
+                <Text flex={1} textAlign="center" fontWeight="600">REB</Text>
+                <Text flex={1} textAlign="center" fontWeight="600">AST</Text>
+                <Text flex={1} textAlign="center" fontWeight="600">F</Text>
+              </XStack>
+              {mockJogo.estatisticas[timeSelecionado].filter((jogador) => !jogador.titular).map((jogador, i) => (
+                <XStack key={i} p="$2" bg={i % 2 === 0 ? '$background' : '$gray2'}>
+                  <Text flex={2}>{jogador.nome} <Text fontSize={10} color="$gray10">{jogador.pos}</Text></Text>
+                  <Text flex={1} textAlign="center">{jogador.pts}</Text>
+                  <Text flex={1} textAlign="center">{jogador.reb}</Text>
+                  <Text flex={1} textAlign="center">{jogador.ast}</Text>
+                  <Text flex={1} textAlign="center">{jogador.fault}</Text>
+                </XStack>
+              ))}
+            </YStack>
+          </>
+        )}
+
+        {aba === 'Lance a Lance' && (
+          <YStack ai="center" mt="$4" mb="$4">
+            <Text fontSize={16} color="$gray10">Lance a Lance (adicione conteúdo aqui)</Text>
+          </YStack>
+        )}
+
+        {aba === 'Líderes' && (
+          <YStack ai="center" mt="$4" mb="$4">
+            <Text fontSize={16} color="$gray10">Líderes do jogo (adicione conteúdo aqui)</Text>
+          </YStack>
+        )}
       </ScrollView>
       <Footer/>
     </YStack>
