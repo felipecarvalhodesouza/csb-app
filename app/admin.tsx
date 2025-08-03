@@ -18,6 +18,7 @@ const opcoesAdmin = [
   { nome: 'Inclusão de Equipe', icone: 'account-group-outline', rota: '/admin/incluir-equipe', disable: false },
   { nome: 'Vincular Equipe no Torneio', icone: 'account-group-outline', rota: '/admin/vincular-equipe', disable: false },
   { nome: 'Inclusão de Atleta', icone: 'account-plus-outline', rota: '/admin/incluir-atleta', disable: false },
+  { nome: 'Vincular Atleta à Categoria', icone: 'account-plus-outline', rota: '/admin/vincular-atleta', disable: false },
   { nome: 'Transferir Atleta', icone: 'account-plus-outline', rota: '/admin/transferir-atleta', disable: true },
   { nome: 'Inclusão de Local', icone: 'account-plus-outline', rota: '/admin/incluir-local', disable: false },
   { nome: 'Inclusão de Jogos', icone: 'account-plus-outline', rota: '/admin/incluir-jogo', disable: false },
@@ -26,7 +27,6 @@ const opcoesAdmin = [
 
 export default function AdminScreen() {
   const router = useRouter()
-  const theme = useTheme()
 
   const handleSelecionar = (rota: string, disable: boolean) => {
     if (disable) return
@@ -34,7 +34,7 @@ export default function AdminScreen() {
   }
 
   return (
-    <Theme name={theme.name}>
+    <Theme>
       <YStack f={1} bg="$background" jc="space-between" pb={"$9"} pt={"$6"}>
         <Header title="Administração" />
 
