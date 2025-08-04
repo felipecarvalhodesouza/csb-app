@@ -8,10 +8,10 @@ import { useLocalSearchParams } from 'expo-router'
 import Footer from './footer'
 import Header from './header'
 import { Check } from '@tamagui/lucide-icons'
+import { useRouter } from 'expo-router'
 
 type GameEditScreenProps = {
-  onSalvar: (jogoEditado: Jogo) => void
-  onIniciar: () => void
+  onIniciar: (jogoEditado: Jogo) => void
 }
 
 type EquipeSelecaoProps = {
@@ -139,7 +139,6 @@ function EquipeSelecao({
 }
 
 export default function GameEditScreen({
-  onSalvar,
   onIniciar
 }: GameEditScreenProps) {
   const { jogoId, torneioId } = useLocalSearchParams()
@@ -148,6 +147,7 @@ export default function GameEditScreen({
   const [visitante, setVisitante] = useState<Atleta[]>([])
   const [loading, setLoading] = useState(true)
   const [tab, setTab] = useState<'mandante' | 'visitante'>('mandante')
+    const router = useRouter()
 
   useEffect(() => {
     async function fetchJogo() {
@@ -225,13 +225,69 @@ function setTodosConvocados(equipe: 'mandante' | 'visitante', valor: boolean) {
   )
 }
 
-  function handleSalvar() {
-    onSalvar({
-      ...jogo,
-      atletasMandante: { ...mandante },
-      atletasVisitante: { ...visitante },
-    })
+  async function handleIniciar() {
+    if (!jogo) return
+    setLoading(true)
+    try {
+
+      var jogoEditado: any = {
+        jogoId: jogo.id,
+        atletasMandante: mandante.filter(a => a.convocado).map(a => ({
+          id: a.id,
+          titular: !!a.titular,
+          numero: a.numero,
+        })),
+        atletasVisitante: visitante.filter(a => a.convocado).map(a => ({
+          id: a.id,
+          titular: !!a.titular,
+          numero: a.numero,
+        })),
+      }
+      
+      console.log(JSON.stringify({ jogoEditado }))
+
+      /*const response = await fetch('http://192.168.1.13:8080/jogos/iniciar', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          ...jogo,
+          atletasMandante: mandante,
+          atletasVisitante: visitante,
+        })
+      })
+      if (!response.ok) {
+        throw new Error('Erro ao iniciar o jogo')
+      }
+      // Sucesso: navega para a tela de estatísticas ao vivo
+      router.replace(`/estatisticas-ao-vivo?jogoId=${jogo.id}`)*/
+    } catch (e) {
+      alert('Erro ao iniciar o jogo')
+    } finally {
+      setLoading(false)
+    }
   }
+
+  function isButtonDisabled() {
+  // 5 titulares em cada time
+  const mandanteTitulares = mandante.filter(a => a.titular).length
+  const visitanteTitulares = visitante.filter(a => a.titular).length
+
+  // Números de camiseta únicos entre convocados
+  const hasNumeroRepetido = (lista: Atleta[]) => {
+    const numeros = lista.filter(a => a.convocado && a.numero).map(a => a.numero)
+    return numeros.some((num, idx, arr) => arr.indexOf(num) !== idx)
+  }
+
+  return (
+    loading ||
+    mandanteTitulares !== 5 ||
+    visitanteTitulares !== 5 ||
+    hasNumeroRepetido(mandante) ||
+    hasNumeroRepetido(visitante)
+  )
+}
 
   if (loading || !jogo) {
     return (
@@ -288,7 +344,7 @@ function setTodosConvocados(equipe: 'mandante' | 'visitante', valor: boolean) {
             />
           )}
           <Separator />
-          <Button theme="active" onPress={onIniciar}>
+          <Button theme="active" onPress={handleIniciar} disabled={isButtonDisabled()}>
             Iniciar Jogo
           </Button>
         </YStack>
