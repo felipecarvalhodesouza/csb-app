@@ -58,6 +58,12 @@ export default function Footer() {
                 size={28}
                 color={ativo ? 'white' : '#999'}
               />
+              <Text
+                fontSize={12}
+                color={ativo ? 'white' : '#999'}
+              >
+                {tab.nome}
+              </Text>
             </Button>
           </View>
         )
