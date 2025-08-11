@@ -7,8 +7,7 @@ import {
   Avatar,
   ListItem,
   Separator,
-  Button,
-  useTheme
+  Button
 } from 'tamagui'
 import { useRouter } from 'expo-router'
 import { Pressable } from 'react-native'
@@ -16,9 +15,10 @@ import { Pressable } from 'react-native'
 type HeaderSectionProps = {
   title: string
   subtitle?: string
+  button?: React.ReactNode
 }
 
-export default function Header({ title, subtitle }: HeaderSectionProps) {
+export default function Header({ title, subtitle, button }: HeaderSectionProps) {
   const [open, setOpen] = useState(false)
   const router = useRouter()
 
@@ -31,18 +31,21 @@ export default function Header({ title, subtitle }: HeaderSectionProps) {
     <>
       <YStack px="$4" pt="$1" pb="$3" bg="$background">
         <XStack jc="space-between" ai="center">
+        {!button && (
           <Image
             source={require('../assets/logo.png')}
             width={50}
             height={50}
           />
+        )}
+        {button && (<>{button}</>)}  
 
           <YStack f={1} ai="center" jc="center">
             <Text fontSize={16} fontWeight="600" ta="center">
               {title}
             </Text>
             {subtitle && (
-              <Text fontSize={12} color="$gray10" ta="center">
+              <Text fontSize={!button ? 12 : 24} color="$gray10" ta="center">
                 {subtitle}
               </Text>
             )}
@@ -132,7 +135,7 @@ export default function Header({ title, subtitle }: HeaderSectionProps) {
               variant="outlined"
               onPress={() => setOpen(false)}
             >
-              Fechar
+              <Text>Fechar</Text>
             </Button>
           </YStack>
         </YStack>

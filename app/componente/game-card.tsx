@@ -12,8 +12,8 @@ export default function GameCard({ jogo, onPress, onLongPress, isAdmin  }: GameC
 
   return (
     <Pressable
-      //onPress={onPress}
-      onPress={isAdmin ? () => onLongPress?.(jogo) : undefined}
+      onPress={onPress}
+      onLongPress={isAdmin ? () => onLongPress?.(jogo) : undefined}
       delayLongPress={600}
     >
       <YStack

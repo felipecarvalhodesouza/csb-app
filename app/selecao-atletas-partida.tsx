@@ -264,7 +264,7 @@ export default function GameEditScreen({
         throw new Error('Erro ao iniciar o jogo')
       }
       // Sucesso: navega para a tela de estatísticas ao vivo
-      //router.replace(`/estatisticas-ao-vivo?jogoId=${jogo.id}`)
+      router.replace(`/estatisticas-ao-vivo?jogoId=${jogo.id}`)
     } catch (e) {
       alert('Erro ao iniciar o jogo')
     } finally {

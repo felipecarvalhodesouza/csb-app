@@ -39,7 +39,11 @@ export default function HomeEquipe() {
   }, [])
 
   function handleLongPress(jogo: Jogo) {
-    router.push(`/selecao-atletas-partida?jogoId=${jogo.id}&torneioId=${torneioId}`)
+
+      router.replace(`/estatisticas-ao-vivo?jogoId=${jogo.id}`)
+   
+      //router.push(`/selecao-atletas-partida?jogoId=${jogo.id}&torneioId=${torneioId}`)
+    
   }
 
   function agruparPorCategoria(jogos: Jogo[]) {
