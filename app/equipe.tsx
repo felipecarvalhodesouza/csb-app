@@ -39,10 +39,11 @@ export default function HomeEquipe() {
   }, [])
 
   function handleLongPress(jogo: Jogo) {
-
-      router.replace(`/estatisticas-ao-vivo?jogoId=${jogo.id}`)
-   
-      //router.push(`/selecao-atletas-partida?jogoId=${jogo.id}&torneioId=${torneioId}`)
+      if(jogo.status == 'PREVISTO'){
+        router.push(`/selecao-atletas-partida?jogoId=${jogo.id}&torneioId=${torneioId}`)
+      } else {
+        router.replace(`/estatisticas-ao-vivo?jogoId=${jogo.id}`)
+      }
     
   }
 

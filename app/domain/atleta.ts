@@ -10,4 +10,5 @@ export interface Atleta {
   numero: string;
   titular: boolean;
   convocado: boolean;
+  emQuadra: boolean;
 }

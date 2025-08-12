@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import { YStack, XStack, Text, Button, Theme, Sheet, ScrollView, Card, Tabs } from 'tamagui'
-import { ChevronLeft, Plus, Repeat, Undo } from '@tamagui/lucide-icons'
+import { ChevronLeft, Undo } from '@tamagui/lucide-icons'
 import Header from './header'
 import Footer from './footer'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { apiFetch } from './utils/api'
 import Jogo from './domain/jogo'
+import AthleteCards from './componente/player-card-game'
 
 type AthleteStats = {
   id: number
@@ -53,6 +54,7 @@ export default function EstatisticasAoVivoScreen() {
             tocos: 0,
             faltas: 0,
             titular: a.titular === true as boolean,
+            emQuadra: a.emQuadra === true as boolean,
           }))
         )
         setVisitante(
@@ -68,6 +70,7 @@ export default function EstatisticasAoVivoScreen() {
             tocos: 0,
             faltas: 0,
             titular: a.titular === true as boolean,
+            emQuadra: a.emQuadra === true as boolean,
           }))
         )
       } catch (e) {
@@ -79,13 +82,12 @@ export default function EstatisticasAoVivoScreen() {
     fetchJogo()
   }, [jogoId])
 
-  const currentAthletes = activeTeam === 'mandante' ? mandante : visitante
-  const setCurrentAthletes = activeTeam === 'mandante' ? setMandante : setVisitante
   const placarMandante = mandante.reduce((sum, a) => sum + a.pontos, 0)
   const placarVisitante = visitante.reduce((sum, a) => sum + a.pontos, 0)
 
   function updateAthleteStats(athleteId: number, stat: keyof AthleteStats, value: number) {
-    setCurrentAthletes(athletes =>
+    
+    (activeTeam === 'mandante' ? setMandante : setVisitante)(athletes =>
       athletes.map(a =>
         a.id === athleteId
           ? { ...a, [stat]: Math.max(0, Number(a[stat]) + value) }
@@ -158,71 +160,22 @@ export default function EstatisticasAoVivoScreen() {
 
         {/* Players Cards */}
         <ScrollView px="$4" py="$2">
-          {(currentAthletes || [])
-            .slice()
-            .sort((a, b) => a.nome.localeCompare(b.nome))
-            .map(a => (
-            <Card
-              key={a.id}
-              mb="$3"
-              borderColor={a.faltas >= 5 ? "$red8" : "$gray6"}
-              borderWidth={1}
-              borderRadius={8}
-            >
-              <YStack p="$3">
-                <XStack ai="center" jc="space-between">
-                  <Text fontWeight="700" fontSize={16}>
-                    {a.nome} <Text color="$gray10">#{a.numero}</Text>
-                  </Text>
-                  <Button
-                    icon={Repeat}
-                    chromeless
-                    onPress={() => handleSubstituicao(a)}
-                    mr="$2"
-                    aria-label="Substituir atleta"
-                  />
-                <XStack jc="center" gap={4} mt="$2" mb="$2">
-                  {[...Array(5)].map((_, idx) => (
-                    <YStack
-                      key={idx}
-                      width={12}
-                      height={12}
-                      borderRadius={6}
-                      borderWidth={1}
-                      borderColor="$gray12"
-                      bg={idx < a.faltas ? "$red8" : "transparent"}
-                    />
-                  ))}
-                </XStack>
-                  <Text fontWeight="700" fontSize={18}>{a.pontos} pts</Text>
-                </XStack>
-                
-              <XStack mt="$2" jc="space-between">
-                <Button onPress={() => addPoints(a.id, 1)} icon={Plus}>1 PT</Button>
-                <Button onPress={() => addPoints(a.id, 2)} icon={Plus}>2 PTS</Button>
-                <Button onPress={() => addPoints(a.id, 3)} icon={Plus}>3 PTS</Button>
-              </XStack>
-              <XStack jc="space-between" mt="$2" flexWrap="wrap">
-                <Button width={20} maxWidth={100} flex={1} mr="$2" onPress={() => updateAthleteStats(a.id, 'rebotes', 1)}>
-                  <Text>REB: {a.rebotes}</Text>
-                </Button>
-                <Button width={20} maxWidth={100} flex={1} mr="$2" onPress={() => updateAthleteStats(a.id, 'assistencias', 1)}>
-                  <Text>AST: {a.assistencias}</Text>
-                </Button>
-                <Button width={20} maxWidth={100} flex={1} mr="$2" onPress={() => updateAthleteStats(a.id, 'roubos', 1)}>
-                  <Text>STL: {a.roubos}</Text>
-                </Button>
-                <Button width={20} maxWidth={100} flex={1} mr="$2" onPress={() => updateAthleteStats(a.id, 'tocos', 1)}>
-                  <Text>BLK: {a.tocos}</Text>
-                </Button>
-                <Button width={20} maxWidth={100} flex={1} onPress={() => updateAthleteStats(a.id, 'faltas', 1)}>
-                  <Text>FL: {a.faltas}</Text>
-                </Button>
-              </XStack>
-              
-              </YStack>
-            </Card>
-          ))}
+          { activeTeam === 'mandante' && (
+            <AthleteCards
+              athletes={mandante}
+              addPoints={addPoints}
+              updateAthleteStats={updateAthleteStats}
+              handleSubstituicao={handleSubstituicao}
+            />
+          )}
+          { activeTeam === 'visitante' && (
+            <AthleteCards
+              athletes={visitante}
+              addPoints={addPoints}
+              updateAthleteStats={updateAthleteStats}
+              handleSubstituicao={handleSubstituicao}
+            />
+          )}
         </ScrollView>
 
         {modalSubstituicao && athleteToSubstitute && (
