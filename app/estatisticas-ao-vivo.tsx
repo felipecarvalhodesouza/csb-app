@@ -20,6 +20,7 @@ type AthleteStats = {
   tocos: number
   faltas: number
   titular: boolean
+  emQuadra: boolean
 }
 
 export default function EstatisticasAoVivoScreen() {
@@ -202,9 +203,9 @@ export default function EstatisticasAoVivoScreen() {
                     onPress={() => {
                       const titulares = (athleteToSubstitute.teamId === 'mandante' ? mandante : visitante).map(a =>
                         a.id === athleteToSubstitute.id
-                          ? { ...reserva, titular: true }
+                          ? { ...reserva, emQuadra: true }
                           : a.id === reserva.id
-                          ? { ...athleteToSubstitute, titular: false }
+                          ? { ...athleteToSubstitute, emQuadra: false }
                           : a
                       )
                       if (activeTeam === 'mandante') {
