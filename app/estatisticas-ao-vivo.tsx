@@ -4,14 +4,16 @@ import { ChevronLeft, Undo } from '@tamagui/lucide-icons'
 import Header from './header'
 import Footer from './footer'
 import { useLocalSearchParams, useRouter } from 'expo-router'
-import { apiFetch } from './utils/api'
+import { apiFetch, apiPost } from './utils/api'
 import Jogo from './domain/jogo'
 import AthleteCards from './componente/player-card-game'
+import Evento from './domain/evento'
 
 type AthleteStats = {
   id: number
   nome: string
   numero: string
+  equipeId: number
   teamId: 'mandante' | 'visitante'
   pontos: number
   rebotes: number
@@ -47,6 +49,7 @@ export default function EstatisticasAoVivoScreen() {
             id: a.atleta.id,
             nome: a.atleta.nome ?? 'Sem nome',
             numero: a.atleta.numero ?? '',
+            equipeId: a.atleta.equipe.id,
             teamId: 'mandante',
             pontos: 0,
             rebotes: 0,
@@ -63,6 +66,7 @@ export default function EstatisticasAoVivoScreen() {
             id: a.atleta.id,
             nome: a.atleta.nome ?? 'Sem nome',
             numero: a.atleta.numero ?? '',
+            equipeId: a.atleta.equipe.id,
             teamId: 'visitante',
             pontos: 0,
             rebotes: 0,
@@ -98,7 +102,14 @@ export default function EstatisticasAoVivoScreen() {
     setActionHistory(h => [...h, { athleteId, stat, value }])
   }
 
-  function addPoints(athleteId: number, points: number) {
+  async function addPoints(athleteId: number, points: number, equipeId: number) {
+    await handleEvent({
+      tipo: points == 1 ? 'LL' : points == 2 ? '2PTS' : '3PTS',
+      responsavelId: athleteId,
+      jogoId: jogo.id,
+      timestamp: new Date(Date.now()).toISOString().slice(0, 19),
+      equipeId: equipeId
+    })
     updateAthleteStats(athleteId, 'pontos', points)
   }
 
@@ -119,6 +130,17 @@ export default function EstatisticasAoVivoScreen() {
     setAthleteToSubstitute(athlete)
     setModalSubstituicao(true)
   }
+
+    async function handleEvent(event: Evento) {
+      setLoading(true)
+      try {
+        await apiPost(`http://192.168.1.13:8080/jogos/${jogo.id}/eventos`, event)
+      } catch (e) {
+        alert('Erro ao enviar evento')
+      } finally {
+        setLoading(false)
+      }
+    }
 
   if (loading || !jogo) {
     return (

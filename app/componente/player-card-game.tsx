@@ -6,6 +6,7 @@ type AthleteStats = {
   id: number
   nome: string
   numero: string
+  equipeId: number
   teamId: 'mandante' | 'visitante'
   pontos: number
   rebotes: number
@@ -19,7 +20,7 @@ type AthleteStats = {
 
 type AthleteCardsProps = {
   athletes: AthleteStats[]
-  addPoints: (id: number, pts: number) => void
+  addPoints: (id: number, pts: number, equipeId: number) => void
   updateAthleteStats: (id: number, stat: keyof AthleteStats, value: number) => void
   handleSubstituicao: (athlete: AthleteStats) => void
 }
@@ -75,9 +76,9 @@ export default function AthleteCards({
                 <Text fontWeight="700" fontSize={18}>{a.pontos} pts</Text>
               </XStack>
               <XStack mt="$2" jc="space-between">
-                <Button onPress={() => addPoints(a.id, 1)} icon={Plus}>1 PT</Button>
-                <Button onPress={() => addPoints(a.id, 2)} icon={Plus}>2 PTS</Button>
-                <Button onPress={() => addPoints(a.id, 3)} icon={Plus}>3 PTS</Button>
+                <Button onPress={() => addPoints(a.id, 1, Number(a.equipeId))} icon={Plus}>1 PT</Button>
+                <Button onPress={() => addPoints(a.id, 2, Number(a.equipeId))} icon={Plus}>2 PTS</Button>
+                <Button onPress={() => addPoints(a.id, 3, Number(a.equipeId))} icon={Plus}>3 PTS</Button>
               </XStack>
               <XStack jc="space-between" mt="$2" flexWrap="wrap">
                 <Button width={20} maxWidth={100} flex={1} mr="$2" onPress={() => updateAthleteStats(a.id, 'rebotes', 1)}>

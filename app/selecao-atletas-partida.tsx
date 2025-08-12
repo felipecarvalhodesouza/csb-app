@@ -3,7 +3,7 @@ import { ScrollView } from 'react-native'
 import { YStack, XStack, Text, Button, Input, Checkbox, Separator, Spinner, Theme, Tabs } from 'tamagui'
 import Jogo from './domain/jogo'
 import { Atleta } from './domain/atleta'
-import { apiFetch } from './utils/api'
+import { apiFetch, apiPut } from './utils/api'
 import { useLocalSearchParams } from 'expo-router'
 import Footer from './footer'
 import Header from './header'
@@ -245,24 +245,9 @@ export default function GameEditScreen({
         })),
       }
 
-      console.log(JSON.stringify({ jogoEditado }))
 
+      await apiPut(`http://192.168.1.13:8080/jogos/${jogo.id}`, jogoEditado)
 
-      const user = await AsyncStorage.getItem('session_user')
-      const headers = {
-        'Authorization': `Bearer ${JSON.parse(user).token}`,
-        'Content-Type': 'application/json',
-      }
-
-      const response = await fetch(`http://192.168.1.13:8080/jogos/${jogo.id}`, {
-        method: 'PUT',
-        headers,
-        body: JSON.stringify(jogoEditado),
-      })
-
-      if (!response.ok) {
-        throw new Error('Erro ao iniciar o jogo')
-      }
       // Sucesso: navega para a tela de estatísticas ao vivo
       router.replace(`/estatisticas-ao-vivo?jogoId=${jogo.id}`)
     } catch (e) {
