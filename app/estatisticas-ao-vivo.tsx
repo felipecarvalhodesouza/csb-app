@@ -8,34 +8,20 @@ import { apiFetch, apiPost } from './utils/api'
 import Jogo from './domain/jogo'
 import AthleteCards from './componente/player-card-game'
 import Evento from './domain/evento'
-
-type AthleteStats = {
-  id: number
-  nome: string
-  numero: string
-  equipeId: number
-  teamId: 'mandante' | 'visitante'
-  pontos: number
-  rebotes: number
-  assistencias: number
-  roubos: number
-  tocos: number
-  faltas: number
-  titular: boolean
-  emQuadra: boolean
-}
+import { getEstatisticaPorAthlete } from './domain/estatistica'
+import { Atleta } from './domain/atleta'
 
 export default function EstatisticasAoVivoScreen() {
   const { jogoId } = useLocalSearchParams()
   const router = useRouter()
   const [jogo, setJogo] = useState<Jogo | null>(null)
-  const [mandante, setMandante] = useState<AthleteStats[]>([])
-  const [visitante, setVisitante] = useState<AthleteStats[]>([])
+  const [mandante, setMandante] = useState<Atleta[]>([])
+  const [visitante, setVisitante] = useState<Atleta[]>([])
   const [activeTeam, setActiveTeam] = useState<'mandante' | 'visitante'>('mandante')
   const [quarto, setQuarto] = useState(1)
   const [loading, setLoading] = useState(true)
   const [modalSubstituicao, setModalSubstituicao] = useState(false)
-  const [athleteToSubstitute, setAthleteToSubstitute] = useState<AthleteStats | null>(null)
+  const [athleteToSubstitute, setAthleteToSubstitute] = useState<Atleta | null>(null)
   const [actionHistory, setActionHistory] = useState<any[]>([])
 
   useEffect(() => {
@@ -51,14 +37,15 @@ export default function EstatisticasAoVivoScreen() {
             numero: a.atleta.numero ?? '',
             equipeId: a.atleta.equipe.id,
             teamId: 'mandante',
-            pontos: 0,
-            rebotes: 0,
-            assistencias: 0,
-            roubos: 0,
-            tocos: 0,
-            faltas: 0,
+            pontos: a.pontos | 0,
+            rebotes: a.rebotes | 0,
+            assistencias: a.assistencias | 0,
+            roubos: a.roubos | 0,
+            tocos: a.tocos | 0,
+            faltas: a.faltas | 0,
             titular: a.titular === true as boolean,
             emQuadra: a.emQuadra === true as boolean,
+            expulso: a.expulso === true as boolean,
           }))
         )
         setVisitante(
@@ -68,12 +55,12 @@ export default function EstatisticasAoVivoScreen() {
             numero: a.atleta.numero ?? '',
             equipeId: a.atleta.equipe.id,
             teamId: 'visitante',
-            pontos: 0,
-            rebotes: 0,
-            assistencias: 0,
-            roubos: 0,
-            tocos: 0,
-            faltas: 0,
+            pontos: a.pontos | 0,
+            rebotes: a.rebotes | 0,
+            assistencias: a.assistencias | 0,
+            roubos: a.roubos | 0,
+            tocos: a.tocos | 0,
+            faltas: a.faltas | 0,
             titular: a.titular === true as boolean,
             emQuadra: a.emQuadra === true as boolean,
           }))
@@ -90,7 +77,7 @@ export default function EstatisticasAoVivoScreen() {
   const placarMandante = mandante.reduce((sum, a) => sum + a.pontos, 0)
   const placarVisitante = visitante.reduce((sum, a) => sum + a.pontos, 0)
 
-  function updateAthleteStats(athleteId: number, stat: keyof AthleteStats, value: number) {
+  async function updateAthleteStats(athleteId: number, stat: keyof Atleta, value: number) {
     
     (activeTeam === 'mandante' ? setMandante : setVisitante)(athletes =>
       athletes.map(a =>
@@ -99,6 +86,17 @@ export default function EstatisticasAoVivoScreen() {
           : a
       )
     )
+
+    if(stat !== 'pontos') {
+      await handleEvent({
+        tipo: getEstatisticaPorAthlete(stat),
+        responsavelId: athleteId,
+        jogoId: jogo.id,
+        timestamp: new Date(Date.now()).toISOString().slice(0, 19),
+        equipeId: activeTeam === 'mandante' ? jogo.mandante.id : jogo.visitante.id,
+      })
+    }
+
     setActionHistory(h => [...h, { athleteId, stat, value }])
   }
 
@@ -126,19 +124,16 @@ export default function EstatisticasAoVivoScreen() {
     setActionHistory(h => h.slice(0, -1))
   }
 
-  function handleSubstituicao(athlete: AthleteStats) {
+  function handleSubstituicao(athlete: Atleta) {
     setAthleteToSubstitute(athlete)
     setModalSubstituicao(true)
   }
 
     async function handleEvent(event: Evento) {
-      setLoading(true)
       try {
         await apiPost(`http://192.168.1.13:8080/jogos/${jogo.id}/eventos`, event)
       } catch (e) {
         alert('Erro ao enviar evento')
-      } finally {
-        setLoading(false)
       }
     }
 

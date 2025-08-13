@@ -1,28 +1,13 @@
 import React from 'react'
 import { ScrollView, Card, YStack, XStack, Text, Button, Separator } from 'tamagui'
 import { Plus, Repeat } from '@tamagui/lucide-icons'
-
-type AthleteStats = {
-  id: number
-  nome: string
-  numero: string
-  equipeId: number
-  teamId: 'mandante' | 'visitante'
-  pontos: number
-  rebotes: number
-  assistencias: number
-  roubos: number
-  tocos: number
-  faltas: number
-  titular: boolean
-  emQuadra: boolean
-}
+import { Atleta } from '../domain/atleta'
 
 type AthleteCardsProps = {
-  athletes: AthleteStats[]
+  athletes: Atleta[]
   addPoints: (id: number, pts: number, equipeId: number) => void
-  updateAthleteStats: (id: number, stat: keyof AthleteStats, value: number) => void
-  handleSubstituicao: (athlete: AthleteStats) => void
+  updateAthleteStats: (id: number, stat: keyof Atleta, value: number) => void
+  handleSubstituicao: (athlete: Atleta) => void
 }
 
 export default function AthleteCards({
