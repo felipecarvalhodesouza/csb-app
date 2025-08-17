@@ -95,6 +95,7 @@ export default function EstatisticasAoVivoScreen() {
         jogoId: jogo.id,
         timestamp: new Date(Date.now()).toISOString().slice(0, 19),
         equipeId: activeTeam === 'mandante' ? jogo.mandante.id : jogo.visitante.id,
+        periodo: quarto
       })
     }
 
@@ -107,7 +108,8 @@ export default function EstatisticasAoVivoScreen() {
       responsavelId: athleteId,
       jogoId: jogo.id,
       timestamp: new Date(Date.now()).toISOString().slice(0, 19),
-      equipeId: equipeId
+      equipeId: equipeId,
+      periodo: quarto
     })
     updateAthleteStats(athleteId, 'pontos', points)
   }

@@ -4,5 +4,6 @@ export default interface Evento {
   responsavelId: number
   jogoId: number
   timestamp: string
-  equipeId: number
+  equipeId: number,
+  periodo: number
 }
