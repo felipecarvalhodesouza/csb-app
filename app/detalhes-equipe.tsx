@@ -15,6 +15,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import Header from './header'
 import Footer from './footer'
 import { Atleta } from './domain/atleta'
+import { API_BASE_URL } from '../utils/config'
 
 export default function EquipeDetalhesScreen() {
 const router = useRouter()
@@ -40,7 +41,7 @@ const [loading, setLoading] = useState(true)
 
         const token = JSON.parse(user).token
 
-        const response = await fetch(`http://192.168.1.13:8080/equipes/${id}/atletas`, {
+        const response = await fetch(`${API_BASE_URL}/equipes/${id}/atletas`, {
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',

@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { ScrollView, Text } from 'react-native';
 import Torneio from './domain/torneio';
 import { apiFetch } from './utils/api'
+import { API_BASE_URL } from '../utils/config'
 
 export default function TorneiosScreen() {
   const router = useRouter()
@@ -14,7 +15,7 @@ export default function TorneiosScreen() {
   useEffect(() => {
     const fetchTorneios = async (options:RequestInit = {}) => {
       try {
-        const data = await apiFetch(`http://192.168.1.13:8080/torneios/modalidade/${id}`, options) as Torneio[];
+        const data = await apiFetch(`${API_BASE_URL}/torneios/modalidade/${id}`, options) as Torneio[];
         const torneioEmAndamento = data.find(torneio => torneio.status === 'EM_ANDAMENTO');
 
         if (torneioEmAndamento) {

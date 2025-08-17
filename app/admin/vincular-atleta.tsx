@@ -7,6 +7,7 @@ import Footer from '../footer'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import DialogError from '../componente/dialog-error'
 import { modalidades } from '../utils/modalidades'
+import { API_BASE_URL } from '../../utils/config'
 
 import MultiSelect from 'react-native-multiple-select'
 
@@ -48,7 +49,7 @@ export default function VincularAtletaCategoriaScreen() {
         'Authorization': `Bearer ${JSON.parse(user).token}`,
         'Content-Type': 'application/json',
       }
-      const response = await fetch(`http://192.168.1.13:8080/torneios/modalidade/${modalidadeId}`, { headers })
+      const response = await fetch(`${API_BASE_URL}/torneios/modalidade/${modalidadeId}`, { headers })
       const data = await response.json()
       setTorneios(data)
       setTorneioSelecionado(null)
@@ -74,7 +75,7 @@ export default function VincularAtletaCategoriaScreen() {
         'Authorization': `Bearer ${JSON.parse(user).token}`,
         'Content-Type': 'application/json',
       }
-      const response = await fetch(`http://192.168.1.13:8080/torneios/${torneioId}/categorias`, { headers })
+      const response = await fetch(`${API_BASE_URL}/torneios/${torneioId}/categorias`, { headers })
       const data = await response.json()
       setCategorias(data)
       setCategoriaSelecionada(null)
@@ -101,7 +102,7 @@ export default function VincularAtletaCategoriaScreen() {
       }
 
       const [response] = await Promise.all([
-        fetch(`http://192.168.1.13:8080/torneios/${torneioId}/categorias/${categoriaId}/equipes`, { headers })
+        fetch(`${API_BASE_URL}/torneios/${torneioId}/categorias/${categoriaId}/equipes`, { headers })
       ])
 
       let equipesData: any[] = []
@@ -134,8 +135,8 @@ export default function VincularAtletaCategoriaScreen() {
       }
       // Buscar atletas disponíveis e vinculados
       const [disponiveisRes, vinculadosRes] = await Promise.all([
-        fetch(`http://192.168.1.13:8080/equipes/${equipeId}/atletas`, { headers }),
-        fetch(`http://192.168.1.13:8080/torneios/${torneioId}/categorias/${categoriaId}/equipes/${equipeId}/atletas`, { headers }),
+        fetch(`${API_BASE_URL}/equipes/${equipeId}/atletas`, { headers }),
+        fetch(`${API_BASE_URL}/torneios/${torneioId}/categorias/${categoriaId}/equipes/${equipeId}/atletas`, { headers }),
       ])
 
       let atletasDisponiveisData: any[] = []
@@ -217,7 +218,7 @@ export default function VincularAtletaCategoriaScreen() {
           'Authorization': `Bearer ${JSON.parse(user).token}`,
           'Content-Type': 'application/json',
         }
-        const response = await fetch(`http://192.168.1.13:8080/torneios/${torneioSelecionado}/categorias/${categoriaSelecionada}/atletas`, {
+        const response = await fetch(`${API_BASE_URL}/torneios/${torneioSelecionado}/categorias/${categoriaSelecionada}/atletas`, {
           headers,
           method: 'POST',
           body: JSON.stringify(body),

@@ -16,6 +16,8 @@ import { useEffect, useState } from 'react'
 import Jogo from './domain/jogo'
 import GameCard from './componente/game-card'
 import { apiFetch } from './utils/api'
+import { API_BASE_URL } from '../utils/config'
+
 
 export default function CategoriaJogosScreen() {
   const { torneioId, categoriaId, nomeCategoria, nomeTorneio } = useLocalSearchParams<{ torneioId:string, categoriaId: string, nomeCategoria:string, nomeTorneio: string}>()
@@ -30,7 +32,7 @@ export default function CategoriaJogosScreen() {
     const fetchJogos = async () => {
       try {
         setLoading(true)
-        const data = await apiFetch<Jogo[]>(`http://192.168.1.13:8080/torneios/${torneioId}/categorias/${categoriaId}/jogos`)
+        const data = await apiFetch<Jogo[]>(`${API_BASE_URL}/torneios/${torneioId}/categorias/${categoriaId}/jogos`)
         setJogos(data)
       } catch (err: any) {
         setError(err.message || 'Erro desconhecido.')

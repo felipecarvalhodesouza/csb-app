@@ -9,6 +9,7 @@ import DialogError from '../componente/dialog-error'
 import { DatePickerModal } from 'react-native-paper-dates'
 import { format } from 'date-fns'
 import { modalidades } from '../utils/modalidades'
+import { API_BASE_URL } from '../../utils/config'
 
 export default function IncluirAtletaScreen() {
   const theme = useTheme()
@@ -51,7 +52,7 @@ export default function IncluirAtletaScreen() {
         'Content-Type': 'application/json',
       }
 
-      const response = await fetch(`http://192.168.1.13:8080/torneios/modalidade/${modalidadeId}`, { headers })
+      const response = await fetch(`${API_BASE_URL}/torneios/modalidade/${modalidadeId}`, { headers })
       const data = await response.json()
       setTorneios(data)
       setTorneioSelecionado(null)
@@ -77,7 +78,7 @@ export default function IncluirAtletaScreen() {
         'Content-Type': 'application/json',
       }
 
-      const response = await fetch(`http://192.168.1.13:8080/torneios/${torneioId}/equipes`, { headers })
+      const response = await fetch(`${API_BASE_URL}/torneios/${torneioId}/equipes`, { headers })
       const data = await response.json()
       setEquipes(data)
       setEquipeSelecionada(null)
@@ -113,7 +114,7 @@ export default function IncluirAtletaScreen() {
           'Content-Type': 'application/json',
         }
 
-        const response = await fetch('http://192.168.1.13:8080/atletas', {
+        const response = await fetch(`${API_BASE_URL}/atletas`, {
           method: 'POST',
           headers,
           body: JSON.stringify(novoAtleta),

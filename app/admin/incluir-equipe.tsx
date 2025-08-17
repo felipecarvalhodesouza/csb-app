@@ -16,6 +16,7 @@ import { modalidades } from '../utils/modalidades'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import DialogError from '../componente/dialog-error'
 import Equipe from '../domain/equipe'
+import { API_BASE_URL } from '../../utils/config'
 
 export default function IncluirEquipeScreen() {
   const theme = useTheme()
@@ -46,7 +47,7 @@ export default function IncluirEquipeScreen() {
           'Content-Type': 'application/json',
         }
 
-        const response = await fetch('http://192.168.1.13:8080/equipes', {
+        const response = await fetch(`${API_BASE_URL}/equipes`, {
           method: 'POST',
           headers,
           body: JSON.stringify(novaEquipe),

@@ -10,6 +10,7 @@ import AthleteCards from './componente/player-card-game'
 import Evento from './domain/evento'
 import { getEstatisticaPorAthlete } from './domain/estatistica'
 import { Atleta } from './domain/atleta'
+import { API_BASE_URL } from '../utils/config'
 
 export default function EstatisticasAoVivoScreen() {
   const { jogoId } = useLocalSearchParams()
@@ -28,7 +29,7 @@ export default function EstatisticasAoVivoScreen() {
     async function fetchJogo() {
       setLoading(true)
       try {
-        const jogoData = await apiFetch<any>(`http://192.168.1.13:8080/jogos/${jogoId}`)
+        const jogoData = await apiFetch<any>(`${API_BASE_URL}/jogos/${jogoId}`)
         setJogo(jogoData)
         setMandante(
           (jogoData.atletasMandante || []).map(a => ({
@@ -131,7 +132,7 @@ export default function EstatisticasAoVivoScreen() {
 
     async function handleEvent(event: Evento) {
       try {
-        await apiPost(`http://192.168.1.13:8080/jogos/${jogo.id}/eventos`, event)
+        await apiPost(`${API_BASE_URL}/jogos/${jogo.id}/eventos`, event)
       } catch (e) {
         alert('Erro ao enviar evento')
       }

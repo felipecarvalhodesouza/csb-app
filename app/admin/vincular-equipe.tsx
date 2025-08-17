@@ -7,6 +7,7 @@ import Footer from '../footer'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import DialogError from '../componente/dialog-error'
 import { modalidades } from '../utils/modalidades'
+import { API_BASE_URL } from '../../utils/config'
 
 export default function VincularEquipeTorneioScreen() {
   const theme = useTheme()
@@ -46,7 +47,7 @@ export default function VincularEquipeTorneioScreen() {
         'Content-Type': 'application/json',
       }
 
-      const response = await fetch(`http://192.168.1.13:8080/torneios/modalidade/${modalidadeId}`, { headers })
+      const response = await fetch(`${API_BASE_URL}/torneios/modalidade/${modalidadeId}`, { headers })
       const data = await response.json()
       setTorneios(data)
       setTorneioSelecionado(null)
@@ -72,7 +73,7 @@ export default function VincularEquipeTorneioScreen() {
         'Content-Type': 'application/json',
       }
 
-      const response = await fetch(`http://192.168.1.13:8080/torneios/${torneioId}/categorias`, { headers })
+      const response = await fetch(`${API_BASE_URL}/torneios/${torneioId}/categorias`, { headers })
       const data = await response.json()
       setCategorias(data)
       setCategoriaSelecionada(null)
@@ -100,8 +101,8 @@ export default function VincularEquipeTorneioScreen() {
       }
 
       const [disponiveisRes, vinculadasRes] = await Promise.all([
-        fetch(`http://192.168.1.13:8080/equipes?codigoModalidade=${modalidade}`, { headers }),
-        fetch(`http://192.168.1.13:8080/torneios/${torneioId}/categorias/${categoriaId}/equipes`, { headers })
+        fetch(`${API_BASE_URL}/equipes?codigoModalidade=${modalidade}`, { headers }),
+        fetch(`${API_BASE_URL}/torneios/${torneioId}/categorias/${categoriaId}/equipes`, { headers })
       ])
 
 
@@ -177,7 +178,7 @@ export default function VincularEquipeTorneioScreen() {
         equipeId: equipeSelecionada
       }
 
-        const response = await fetch(`http://192.168.1.13:8080/torneios/${torneioSelecionado}/categorias/${categoriaSelecionada}/equipes`, {
+        const response = await fetch(`${API_BASE_URL}/torneios/${torneioSelecionado}/categorias/${categoriaSelecionada}/equipes`, {
           headers,
           method: 'POST',
           body: JSON.stringify(novoVinculo),

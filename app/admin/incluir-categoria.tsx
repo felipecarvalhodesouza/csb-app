@@ -16,6 +16,7 @@ import { modalidades } from '../utils/modalidades'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import DialogError from '../componente/dialog-error'
 import Categoria from '../domain/categoria'
+import { API_BASE_URL } from '../../utils/config'
 
 export default function IncluirCategoriaScreen() {
   const theme = useTheme()
@@ -48,7 +49,7 @@ export default function IncluirCategoriaScreen() {
         'Content-Type': 'application/json',
       }
 
-      const response = await fetch(`http://192.168.1.13:8080/torneios/modalidade/${modalidadeId}`, { headers })
+      const response = await fetch(`${API_BASE_URL}/torneios/modalidade/${modalidadeId}`, { headers })
       const torneios = await response.json()
       setTorneios(torneios)
     } catch (error) {
@@ -75,7 +76,7 @@ export default function IncluirCategoriaScreen() {
         console.log(nomeCategoria)
         console.log(torneioSelecionado)
 
-        const response = await fetch(`http://192.168.1.13:8080/torneios/${novaCategoria.torneio.id}/categorias`, {
+        const response = await fetch(`${API_BASE_URL}/torneios/${novaCategoria.torneio.id}/categorias`, {
           method: 'POST',
           headers,
           body: JSON.stringify(novaCategoria),

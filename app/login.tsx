@@ -4,6 +4,7 @@ import { YStack, Text, Input, Button, Image, Separator, Theme, useTheme } from '
 import { TouchableOpacity } from 'react-native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { getFavoriteModality } from '../utils/preferences'
+import { API_BASE_URL } from '../utils/config'
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('felipe_iverson@hotmail.com')
@@ -40,7 +41,7 @@ export default function LoginScreen() {
     setErrorMessage(null)
 
     try {
-      const response = await fetch('http://192.168.1.13:8080/auth/login', {
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),

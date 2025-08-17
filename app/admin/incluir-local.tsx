@@ -5,6 +5,7 @@ import Footer from '../footer'
 import DialogError from '../componente/dialog-error'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useRouter } from 'expo-router'
+import { API_BASE_URL } from '../../utils/config'
 
 export default function IncluirLocalScreen() {
   const theme = useTheme()
@@ -66,8 +67,8 @@ export default function IncluirLocalScreen() {
 
 
     const local = { nome, cep, logradouro, numero, complemento, bairro, cidade, estado }
-    const response = await fetch('http://192.168.1.13:8080/locais', { 
-        headers ,
+    const response = await fetch(`${API_BASE_URL}/locais`, {
+        headers,
         method: 'POST',
         body: JSON.stringify(local),
     })

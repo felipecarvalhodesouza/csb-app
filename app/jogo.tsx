@@ -19,6 +19,7 @@ import Jogo from './domain/jogo'
 import ResumoJogo from './componente/resumo-jogo'
 import EstatisticasJogo from './componente/estatisticas-jogo'
 import { useEffect } from 'react'
+import { API_BASE_URL } from '../utils/config'
 
 export default function TelaJogo() {
 
@@ -32,7 +33,7 @@ export default function TelaJogo() {
     useEffect(() => {
       const fetchJogos = async (options: RequestInit = {}) => {
         try {
-          const data = await apiFetch<Jogo>(`http://192.168.1.13:8080/jogos/${jogoId}`, options)
+          const data = await apiFetch<Jogo>(`${API_BASE_URL}/jogos/${jogoId}`, options)
           setJogo(data)
         } catch (error) {
           console.error('Error fetching jogos:', error)

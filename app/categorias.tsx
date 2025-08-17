@@ -15,6 +15,7 @@ import Header from './header'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { getFavoriteModality } from '../utils/preferences'
+import { API_BASE_URL } from '../utils/config'
 
 export default function CategoriasScreen() {
   const theme = useTheme()
@@ -32,7 +33,7 @@ export default function CategoriasScreen() {
           'Content-Type': 'application/json',
         }
 
-        const response = await fetch(`http://192.168.1.13:8080/torneios/${torneio}/categorias`, { headers })
+        const response = await fetch(`${API_BASE_URL}/torneios/${torneio}/categorias`, { headers })
         if (!response.ok) throw new Error('Erro ao carregar categorias.')
 
         const data = await response.json()

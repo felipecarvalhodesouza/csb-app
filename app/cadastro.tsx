@@ -12,6 +12,7 @@ import {
 } from 'tamagui'
 import { TouchableOpacity } from 'react-native'
 import PasswordStrengthBar from './componente/forca-senha'
+import { API_BASE_URL } from '../utils/config'
 
 export default function CadastroScreen() {
   const router = useRouter()
@@ -101,7 +102,7 @@ export default function CadastroScreen() {
     if (hasError) return
 
     try {
-      const response = await fetch('http://192.168.1.13:8080/usuarios/cadastrar', {
+      const response = await fetch(`${API_BASE_URL}/usuarios/cadastrar`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -10,6 +10,7 @@ import Header from './header'
 import { Check } from '@tamagui/lucide-icons'
 import { useRouter } from 'expo-router'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { API_BASE_URL } from '../utils/config'
 
 type GameEditScreenProps = {
   onIniciar: (jogoEditado: Jogo) => void
@@ -154,7 +155,7 @@ export default function GameEditScreen({
     async function fetchJogo() {
       setLoading(true)
       try {
-        const jogoData = await apiFetch<Jogo>(`http://192.168.1.13:8080/jogos/${jogoId}`)
+        const jogoData = await apiFetch<Jogo>(`${API_BASE_URL}/jogos/${jogoId}`)
         setJogo(jogoData)
       } finally {
         setLoading(false)
@@ -169,8 +170,8 @@ export default function GameEditScreen({
       if (!jogo) return
       try {
         const [mandanteAtletas, visitanteAtletas] = await Promise.all([
-          apiFetch<Atleta[]>(`http://192.168.1.13:8080/torneios/${torneioId}/categorias/${jogo.categoria.id}/equipes/${jogo.mandante.id}/atletas`),
-          apiFetch<Atleta[]>(`http://192.168.1.13:8080/torneios/${torneioId}/categorias/${jogo.categoria.id}/equipes/${jogo.visitante.id}/atletas`),
+          apiFetch<Atleta[]>(`${API_BASE_URL}/torneios/${torneioId}/categorias/${jogo.categoria.id}/equipes/${jogo.mandante.id}/atletas`),
+          apiFetch<Atleta[]>(`${API_BASE_URL}/torneios/${torneioId}/categorias/${jogo.categoria.id}/equipes/${jogo.visitante.id}/atletas`),
         ])
         setMandante(mandanteAtletas)
         setVisitante(visitanteAtletas)
@@ -246,7 +247,7 @@ export default function GameEditScreen({
       }
 
 
-      await apiPut(`http://192.168.1.13:8080/jogos/${jogo.id}`, jogoEditado)
+      await apiPut(`${API_BASE_URL}/jogos/${jogo.id}`, jogoEditado)
 
       // Sucesso: navega para a tela de estatísticas ao vivo
       router.replace(`/estatisticas-ao-vivo?jogoId=${jogo.id}`)

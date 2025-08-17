@@ -11,6 +11,7 @@ import DialogError from '../componente/dialog-error'
 import { DatePickerModal, TimePickerModal } from 'react-native-paper-dates'
 import { format } from 'date-fns'
 import { getFavoriteModality } from '../../utils/preferences'
+import { API_BASE_URL } from '../../utils/config'
 
 export default function IncluirJogoScreen() {
   const theme = useTheme()
@@ -50,7 +51,7 @@ export default function IncluirJogoScreen() {
         'Content-Type': 'application/json',
       }
 
-      const response = await fetch(`http://192.168.1.13:8080/torneios/modalidade/${modalidadeId}`, { headers })
+      const response = await fetch(`${API_BASE_URL}/torneios/modalidade/${modalidadeId}`, { headers })
       const data = await response.json()
       setTorneios(data)
       setTorneioSelecionado(null)
@@ -70,7 +71,7 @@ export default function IncluirJogoScreen() {
         'Content-Type': 'application/json',
       }
 
-      const response = await fetch(`http://192.168.1.13:8080/torneios/${torneioId}/categorias`, { headers })
+      const response = await fetch(`${API_BASE_URL}/torneios/${torneioId}/categorias`, { headers })
       const data = await response.json()
       setCategorias(data)
       setCategoriaSelecionada(null)
@@ -88,7 +89,7 @@ export default function IncluirJogoScreen() {
         'Content-Type': 'application/json',
       }
 
-      const response = await fetch(`http://192.168.1.13:8080/torneios/${torneioId}/equipes`, { headers })
+      const response = await fetch(`${API_BASE_URL}/torneios/${torneioId}/equipes`, { headers })
       const data = await response.json()
       setEquipes(data)
     } catch (error) {
@@ -104,7 +105,7 @@ export default function IncluirJogoScreen() {
         'Content-Type': 'application/json',
       }
 
-      const response = await fetch(`http://192.168.1.13:8080/locais`, { headers })
+      const response = await fetch(`${API_BASE_URL}/locais`, { headers })
       const data = await response.json()
       setLocais(data)
     } catch (error) {
@@ -171,7 +172,7 @@ export default function IncluirJogoScreen() {
         novoJogo.local = { id: Number(localSelecionado) }
       }
 
-      const response = await fetch('http://192.168.1.13:8080/jogos', {
+      const response = await fetch(`${API_BASE_URL}/jogos`, {
         method: 'POST',
         headers,
         body: JSON.stringify(novoJogo),

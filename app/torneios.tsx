@@ -14,6 +14,7 @@ import Header from './header'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { getFavoriteModality } from '../utils/preferences'
+import { API_BASE_URL } from '../utils/config'
 
 export default function TorneiosScreen() {
   const theme = useTheme()
@@ -31,7 +32,7 @@ export default function TorneiosScreen() {
 
       const modality = await getFavoriteModality();
 
-      const response = await fetch(`http://192.168.1.13:8080/torneios/modalidade/${modality}`, { headers })
+      const response = await fetch(`${API_BASE_URL}/torneios/modalidade/${modality}`, { headers })
       const data = await response.json()
       setTorneios(data)
     } catch (error) {

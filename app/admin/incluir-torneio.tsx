@@ -15,6 +15,7 @@ import Footer from '../footer'
 import { modalidades } from '../utils/modalidades'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import DialogError from '../componente/dialog-error'
+import { API_BASE_URL } from '../../utils/config'
 
 export default function IncluirTorneioScreen() {
   const theme = useTheme()
@@ -47,7 +48,7 @@ const handleCloseDialog = () => {
         'Content-Type': 'application/json',
       }
 
-      const response = await fetch('http://192.168.1.13:8080/torneios', {
+      const response = await fetch(`${API_BASE_URL}/torneios`, {
         ...options,
         method: 'POST',
         headers,
