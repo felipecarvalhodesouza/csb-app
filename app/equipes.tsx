@@ -6,7 +6,6 @@ import {
   Text,
   View,
   Theme,
-  useTheme,
   ScrollView,
   Spinner,
 } from 'tamagui'
@@ -18,7 +17,6 @@ import { getFavoriteModality } from '../utils/preferences'
 import { API_BASE_URL } from '../utils/config'
 
 export default function SelecaoEquipesScreen() {
-  const theme = useTheme()
   const router = useRouter()
 
   const [equipes, setEquipes] = useState<any[]>([])
@@ -62,7 +60,7 @@ export default function SelecaoEquipesScreen() {
   }
 
   return (
-    <Theme name={theme.name}>
+    <Theme>
       <YStack f={1} bg="$background" jc="space-between" pt="$6" pb="$9">
         <Header title="Selecione a Equipe" />
 
@@ -73,7 +71,7 @@ export default function SelecaoEquipesScreen() {
         ) : equipes.length === 0 ? (
           <YStack f={1} jc="center" ai="center" px="$4">
             <Text fontSize={16} color="$gray10" textAlign="center">
-              Nenhuma equipe cadastrada nessa categoria
+              Nenhuma equipe cadastrada nessa modalidade
             </Text>
           </YStack>
         ) : (

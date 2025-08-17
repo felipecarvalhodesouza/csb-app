@@ -22,7 +22,6 @@ const placeholder = require('../assets/team.png')
 export default function SelecionarEquipe() {
   const { torneio } = useLocalSearchParams()
   const router = useRouter()
-  const theme = useTheme()
 
   const [equipes, setEquipes] = useState<Equipe[]>([])
   const [selected, setSelected] = useState<number | null>(null)
@@ -30,6 +29,7 @@ export default function SelecionarEquipe() {
 
   useEffect(() => {
     const checkFavoriteAndFetch = async () => {
+
       const fav = await AsyncStorage.getItem('equipe_favorita')
       if (fav) {
         const equipe = JSON.parse(fav)
@@ -60,7 +60,7 @@ export default function SelecionarEquipe() {
     if (!equipe) return
 
     await AsyncStorage.setItem('equipe_favorita', JSON.stringify(equipe))
-    router.replace(`/equipe?eq=${equipe.id}`)
+    router.replace(`/equipe?equipeId=${equipe.id}&nomeEquipe=${equipe.nome}&torneioId=${torneio}`)
   }
 
   if (loading) {
@@ -68,7 +68,7 @@ export default function SelecionarEquipe() {
   }
 
   return (
-    <Theme name={theme.name}>
+    <Theme>
       <YStack f={1} bg="$background" jc="space-between" pb={"$9"} pt={"$6"}>
         <Header title="Selecione a sua equipe favorita" />
 

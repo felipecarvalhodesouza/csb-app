@@ -87,7 +87,7 @@ export default function CategoriaJogosScreen() {
                   onPress={() =>
                     router.push({
                       pathname: '/splash-patrocinador',
-                      params: { next: `/jogo?id=${jogo.id}` },
+                      params: { next: `/jogo?jogoId=${jogo.id}` },
                     })
                   }
                 />
@@ -104,7 +104,7 @@ export default function CategoriaJogosScreen() {
                 onPress={() =>
                   router.push({
                     pathname: '/splash-patrocinador',
-                    params: { next: `/jogo?id=${jogo.id}` },
+                    params: { next: `/jogo?jogoId=${jogo.id}` },
                   })
                 }
               />

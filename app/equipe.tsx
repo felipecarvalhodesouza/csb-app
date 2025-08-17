@@ -86,8 +86,8 @@ export default function HomeEquipe() {
   return (
     <Theme>
       <YStack f={1} bg="$background" jc="space-between" pb="$9" pt="$6">
-        <Header title={nomeEquipe} subtitle="Calendário de Jogos" />
-    
+        <Header title={nomeEquipe} subtitle="Calendário de Jogos" equipe={equipeId} />
+
         <ScrollView
           contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32 }}
           space="$4"

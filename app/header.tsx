@@ -1,28 +1,58 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   YStack,
   XStack,
   Text,
   Image,
-  Avatar,
+  Button,
   ListItem,
-  Separator,
-  Button
+  Separator
 } from 'tamagui'
 import { useRouter } from 'expo-router'
 import { Pressable } from 'react-native'
+import { LogOut, Star } from '@tamagui/lucide-icons'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import { apiFetch } from './utils/api'
+import Equipe from './domain/equipe'
+import { API_BASE_URL } from '../utils/config'
 
 type HeaderSectionProps = {
   title: string
   subtitle?: string
   button?: React.ReactNode
+  equipe?: any
 }
 
-export default function Header({ title, subtitle, button }: HeaderSectionProps) {
+export default function Header({ title, subtitle, button, equipe }: HeaderSectionProps) {
   const [open, setOpen] = useState(false)
+  const [confirmLogout, setConfirmLogout] = useState(false)
+  const [favorito, setFavorito] = useState(false)
   const router = useRouter()
 
+
+  useEffect(() => {
+    async function checkFavorito() {
+      if (!equipe) return
+      const fav = await AsyncStorage.getItem('equipe_favorita')
+      setFavorito(fav ? JSON.parse(fav).id == equipe : false)
+    }
+    checkFavorito()
+  }, [equipe])
+
+  const handleToggleFavorito = async () => {
+    if (!equipe) return
+    if (favorito) {
+      await AsyncStorage.removeItem('equipe_favorita')
+      setFavorito(false)
+    } else {
+      const equipeResponse = await apiFetch<Equipe>(`${API_BASE_URL}/equipes/${equipe}`)
+      await AsyncStorage.setItem('equipe_favorita', JSON.stringify(equipeResponse))
+      setFavorito(true)
+    }
+  }
+
   const handleLogout = async () => {
+    setConfirmLogout(false)
     setOpen(false)
     router.replace('/login')
   }
@@ -31,14 +61,29 @@ export default function Header({ title, subtitle, button }: HeaderSectionProps) 
     <>
       <YStack px="$4" pt="$1" pb="$3" bg="$background">
         <XStack jc="space-between" ai="center">
-        {!button && (
-          <Image
-            source={require('../assets/logo.png')}
-            width={50}
-            height={50}
-          />
-        )}
-        {button && (<>{button}</>)}  
+          {!button && !equipe && (
+            <Image
+              source={require('../assets/logo.png')}
+              width={50}
+              height={50}
+            />
+          )}
+          {button && !equipe && (<>{button}</>)}
+
+          {!button && equipe && (
+            <Button
+              chromeless
+              onPress={handleToggleFavorito}
+              aria-label="Favorito"
+            >
+              <Star
+                color={favorito ? 'yellow' : 'black'}
+                fill={favorito ? 'yellow' : 'transparent'}
+                stroke={favorito ? 'yellow' : 'white'}
+                size={24}
+              />
+            </Button>
+          )}
 
           <YStack f={1} ai="center" jc="center">
             <Text fontSize={16} fontWeight="600" ta="center">
@@ -50,15 +95,16 @@ export default function Header({ title, subtitle, button }: HeaderSectionProps) 
               </Text>
             )}
           </YStack>
-
-          <Avatar circular size="$3" onPress={() => setOpen(true)}>
-            <Avatar.Image
-              source={require('../assets/avatar-placeholder.png')}
-            />
-          </Avatar>
+          <Button
+            icon={LogOut}
+            chromeless
+            onPress={() => setConfirmLogout(true)}
+            aria-label="Logout"
+          />
         </XStack>
       </YStack>
 
+      {/* Modal de menu */}
       {open && (
         <YStack
           position="absolute"
@@ -70,9 +116,7 @@ export default function Header({ title, subtitle, button }: HeaderSectionProps) 
           zIndex={100}
           jc="center"
           ai="center"
-          // Dica: se quiser efeito de blur, pode usar 'backdropFilter' via CSS ou tamagui custom prop
         >
-          {/* Clique fora para fechar */}
           <Pressable
             onPress={() => setOpen(false)}
             style={{
@@ -82,7 +126,6 @@ export default function Header({ title, subtitle, button }: HeaderSectionProps) 
             }}
           />
 
-          {/* Modal principal */}
           <YStack
             width={320}
             bg="$backgroundStrong"
@@ -125,7 +168,7 @@ export default function Header({ title, subtitle, button }: HeaderSectionProps) 
             <Button
               size="$4"
               theme="red"
-              onPress={handleLogout}
+              onPress={() => setConfirmLogout(true)}
             >
               Sair
             </Button>
@@ -137,6 +180,46 @@ export default function Header({ title, subtitle, button }: HeaderSectionProps) 
             >
               <Text>Fechar</Text>
             </Button>
+          </YStack>
+        </YStack>
+      )}
+
+      {/* Modal de confirmação de logout */}
+      {confirmLogout && (
+        <YStack
+          position="absolute"
+          top={0}
+          left={0}
+          width="100%"
+          height="100%"
+          bg="rgba(0,0,0,0.8)"
+          zIndex={200}
+          jc="center"
+          ai="center"
+        >
+          <YStack
+            width={280}
+            bg="$color2"
+            p="$5"
+            br="$8"
+            elevation="$6"
+            zIndex={201}
+            gap="$4"
+            ai="center"
+            bc="$color4"
+            bw={1}
+          >
+            <Text fontSize={18} fontWeight="700" ta="center" mb="$2">
+              Deseja realmente sair?
+            </Text>
+            <XStack gap="$3" jc="center">
+              <Button theme="red" onPress={handleLogout}>
+                Sim
+              </Button>
+              <Button variant="outlined" onPress={() => setConfirmLogout(false)}>
+                Cancelar
+              </Button>
+            </XStack>
           </YStack>
         </YStack>
       )}

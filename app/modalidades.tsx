@@ -29,7 +29,7 @@ export default function ModalidadesScreen() {
   }
 
   return (
-    <Theme name={theme.name}>
+    <Theme>
       <YStack f={1} bg="$background" jc="space-between" pb={"$9"} pt={"$6"}>
       <Header title="Campeonato Santista" />
 
