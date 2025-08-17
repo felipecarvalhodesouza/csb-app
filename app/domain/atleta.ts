@@ -23,4 +23,5 @@ export interface Atleta {
   roubos: number;
   tocos: number;
   faltas: number;
+  faltasDesqualificantes: number;
 }

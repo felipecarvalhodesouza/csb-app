@@ -78,14 +78,32 @@ export default function EstatisticasAoVivoScreen() {
   const placarMandante = mandante.reduce((sum, a) => sum + a.pontos, 0)
   const placarVisitante = visitante.reduce((sum, a) => sum + a.pontos, 0)
 
-  async function updateAthleteStats(athleteId: number, stat: keyof Atleta, value: number) {
-    
+  function handleFaults(atleta: Atleta, faltasDesqualificante: boolean){
+    if(faltasDesqualificante) {
+      atleta.faltasDesqualificantes = (atleta.faltasDesqualificantes || 0) + 1;
+    }
+
+    if(atleta.faltas >= 5 || atleta.faltasDesqualificantes >= 2){
+      atleta.expulso = true;
+    }
+  }
+
+  async function updateAthleteStats(athleteId: number, stat: keyof Atleta | string, value: number) {
+
+    const faltasDesqualificante = (stat == 'ft' || stat == 'fad');
+    const statAuxiliar =  faltasDesqualificante ? 'faltas' : stat;
+
     (activeTeam === 'mandante' ? setMandante : setVisitante)(athletes =>
-      athletes.map(a =>
-        a.id === athleteId
-          ? { ...a, [stat]: Math.max(0, Number(a[stat]) + value) }
-          : a
-      )
+      athletes.map(a => {
+        if (a.id === athleteId) {
+          const updatedAthlete = { 
+            ...a, [statAuxiliar]: Math.max(0, Number(a[statAuxiliar]) + value)
+          }
+          handleFaults(updatedAthlete, faltasDesqualificante)
+          return updatedAthlete
+        }
+        return a
+      })
     )
 
     if(stat !== 'pontos') {
@@ -180,7 +198,7 @@ export default function EstatisticasAoVivoScreen() {
         </Tabs>
 
         {/* Players Cards */}
-        <ScrollView px="$4" py="$2">
+
           { activeTeam === 'mandante' && (
             <AthleteCards
               athletes={mandante}
@@ -197,7 +215,7 @@ export default function EstatisticasAoVivoScreen() {
               handleSubstituicao={handleSubstituicao}
             />
           )}
-        </ScrollView>
+
 
         {modalSubstituicao && athleteToSubstitute && (
             <YStack
@@ -215,7 +233,7 @@ export default function EstatisticasAoVivoScreen() {
                 Substituir <Text fontWeight="700">{athleteToSubstitute.nome}</Text>
               </Text>
               {(athleteToSubstitute.teamId == 'mandante' ? mandante : visitante)
-                .filter(a => !a.titular)
+                .filter(a => !a.emQuadra && !a.expulso)
                 .map(reserva => (
                   <Button
                     key={reserva.id}

@@ -7,8 +7,8 @@ export type EstatisticaTipo =
   | "SUBSTITUICAO_IN"
   | "SUBSTITUICAO_OUT"
   | "ERRO"
-  | "FT"
-  | "FAD"
+  | "FALTA_TECNICA"
+  | "FALTA_ANTIDESPORTIVA"
   | "FIM_QUARTO"
 
 export function getEstatisticaPorAthlete(stat: string): EstatisticaTipo {
@@ -30,9 +30,9 @@ export function getEstatisticaPorAthlete(stat: string): EstatisticaTipo {
         case "erro":
             return "ERRO";
         case "ft":
-            return "FT";
+            return "FALTA_TECNICA";
         case "fad":
-            return "FAD";
+            return "FALTA_ANTIDESPORTIVA";
         case "fim_quarto":
             return "FIM_QUARTO";
         default:
