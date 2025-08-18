@@ -19,6 +19,7 @@ import ResumoJogo from './componente/resumo-jogo'
 import EstatisticasJogo from './componente/estatisticas-jogo'
 import { useEffect } from 'react'
 import { API_BASE_URL } from '../utils/config'
+import LanceALance from './componente/lance-a-lance'
 
 export default function TelaJogo() {
 
@@ -126,64 +127,8 @@ export default function TelaJogo() {
         )}
 
         {aba === 'Lances' && (
-  <YStack ai="center" mt="$4" mb="$4" width="100%">
-    {jogo.eventos.length === 0 ? (
-      <Text color="$gray10">Nenhum evento registrado</Text>
-    ) : (
-      jogo.eventos
-        .sort((a, b) => b.timestamp.localeCompare(a.timestamp))
-        .map(ev => {
-          const isMandante = ev.equipe.id === jogo.mandante.id
-          return (
-            <XStack
-              key={ev.id || ev.timestamp}
-              width="100%"
-              jc={isMandante ? "flex-start" : "flex-end"}
-              mb="$2"
-            >
-              <YStack
-                bg={isMandante ? "$yellow2" : "$blue2"}
-                p="$3"
-                borderRadius={12}
-                elevation={2}
-                maxWidth="80%"
-                minWidth={180}
-                ai={isMandante ? "flex-start" : "flex-end"}
-                borderWidth={1}
-                borderColor={isMandante ? "$yellow6" : "$blue6"}
-                gap="$2"
-              >
-                <Text
-                  fontWeight="700"
-                  fontSize={16}
-                  color={isMandante ? "$yellow10" : "$blue10"}
-                  textAlign={isMandante ? "left" : "right"}
-                >
-                  {ev.tipo}
-                </Text>
-                <Text
-                  fontSize={15}
-                  color="$gray12"
-                  fontWeight="500"
-                  textAlign={isMandante ? "left" : "right"}
-                >
-                  {ev.descricao}
-                </Text>
-                <Text
-                  fontSize={12}
-                  color="$gray8"
-                  fontWeight="400"
-                  textAlign={isMandante ? "left" : "right"}
-                >
-                  {new Date(ev.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                </Text>
-              </YStack>
-            </XStack>
-          )
-        })
-    )}
-  </YStack>
-          )}
+          <LanceALance eventos={jogo.eventos} mandanteId={jogo.mandante.id} />
+        )}
 
         {aba === 'Líderes' && (
           <YStack ai="center" mt="$4" mb="$4">
