@@ -1,3 +1,5 @@
+import Equipe from "./equipe"
+
 export default interface Evento {
   id?: number
   tipo: 'LL' | '2PTS' | '3PTS' | 'ASSIST' | 'REBOTE' | 'ROUBO' | 'TOCO' | 'FALTA' | 'SUBSTITUICAO_IN' | 
@@ -5,6 +7,7 @@ export default interface Evento {
   responsavelId: number
   jogoId: number
   timestamp: string
-  equipeId: number,
-  periodo: number
+  equipe: Equipe,
+  periodo: number,
+  descricao: string
 }
