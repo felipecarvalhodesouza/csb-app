@@ -150,6 +150,41 @@ export default function EstatisticasAoVivoScreen() {
     setModalSubstituicao(true)
   }
 
+  function substituirAtleta(reserva: Atleta) {
+    handleEvent({
+        tipo: 'SUBSTITUICAO_OUT',
+        responsavelId: athleteToSubstitute.id,
+        jogoId: jogo.id,
+        timestamp: new Date(Date.now()).toISOString().slice(0, 19),
+        equipeId: athleteToSubstitute.equipeId,
+        periodo: quarto
+    })
+
+    handleEvent({
+        tipo: 'SUBSTITUICAO_IN',
+        responsavelId: reserva.id,
+        jogoId: jogo.id,
+        timestamp: new Date(Date.now()).toISOString().slice(0, 19),
+        equipeId: athleteToSubstitute.equipeId,
+        periodo: quarto
+    })
+
+    const titulares = (athleteToSubstitute.teamId === 'mandante' ? mandante : visitante).map(a =>
+        a.id === athleteToSubstitute.id
+          ? { ...reserva, emQuadra: true }
+          : a.id === reserva.id
+          ? { ...athleteToSubstitute, emQuadra: false }
+          : a
+      )
+    if (athleteToSubstitute.teamId === 'mandante') {
+      setMandante(titulares)
+    } else {
+      setVisitante(titulares)
+    }
+    setModalSubstituicao(false)
+    setAthleteToSubstitute(null)
+  }
+
     async function handleEvent(event: Evento) {
       try {
         await apiPost(`${API_BASE_URL}/jogos/${jogo.id}/eventos`, event)
@@ -238,22 +273,7 @@ export default function EstatisticasAoVivoScreen() {
                   <Button
                     key={reserva.id}
                     mb="$2"
-                    onPress={() => {
-                      const titulares = (athleteToSubstitute.teamId === 'mandante' ? mandante : visitante).map(a =>
-                        a.id === athleteToSubstitute.id
-                          ? { ...reserva, emQuadra: true }
-                          : a.id === reserva.id
-                          ? { ...athleteToSubstitute, emQuadra: false }
-                          : a
-                      )
-                      if (activeTeam === 'mandante') {
-                        setMandante(titulares)
-                      } else {
-                        setVisitante(titulares)
-                      }
-                      setModalSubstituicao(false)
-                      setAthleteToSubstitute(null)
-                    }}
+                    onPress={() => substituirAtleta(reserva)}
                   >
                     {reserva.nome} <Text color="$gray10">#{reserva.numero}</Text>
                   </Button>
