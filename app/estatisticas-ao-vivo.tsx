@@ -142,6 +142,10 @@ export default function EstatisticasAoVivoScreen() {
   }
 
   async function nextQuarter() {
+    if(quarto >= 4 && placarMandante !== placarVisitante) {
+      return;
+    }
+
       await handleEvent({
         tipo: 'FIM_QUARTO',
         responsavelId: undefined,
