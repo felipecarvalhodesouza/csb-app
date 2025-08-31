@@ -32,6 +32,7 @@ export default function EstatisticasAoVivoScreen() {
       try {
         const jogoData = await apiFetch<any>(`${API_BASE_URL}/jogos/${jogoId}`)
         setJogo(jogoData)
+        setQuarto(jogoData.periodo || 1)
         setMandante(
           (jogoData.atletasMandante || []).map(a => ({
             id: a.id,
@@ -140,18 +141,24 @@ export default function EstatisticasAoVivoScreen() {
     updateAthleteStats(athleteId, 'pontos', points)
   }
 
-  function nextQuarter() {
-    if (quarto < 4) {
+  async function nextQuarter() {
+      await handleEvent({
+        tipo: 'FIM_QUARTO',
+        responsavelId: undefined,
+        jogoId: jogo.id,
+        timestamp: new Date(Date.now()).toISOString().slice(0, 19),
+        equipeId: undefined,
+        periodo: quarto,
+        equipe: undefined,
+        descricao: ''
+      })
       setQuarto(q => q + 1)
-    }
   }
 
     async function encerrarJogo() {
     if (quarto >= 4 && placarMandante !== placarVisitante){
         setJogoEncerrado(true);
         await apiPost<any>(`${API_BASE_URL}/jogos/${jogoId}/encerrar`, {})
-    } else if (quarto == 4){
-      nextQuarter();
     }
   }
 
@@ -262,11 +269,11 @@ export default function EstatisticasAoVivoScreen() {
           <XStack jc="space-between" ai="center" px="$4" py="$2" bg="$backgroundStrong" borderRadius={8} mb="$2">
           <YStack>
             <Text fontSize={14} color="$gray10">Período</Text>
-            <Text fontWeight="700" fontSize={18} textAlign="center">{quarto}</Text>
+            <Text fontWeight="700" fontSize={18} textAlign="center">{quarto > 4 ? 'OT ' + (quarto - 4) : quarto}</Text>
           </YStack>
           <Button icon={Undo} chromeless onPress={undoLastAction} disabled={actionHistory.length === 0}>Desfazer</Button>
-          <Button onPress={nextQuarter} disabled={jogoEncerrado} chromeless>Próximo Período</Button>
-          <Button onPress={encerrarJogo} disabled={quarto < 4 || jogoEncerrado} chromeless>Encerrar</Button>
+          <Button onPress={nextQuarter} disabled={jogoEncerrado} chromeless> {quarto >=  4 ? 'Prorrogação' : 'Próximo Período'}</Button>
+          <Button onPress={encerrarJogo} disabled={quarto < 4 || jogoEncerrado || placarMandante === placarVisitante} >Encerrar</Button>
         </XStack>
     }
 
