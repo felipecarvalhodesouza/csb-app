@@ -20,7 +20,8 @@ export default function LanceALance({ eventos, mandanteId }: Props) {
       {eventos
         .sort((a, b) => b.timestamp.localeCompare(a.timestamp))
         .map(ev => {
-          const isMandante = ev.equipe.id === mandanteId
+          const isEventoGenerico = !ev.equipe
+          const isMandante = ev.equipe && ev.equipe.id === mandanteId
           return (
             <XStack
               key={ev.id || ev.timestamp}
@@ -28,6 +29,7 @@ export default function LanceALance({ eventos, mandanteId }: Props) {
               jc={isMandante ? "flex-start" : "flex-end"}
               mb="$2"
             >
+              {!isEventoGenerico && 
               <YStack
                 bg={isMandante ? "$yellow2" : "$blue2"}
                 p="$3"
@@ -62,9 +64,37 @@ export default function LanceALance({ eventos, mandanteId }: Props) {
                   fontWeight="400"
                   textAlign={isMandante ? "left" : "right"}
                 >
+
                   {new Date(ev.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </Text>
               </YStack>
+            }
+            {isEventoGenerico && 
+            <YStack
+              width="100%"
+              ai="center"
+              jc="center"
+              my="$2"
+            >
+              <Text
+                fontWeight="500"
+                fontSize={16}
+                color="$gray12"
+                textAlign="center"
+              >
+                {ev.descricao}
+              </Text>
+              <Text
+                fontSize={12}
+                color="$gray8"
+                fontWeight="400"
+                textAlign="center"
+              >
+                {new Date(ev.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              </Text>
+            </YStack>
+            }
+
             </XStack>
           )
         })}

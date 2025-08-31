@@ -20,6 +20,7 @@ export default function EstatisticasAoVivoScreen() {
   const [visitante, setVisitante] = useState<Atleta[]>([])
   const [activeTeam, setActiveTeam] = useState<'mandante' | 'visitante'>('mandante')
   const [quarto, setQuarto] = useState(1)
+  const [jogoEncerrado, setJogoEncerrado] = useState(false)
   const [loading, setLoading] = useState(true)
   const [modalSubstituicao, setModalSubstituicao] = useState(false)
   const [athleteToSubstitute, setAthleteToSubstitute] = useState<Atleta | null>(null)
@@ -33,7 +34,7 @@ export default function EstatisticasAoVivoScreen() {
         setJogo(jogoData)
         setMandante(
           (jogoData.atletasMandante || []).map(a => ({
-            id: a.atleta.id,
+            id: a.id,
             nome: a.atleta.nome ?? 'Sem nome',
             numero: a.atleta.numero ?? '',
             equipeId: a.atleta.equipe.id,
@@ -51,7 +52,7 @@ export default function EstatisticasAoVivoScreen() {
         )
         setVisitante(
           (jogoData.atletasVisitante || []).map(a => ({
-            id: a.atleta.id,
+            id: a.id,
             nome: a.atleta.nome ?? 'Sem nome',
             numero: a.atleta.numero ?? '',
             equipeId: a.atleta.equipe.id,
@@ -66,6 +67,9 @@ export default function EstatisticasAoVivoScreen() {
             emQuadra: a.emQuadra === true as boolean,
           }))
         )
+        if(jogoData.status === 'ENCERRADO') {
+          setJogoEncerrado(true)
+        }
       } catch (e) {
         alert('Erro ao carregar dados do jogo')
       } finally {
@@ -113,7 +117,9 @@ export default function EstatisticasAoVivoScreen() {
         jogoId: jogo.id,
         timestamp: new Date(Date.now()).toISOString().slice(0, 19),
         equipeId: activeTeam === 'mandante' ? jogo.mandante.id : jogo.visitante.id,
-        periodo: quarto
+        periodo: quarto,
+        equipe: undefined,
+        descricao: ''
       })
     }
 
@@ -127,7 +133,9 @@ export default function EstatisticasAoVivoScreen() {
       jogoId: jogo.id,
       timestamp: new Date(Date.now()).toISOString().slice(0, 19),
       equipeId: equipeId,
-      periodo: quarto
+      periodo: quarto,
+      equipe: undefined,
+      descricao: ''
     })
     updateAthleteStats(athleteId, 'pontos', points)
   }
@@ -135,6 +143,15 @@ export default function EstatisticasAoVivoScreen() {
   function nextQuarter() {
     if (quarto < 4) {
       setQuarto(q => q + 1)
+    }
+  }
+
+    async function encerrarJogo() {
+    if (quarto >= 4 && placarMandante !== placarVisitante){
+        setJogoEncerrado(true);
+        await apiPost<any>(`${API_BASE_URL}/jogos/${jogoId}/encerrar`, {})
+    } else if (quarto == 4){
+      nextQuarter();
     }
   }
 
@@ -152,21 +169,25 @@ export default function EstatisticasAoVivoScreen() {
 
   function substituirAtleta(reserva: Atleta) {
     handleEvent({
-        tipo: 'SUBSTITUICAO_OUT',
-        responsavelId: athleteToSubstitute.id,
-        jogoId: jogo.id,
-        timestamp: new Date(Date.now()).toISOString().slice(0, 19),
-        equipeId: athleteToSubstitute.equipeId,
-        periodo: quarto
+      tipo: 'SUBSTITUICAO_OUT',
+      responsavelId: athleteToSubstitute.id,
+      jogoId: jogo.id,
+      timestamp: new Date(Date.now()).toISOString().slice(0, 19),
+      equipeId: athleteToSubstitute.equipeId,
+      periodo: quarto,
+      equipe: undefined,
+      descricao: ''
     })
 
     handleEvent({
-        tipo: 'SUBSTITUICAO_IN',
-        responsavelId: reserva.id,
-        jogoId: jogo.id,
-        timestamp: new Date(Date.now()).toISOString().slice(0, 19),
-        equipeId: athleteToSubstitute.equipeId,
-        periodo: quarto
+      tipo: 'SUBSTITUICAO_IN',
+      responsavelId: reserva.id,
+      jogoId: jogo.id,
+      timestamp: new Date(Date.now()).toISOString().slice(0, 19),
+      equipeId: athleteToSubstitute.equipeId,
+      periodo: quarto,
+      equipe: undefined,
+      descricao: ''
     })
 
     const titulares = (athleteToSubstitute.teamId === 'mandante' ? mandante : visitante).map(a =>
@@ -209,15 +230,45 @@ export default function EstatisticasAoVivoScreen() {
           subtitle={`${placarMandante} - ${placarVisitante}`}
           button={<Button icon={ChevronLeft} chromeless onPress={() => router.back()} />}
         />
-        
-        <XStack jc="space-between" ai="center" px="$4" py="$2" bg="$backgroundStrong" borderRadius={8} mb="$2">
+
+        {jogoEncerrado && (
+          <YStack
+            px="$4"
+            py="$2"
+            bg="$red2"
+            borderRadius={20}
+            mb="$2"
+            ai="center"
+            jc="center"
+            alignSelf="center"
+            elevation={3}
+            borderWidth={2}
+            borderColor="$red6"
+            maxWidth={200}
+          >
+            <Text
+              fontWeight="700"
+              fontSize={16}
+              color="$red10"
+              letterSpacing={1}
+              textAlign="center"
+            >
+              🏁 Jogo Encerrado
+            </Text>
+          </YStack>
+        )}
+
+        {!jogoEncerrado &&
+          <XStack jc="space-between" ai="center" px="$4" py="$2" bg="$backgroundStrong" borderRadius={8} mb="$2">
           <YStack>
             <Text fontSize={14} color="$gray10">Período</Text>
             <Text fontWeight="700" fontSize={18} textAlign="center">{quarto}</Text>
           </YStack>
           <Button icon={Undo} chromeless onPress={undoLastAction} disabled={actionHistory.length === 0}>Desfazer</Button>
-          <Button onPress={nextQuarter} chromeless>Próximo Período</Button>
+          <Button onPress={nextQuarter} disabled={jogoEncerrado} chromeless>Próximo Período</Button>
+          <Button onPress={encerrarJogo} disabled={quarto < 4 || jogoEncerrado} chromeless>Encerrar</Button>
         </XStack>
+    }
 
         {/* Team Tabs */}
         <Tabs value={activeTeam} onValueChange={v => setActiveTeam(v as 'mandante' | 'visitante') } ml={"$4"} mr={"$4"}>
@@ -290,3 +341,4 @@ export default function EstatisticasAoVivoScreen() {
     </Theme>
   )
 }
+

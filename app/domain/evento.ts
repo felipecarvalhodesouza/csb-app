@@ -10,4 +10,5 @@ export default interface Evento {
   equipe: Equipe,
   periodo: number,
   descricao: string
+  equipeId: number
 }
