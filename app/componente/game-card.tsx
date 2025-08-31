@@ -1,4 +1,4 @@
-import { YStack, XStack, Text, Image, useWindowDimensions } from 'tamagui'
+import { YStack, XStack, Text, Image, useWindowDimensions, Separator } from 'tamagui'
 import Jogo from '../domain/jogo'
 import format, { formatHour } from '../utils/date-formatter'
 import { Pressable } from 'react-native'
@@ -25,6 +25,13 @@ export default function GameCard({ jogo, onPress, onLongPress, isAdmin  }: GameC
       width={width - 32}
       maxWidth="100%"
     >
+
+      { jogo.status === 'ENCERRADO' && (
+        <Text fontSize={12} color="$gray10" ta="center">
+          {jogo.status}
+        </Text>
+      )}
+      <Separator mb="$2" mt={-2} />
       <XStack jc="space-between" ai="center">
         {/* Mandante */}
         <YStack ai="center" w={80} jc="center" space="$1">

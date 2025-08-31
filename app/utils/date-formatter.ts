@@ -1,3 +1,11 @@
+import dayjs from 'dayjs'
+import 'dayjs/locale/pt-br'
+import utc from 'dayjs/plugin/utc'
+import timezone from 'dayjs/plugin/timezone'
+
+dayjs.extend(utc)
+dayjs.extend(timezone)
+
 export default function format(dateStr: string): string {
   if (!dateStr) return ''
 
@@ -22,3 +30,9 @@ export function formatHour(dateStr: string): string {
 
   return `${hours}h${minutes}`
 }
+
+export function getBrazilLocalDateTimeString(): string {
+  return dayjs().tz('America/Sao_Paulo').format('YYYY-MM-DDTHH:mm:ss')
+}
+
+

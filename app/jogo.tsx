@@ -57,8 +57,10 @@ export default function TelaJogo() {
   return (
     <Theme>
       <YStack f={1} bg="$background" jc="space-between" pb={"$9"} pt={"$6"}>
+      <Header
+          title={jogo.mandante.nome + ' vs ' + jogo.visitante.nome}
+      />
       <ScrollView bg="$background" pr="$4" pl="$4">
-        <Header title='Jogo' />
         {/* Header com placar */}
         <XStack jc="space-between" ai="center" m="$3">
           <Text fontSize={20} fontWeight="700">
@@ -73,15 +75,15 @@ export default function TelaJogo() {
         </XStack>
 
         <XStack jc="space-between" mb="$4" ml={"$3"} mr={"$3"}>
-          <Text fontSize={12} color="$gray10">BOS</Text>
-          <Text fontSize={12} color="$gray10">ORL</Text>
+          <Text fontSize={12} color="$gray10">{jogo.mandante.nome.substring(0,3).toUpperCase()}</Text>
+          <Text fontSize={12} color="$gray10">{jogo.visitante.nome.substring(0,3).toUpperCase()}</Text>
         </XStack>
 
         {/* YouTube ao vivo */}
         {jogo.streamUrl && (
           <YStack mb="$4">
             <YoutubePlayer height={200} play={false} videoId={jogo.streamUrl} />
-            { jogo.status === 'Em andamento' && (
+            { jogo.status === 'EM ANDAMENTO' && (
               <Text color="$red10" fontSize={12} mt="$1">Ao vivo</Text>
             )}
           </YStack>

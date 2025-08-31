@@ -62,9 +62,9 @@ export default function HomeEquipe() {
     return agrupado
   }
 
-  const jogosAoVivo = jogos.filter((jogo) => jogo.streamUrl?.toLowerCase() === 'live')
+  const jogosAoVivo = jogos.filter((jogo) => jogo.streamUrl && jogo.status === 'EM_ANDAMENTO')
   const jogosPorCategoria = agruparPorCategoria(
-    jogos.filter((jogo) => jogo.streamUrl?.toLowerCase() !== 'live')
+    jogos.filter((jogo) => !jogo.streamUrl || jogo.status !== 'EM_ANDAMENTO')
   )
 
   if (loading) {

@@ -18,6 +18,7 @@
     "@tamagui/theme": "^1.126.4",
     "@types/react": "~19.0.10",
     "date-fns": "^4.1.0",
+    "dayjs": "^1.11.18",
     "expo": "^53.0.5",
     "expo-router": "~5.0.4",
     "expo-status-bar": "^2.2.3",

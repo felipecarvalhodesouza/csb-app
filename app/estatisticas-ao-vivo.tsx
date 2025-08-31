@@ -11,6 +11,7 @@ import Evento from './domain/evento'
 import { getEstatisticaPorAthlete } from './domain/estatistica'
 import { Atleta } from './domain/atleta'
 import { API_BASE_URL } from '../utils/config'
+import { getBrazilLocalDateTimeString } from './utils/date-formatter'
 
 export default function EstatisticasAoVivoScreen() {
   const { jogoId } = useLocalSearchParams()
@@ -116,7 +117,7 @@ export default function EstatisticasAoVivoScreen() {
         tipo: getEstatisticaPorAthlete(stat),
         responsavelId: athleteId,
         jogoId: jogo.id,
-        timestamp: new Date(Date.now()).toISOString().slice(0, 19),
+        timestamp: getBrazilLocalDateTimeString(),
         equipeId: activeTeam === 'mandante' ? jogo.mandante.id : jogo.visitante.id,
         periodo: quarto,
         equipe: undefined,
@@ -132,7 +133,7 @@ export default function EstatisticasAoVivoScreen() {
       tipo: points == 1 ? 'LL' : points == 2 ? '2PTS' : '3PTS',
       responsavelId: athleteId,
       jogoId: jogo.id,
-      timestamp: new Date(Date.now()).toISOString().slice(0, 19),
+      timestamp: getBrazilLocalDateTimeString(),
       equipeId: equipeId,
       periodo: quarto,
       equipe: undefined,
@@ -150,7 +151,7 @@ export default function EstatisticasAoVivoScreen() {
         tipo: 'FIM_QUARTO',
         responsavelId: undefined,
         jogoId: jogo.id,
-        timestamp: new Date(Date.now()).toISOString().slice(0, 19),
+        timestamp: getBrazilLocalDateTimeString(),
         equipeId: undefined,
         periodo: quarto,
         equipe: undefined,
@@ -183,7 +184,7 @@ export default function EstatisticasAoVivoScreen() {
       tipo: 'SUBSTITUICAO_OUT',
       responsavelId: athleteToSubstitute.id,
       jogoId: jogo.id,
-      timestamp: new Date(Date.now()).toISOString().slice(0, 19),
+      timestamp: getBrazilLocalDateTimeString(),
       equipeId: athleteToSubstitute.equipeId,
       periodo: quarto,
       equipe: undefined,
@@ -194,7 +195,7 @@ export default function EstatisticasAoVivoScreen() {
       tipo: 'SUBSTITUICAO_IN',
       responsavelId: reserva.id,
       jogoId: jogo.id,
-      timestamp: new Date(Date.now()).toISOString().slice(0, 19),
+      timestamp: getBrazilLocalDateTimeString(),
       equipeId: athleteToSubstitute.equipeId,
       periodo: quarto,
       equipe: undefined,
