@@ -23,6 +23,7 @@ const opcoesAdmin = [
   { nome: 'Inclusão de Local', icone: 'account-plus-outline', rota: '/admin/incluir-local', disable: false },
   { nome: 'Inclusão de Jogos', icone: 'account-plus-outline', rota: '/admin/incluir-jogo', disable: false },
   { nome: 'Alteração de Permissões', icone: 'shield-account-outline', rota: '/admin/alterar-permissoes', disable: true },
+  { nome: 'Inclusão de Árbitro', icone: 'account-plus-outline', rota: '/admin/incluir-arbitro', disable: false },
 ]
 
 export default function AdminScreen() {
