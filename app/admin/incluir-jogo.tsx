@@ -12,6 +12,7 @@ import { DatePickerModal, TimePickerModal } from 'react-native-paper-dates'
 import { format } from 'date-fns'
 import { getFavoriteModality } from '../../utils/preferences'
 import { API_BASE_URL } from '../../utils/config'
+import { apiFetch } from '../utils/api'
 
 export default function IncluirJogoScreen() {
   const theme = useTheme()
@@ -27,6 +28,9 @@ export default function IncluirJogoScreen() {
   const [equipeVisitante, setEquipeVisitante] = useState<string | null>(null)
   const [locais, setLocais] = useState<any[]>([])
   const [localSelecionado, setLocalSelecionado] = useState<string | null>(null)
+
+  const [arbitros, setArbitros] = useState<any[]>([])
+  const [arbitroSelecionado, setArbitroSelecionado] = useState<string | null>(null)
 
   const [dataJogo, setDataJogo] = useState<Date | null>(null)
   const [horaJogo, setHoraJogo] = useState<Date | null>(null)
@@ -113,11 +117,20 @@ export default function IncluirJogoScreen() {
     }
   }
 
+  const loadArbitros = async (modalidadeId: string) => {
+    try {
+      apiFetch<any[]>(`${API_BASE_URL}/arbitros/modalidade/${modalidadeId}`).then(data => setArbitros(data))
+    } catch (error) {
+      console.error('Erro ao carregar árbitros:', error)
+    }
+  }
+
   useEffect(() => {
     const fetchTorneiosELocais = async () => {
       const modalidadeAwait = await modalidade
       loadTorneios(modalidadeAwait)
       loadLocais()
+      loadArbitros(modalidadeAwait)
     }
 
     fetchTorneiosELocais()
@@ -201,7 +214,7 @@ export default function IncluirJogoScreen() {
     modalidade && torneioSelecionado && equipeMandante && equipeVisitante && dataJogo && horaJogo
 
   return (
-    <Theme name={theme.name}>
+    <Theme>
       <YStack f={1} bg="$background" pt="$6" pb="$9" jc="space-between">
         <Header title="Incluir Jogo" />
         <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32 }} space="$4">
@@ -277,6 +290,22 @@ export default function IncluirJogoScreen() {
                 <Picker.Item label="Selecione um local" value={null} />
                 {locais.map((l) => (
                   <Picker.Item key={l.id} label={l.nome} value={l.id} />
+                ))}
+              </Picker>
+            </YStack>
+
+
+            <YStack space="$1">
+              <Text>Árbitro Principal</Text>
+              <Picker
+                selectedValue={arbitroSelecionado}
+                onValueChange={(v) => setArbitroSelecionado(v)}
+                enabled={arbitros.length > 0}
+                style={{ height: 40, paddingHorizontal: 8 }}
+              >
+                <Picker.Item label="Selecione um árbitro" value={null} />
+                {arbitros.map((a) => (
+                  <Picker.Item key={a.id} label={a.nome} value={a.id} />
                 ))}
               </Picker>
             </YStack>

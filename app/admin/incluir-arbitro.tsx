@@ -15,6 +15,7 @@ export default function IncluirArbitroScreen() {
 
     const [nome, setNome] = useState('')
     const [email, setEmail] = useState('')
+    const [emailValid, setEmailValid] = useState(true)
     const [modalidadesSelecionadas, setModalidadesSelecionadas] = useState<number[]>([])
 
     const [errorMessage, setErrorMessage] = useState<string | null>(null)
@@ -30,24 +31,19 @@ export default function IncluirArbitroScreen() {
             const novoArbitro = {
                 nome,
                 email,
-                modalidades: modalidadesSelecionadas
+                modalidades: modalidadesSelecionadas.map(id => id - 1)
             }
 
-            const response = await apiPost(`${API_BASE_URL}/arbitros`, novoArbitro)
+            await apiPost(`${API_BASE_URL}/arbitros`, novoArbitro)
 
-            if (response.ok) {
-                setErrorMessage('Árbitro cadastrado com sucesso!')
-                setShowErrorDialog(true)
+            setErrorMessage('Árbitro cadastrado com sucesso!')
+            setShowErrorDialog(true)
 
-                setTimeout(() => {
-                    setShowErrorDialog(false)
-                    router.replace('/admin')
-                }, 3000)
-            } else {
-                const responseError = await response.json()
-                setErrorMessage(responseError.message || 'Erro ao cadastrar o árbitro.')
-                setShowErrorDialog(true)
-            }
+            setTimeout(() => {
+                setShowErrorDialog(false)
+                router.replace('/admin')
+            }, 3000)
+
         } catch (error: any) {
             console.error('Erro na requisição:', error)
             setErrorMessage(error.message || 'Falha ao conectar com o servidor.')
@@ -61,7 +57,14 @@ export default function IncluirArbitroScreen() {
         )
     }
 
-    const isFormValid = nome && email && modalidadesSelecionadas.length > 0
+    function validateEmail(value: string) {
+        // Simple email regex
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        setEmailValid(re.test(value))
+        setEmail(value)
+    }
+
+    const isFormValid = nome && emailValid && modalidadesSelecionadas.length > 0
 
     return (
         <Theme>
@@ -89,12 +92,15 @@ export default function IncluirArbitroScreen() {
                             placeholder="Digite o email"
                             keyboardType="email-address"
                             value={email}
-                            onChangeText={setEmail}
+                            onChangeText={validateEmail}
                             bg="$color2"
                             borderRadius="$3"
                             p="$3"
                             autoCapitalize="none"
                         />
+                        {!emailValid && (
+                            <Text color="$red10" fontSize={14}>Email inválido</Text>
+                        )}
                     </YStack>
 
                     {/* Modalidades */}
