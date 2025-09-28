@@ -179,6 +179,7 @@ export default function IncluirJogoScreen() {
         torneio: { id: Number(torneioSelecionado) },
         categoria: { id: Number(categoriaSelecionada) },
         streamUrl: youtubeLink || null,
+        arbitroPrincipal: arbitroSelecionado ? { id: Number(arbitroSelecionado) } : null,
       }
 
       if (localSelecionado) {
