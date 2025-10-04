@@ -31,6 +31,7 @@ export default function IncluirJogoScreen() {
 
   const [arbitros, setArbitros] = useState<any[]>([])
   const [arbitroSelecionado, setArbitroSelecionado] = useState<string | null>(null)
+  const [arbitroAuxiliar, setArbitroAuxiliar] = useState<string | null>(null)
 
   const [dataJogo, setDataJogo] = useState<Date | null>(null)
   const [horaJogo, setHoraJogo] = useState<Date | null>(null)
@@ -180,6 +181,7 @@ export default function IncluirJogoScreen() {
         categoria: { id: Number(categoriaSelecionada) },
         streamUrl: youtubeLink || null,
         arbitroPrincipal: arbitroSelecionado ? { id: Number(arbitroSelecionado) } : null,
+        arbitroAuxiliar: arbitroAuxiliar ? { id: Number(arbitroAuxiliar) } : null,
       }
 
       if (localSelecionado) {
@@ -301,6 +303,21 @@ export default function IncluirJogoScreen() {
               <Picker
                 selectedValue={arbitroSelecionado}
                 onValueChange={(v) => setArbitroSelecionado(v)}
+                enabled={arbitros.length > 0}
+                style={{ height: 40, paddingHorizontal: 8 }}
+              >
+                <Picker.Item label="Selecione um árbitro" value={null} />
+                {arbitros.map((a) => (
+                  <Picker.Item key={a.id} label={a.nome} value={a.id} />
+                ))}
+              </Picker>
+            </YStack>
+
+            <YStack space="$1">
+              <Text>Árbitro Auxiliar</Text>
+              <Picker
+                selectedValue={arbitroAuxiliar}
+                onValueChange={(v) => setArbitroAuxiliar(v)}
                 enabled={arbitros.length > 0}
                 style={{ height: 40, paddingHorizontal: 8 }}
               >
