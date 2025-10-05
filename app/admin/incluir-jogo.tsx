@@ -30,8 +30,14 @@ export default function IncluirJogoScreen() {
   const [localSelecionado, setLocalSelecionado] = useState<string | null>(null)
 
   const [arbitros, setArbitros] = useState<any[]>([])
+  const [estatisticos, setEstatisticos] = useState<any[]>([])
+  const [mesarios, setMesarios] = useState<any[]>([])
+
   const [arbitroSelecionado, setArbitroSelecionado] = useState<string | null>(null)
   const [arbitroAuxiliar, setArbitroAuxiliar] = useState<string | null>(null)
+
+  const [estatisticoSelecionado, setEstatisticoSelecionado] = useState<string | null>(null)
+  const [mesarioSelecionado, setMesarioSelecionado] = useState<string | null>(null)
 
   const [dataJogo, setDataJogo] = useState<Date | null>(null)
   const [horaJogo, setHoraJogo] = useState<Date | null>(null)
@@ -126,12 +132,30 @@ export default function IncluirJogoScreen() {
     }
   }
 
+  const loadEstatisticos = async (modalidadeId: string) => {
+    try {
+      apiFetch<any[]>(`${API_BASE_URL}/estatisticos/modalidade/${modalidadeId}`).then(data => setEstatisticos(data))
+    } catch (error) {
+      console.error('Erro ao carregar estatísticos:', error)
+    }
+  }
+
+  const loadMesarios = async (modalidadeId: string) => {
+    try {
+      apiFetch<any[]>(`${API_BASE_URL}/mesarios/modalidade/${modalidadeId}`).then(data => setMesarios(data))
+    } catch (error) {
+      console.error('Erro ao carregar mesários:', error)
+    }
+  }
+
   useEffect(() => {
     const fetchTorneiosELocais = async () => {
       const modalidadeAwait = await modalidade
       loadTorneios(modalidadeAwait)
       loadLocais()
       loadArbitros(modalidadeAwait)
+      loadEstatisticos(modalidadeAwait)
+      loadMesarios(modalidadeAwait)
     }
 
     fetchTorneiosELocais()
@@ -182,6 +206,8 @@ export default function IncluirJogoScreen() {
         streamUrl: youtubeLink || null,
         arbitroPrincipal: arbitroSelecionado ? { id: Number(arbitroSelecionado) } : null,
         arbitroAuxiliar: arbitroAuxiliar ? { id: Number(arbitroAuxiliar) } : null,
+        estatistico: estatisticoSelecionado ? { id: Number(estatisticoSelecionado) } : null,
+        mesario: mesarioSelecionado ? { id: Number(mesarioSelecionado) } : null,
       }
 
       if (localSelecionado) {
@@ -324,6 +350,36 @@ export default function IncluirJogoScreen() {
                 <Picker.Item label="Selecione um árbitro" value={null} />
                 {arbitros.map((a) => (
                   <Picker.Item key={a.id} label={a.nome} value={a.id} />
+                ))}
+              </Picker>
+            </YStack>
+
+            <YStack space="$1">
+              <Text>Mesário</Text>
+              <Picker
+                selectedValue={mesarioSelecionado}
+                onValueChange={(v) => setMesarioSelecionado(v)}
+                enabled={mesarios.length > 0}
+                style={{ height: 40, paddingHorizontal: 8 }}
+              >
+                <Picker.Item label="Selecione um mesário" value={null} />
+                {mesarios.map((m) => (
+                  <Picker.Item key={m.id} label={m.nome} value={m.id} />
+                ))}
+              </Picker>
+            </YStack>
+            
+            <YStack space="$1">
+              <Text>Estatístico</Text>
+              <Picker
+                selectedValue={estatisticoSelecionado}
+                onValueChange={(v) => setEstatisticoSelecionado(v)}
+                enabled={estatisticos.length > 0}
+                style={{ height: 40, paddingHorizontal: 8 }}
+              >
+                <Picker.Item label="Selecione um estatístico" value={null} />
+                {estatisticos.map((e) => (
+                  <Picker.Item key={e.id} label={e.nome} value={e.id} />
                 ))}
               </Picker>
             </YStack>

@@ -24,6 +24,8 @@ const opcoesAdmin = [
   { nome: 'Inclusão de Jogos', icone: 'account-plus-outline', rota: '/admin/incluir-jogo', disable: false },
   { nome: 'Alteração de Permissões', icone: 'shield-account-outline', rota: '/admin/alterar-permissoes', disable: true },
   { nome: 'Inclusão de Árbitro', icone: 'account-plus-outline', rota: '/admin/incluir-arbitro', disable: false },
+  { nome: 'Inclusão de Mesário', icone: 'account-plus-outline', rota: '/admin/incluir-mesario', disable: false },
+  { nome: 'Inclusão de Estatístico', icone: 'account-plus-outline', rota: '/admin/incluir-estatistico', disable: false },
 ]
 
 export default function AdminScreen() {

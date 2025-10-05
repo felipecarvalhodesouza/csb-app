@@ -41,6 +41,7 @@ export default function ResumoJogo({ jogo }: { jogo: Jogo }) {
         <Text color="$gray10">Árbitro Principal: {jogo.arbitroPrincipal?.nome || 'Não definido'}</Text>
         <Text color="$gray10">Árbitro Auxiliar: {jogo.arbitroAuxiliar?.nome || 'Não definido'}</Text>
         <Text color="$gray10">Mesário: {jogo.mesario?.nome || 'Não definido'}</Text>
+        <Text color="$gray10">Estatístico: {jogo.estatistico?.nome || 'Não definido'}</Text>
       </YStack>
     </YStack>
   )

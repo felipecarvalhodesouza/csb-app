@@ -22,4 +22,5 @@ export default interface Jogo {
     arbitroPrincipal: any;
     arbitroAuxiliar: any;
     mesario: any;
+    estatistico: any;
 }
