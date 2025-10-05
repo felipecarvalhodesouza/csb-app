@@ -3,6 +3,7 @@ import Categoria from "./categoria";
 import Equipe from "./equipe";
 import Evento from "./evento";
 import Local from "./local";
+import Parcial from "./parcial";
 
 export default interface Jogo {
     id: number;
@@ -23,4 +24,5 @@ export default interface Jogo {
     arbitroAuxiliar: any;
     mesario: any;
     estatistico: any;
+    parciais: Parcial[];
 }
