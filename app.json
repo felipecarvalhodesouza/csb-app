@@ -1,4 +1,11 @@
 {
   "name": "csb-app",
-  "slug": "csb-app"
+  "slug": "csb-app",
+  "plugins": [
+    "@react-native-community/datetimepicker",
+    "expo-router"
+  ],
+  "android": {
+    "package": "com.anonymous.csbapp"
+  }
 }

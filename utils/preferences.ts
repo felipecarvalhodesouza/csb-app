@@ -6,6 +6,10 @@ export async function setFavoriteModality(modality: string) {
   await AsyncStorage.setItem(FAVORITE_MODALITY_KEY, modality)
 }
 
+export async function removeFavoriteModality() {
+  await AsyncStorage.removeItem(FAVORITE_MODALITY_KEY)
+}
+
 export async function getFavoriteModality(): Promise<string | null> {
   return AsyncStorage.getItem(FAVORITE_MODALITY_KEY)
 }
