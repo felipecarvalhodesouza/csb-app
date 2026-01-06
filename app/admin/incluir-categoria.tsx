@@ -36,6 +36,7 @@ export default function IncluirCategoriaScreen() {
   const handleCloseDialog = () => {
     setShowDialog(false)
     setMessage(null)
+    setError(null)
   }
 
   const loadTorneios = async (modalidadeId: string, options:RequestInit = {}) => {

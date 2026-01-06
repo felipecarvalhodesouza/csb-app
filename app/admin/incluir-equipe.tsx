@@ -7,30 +7,30 @@ import {
   Button,
   Separator,
   Theme,
-  useTheme,
 } from 'tamagui'
 import { Picker } from '@react-native-picker/picker'
 import Header from '../header'
 import Footer from '../footer'
 import { modalidades } from '../utils/modalidades'
-import AsyncStorage from '@react-native-async-storage/async-storage'
-import DialogError from '../componente/dialog-error'
+import Dialog from '../componente/dialog-error'
 import Equipe from '../domain/equipe'
 import { API_BASE_URL } from '../../utils/config'
+import { apiPost } from '../utils/api'
 
 export default function IncluirEquipeScreen() {
-  const theme = useTheme()
   const router = useRouter()
 
   const [nomeEquipe, setNomeEquipe] = useState('')
   const [modalidade, setModalidade] = useState<string | null>(null)
 
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
-  const [showErrorDialog, setShowErrorDialog] = useState(false)
+  const [message, setMessage] = useState<string | null>(null)
+  const [showDialog, setShowDialog] = useState(false)
+  const [error, setError] = useState<boolean | null>(null)
 
   const handleCloseDialog = () => {
-    setShowErrorDialog(false)
-    setErrorMessage(null)
+    setShowDialog(false)
+    setMessage(null)
+    setError(null)
   }
 
   const handleSalvar = () => {
@@ -41,35 +41,18 @@ export default function IncluirEquipeScreen() {
           imagemPath: null, // Por enquanto vazio
         }
 
-        const user = await AsyncStorage.getItem('session_user')
-        const headers = {
-          'Authorization': `Bearer ${JSON.parse(user).token}`,
-          'Content-Type': 'application/json',
-        }
+        await apiPost(`${API_BASE_URL}/equipes`, novaEquipe)
+        setMessage('Equipe criada com sucesso!')
+        setShowDialog(true)
 
-        const response = await fetch(`${API_BASE_URL}/equipes`, {
-          method: 'POST',
-          headers,
-          body: JSON.stringify(novaEquipe),
-        })
-
-        if (response.ok) {
-          setErrorMessage('Equipe criada com sucesso!')
-          setShowErrorDialog(true)
-
-          setTimeout(() => {
-            setShowErrorDialog(false)
-            router.replace('/admin')
-          }, 3000)
-        } else {
-          const responseError = await response.json()
-          setErrorMessage(responseError.message || 'Erro ao criar a equipe.')
-          setShowErrorDialog(true)
-        }
+        setTimeout(() => {
+          setShowDialog(false)
+          router.replace('/admin')
+        }, 3000)
       } catch (error: any) {
-        console.error('Erro na requisição:', error)
-        setErrorMessage(error.message || 'Falha ao conectar com o servidor.')
-        setShowErrorDialog(true)
+        setError(true)
+        setMessage(error.message || 'Erro ao criar a equipe.')
+        setShowDialog(true)
       }
     }
 
@@ -79,7 +62,7 @@ export default function IncluirEquipeScreen() {
   const isFormValid = nomeEquipe && modalidade
 
   return (
-    <Theme name={theme.name}>
+    <Theme>
       <YStack f={1} bg="$background" pt="$6" pb="$9" jc="space-between">
         <Header title="Inclusão de Equipe" />
 
@@ -110,7 +93,13 @@ export default function IncluirEquipeScreen() {
               <Picker
                 selectedValue={modalidade}
                 onValueChange={(itemValue) => setModalidade(itemValue)}
-                style={{ height: 40, paddingHorizontal: 8 }}
+                style={{ 
+                  height: 50, 
+                  paddingHorizontal: 8,
+                  color: '#FFFFFF',
+                  fontSize: 20,
+                  fontWeight: '500'
+                }}
               >
                 <Picker.Item label="Selecione uma modalidade" value={null} />
                 {modalidades
@@ -138,11 +127,11 @@ export default function IncluirEquipeScreen() {
 
         <Footer />
 
-        {/* Dialog de Erro / Sucesso */}
-        <DialogError
-          open={showErrorDialog}
+        <Dialog
+          open={showDialog}
           onClose={handleCloseDialog}
-          message={errorMessage}
+          message={message}
+          type={error ? 'error' : 'success'}
         />
       </YStack>
     </Theme>

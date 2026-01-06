@@ -5,9 +5,12 @@ import { Picker } from '@react-native-picker/picker'
 import Header from '../header'
 import Footer from '../footer'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import DialogError from '../componente/dialog-error'
+import Dialog from '../componente/dialog-error'
 import { modalidades } from '../utils/modalidades'
 import { API_BASE_URL } from '../../utils/config'
+import { apiFetch } from '../utils/api'
+import Torneio from '../domain/torneio'
+import Categoria from '../domain/categoria'
 
 export default function VincularEquipeTorneioScreen() {
   const theme = useTheme()
@@ -25,15 +28,17 @@ export default function VincularEquipeTorneioScreen() {
 
   const [equipesVinculadas, setEquipesVinculadas] = useState<any[]>([])
 
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
-  const [showErrorDialog, setShowErrorDialog] = useState(false)
+  const [message, setMessage] = useState<string | null>(null)
+  const [showDialog, setShowDialog] = useState(false)
+  const [error, setError] = useState<boolean | null>(null)
 
   const handleCloseDialog = () => {
-    setShowErrorDialog(false)
-    setErrorMessage(null)
+    setShowDialog(false)
+    setMessage(null)
+    setError(null)
   }
 
-  const loadTorneios = async (modalidadeId: string) => {
+  const loadTorneios = async (modalidadeId: string, options:RequestInit = {}) => {
     if (!modalidadeId) {
       setTorneios([])
       setTorneioSelecionado(null)
@@ -41,22 +46,15 @@ export default function VincularEquipeTorneioScreen() {
     }
 
     try {
-      const user = await AsyncStorage.getItem('session_user')
-      const headers = {
-        'Authorization': `Bearer ${JSON.parse(user).token}`,
-        'Content-Type': 'application/json',
-      }
-
-      const response = await fetch(`${API_BASE_URL}/torneios/modalidade/${modalidadeId}`, { headers })
-      const data = await response.json()
-      setTorneios(data)
+      const torneios = await apiFetch(`${API_BASE_URL}/torneios/modalidade/${modalidadeId}`, options) as Torneio[];
+      setTorneios(torneios)
       setTorneioSelecionado(null)
     } catch (error) {
       console.error('Erro ao carregar torneios:', error)
     }
   }
 
-  const loadCategorias = async (torneioId: string) => {
+  const loadCategorias = async (torneioId: string, options:RequestInit = {}) => {
     if (!torneioId) {
       setCategorias([])
       setCategoriaSelecionada(null)
@@ -67,15 +65,8 @@ export default function VincularEquipeTorneioScreen() {
     }
 
     try {
-      const user = await AsyncStorage.getItem('session_user')
-      const headers = {
-        'Authorization': `Bearer ${JSON.parse(user).token}`,
-        'Content-Type': 'application/json',
-      }
-
-      const response = await fetch(`${API_BASE_URL}/torneios/${torneioId}/categorias`, { headers })
-      const data = await response.json()
-      setCategorias(data)
+      const categorias = await apiFetch(`${API_BASE_URL}/torneios/${torneioId}/categorias`, options) as Categoria[];
+      setCategorias(categorias)
       setCategoriaSelecionada(null)
       setEquipesDisponiveis([])
       setEquipesVinculadas([])
@@ -101,7 +92,7 @@ export default function VincularEquipeTorneioScreen() {
       }
 
       const [disponiveisRes, vinculadasRes] = await Promise.all([
-        fetch(`${API_BASE_URL}/equipes?codigoModalidade=${modalidade}`, { headers }),
+        fetch(`${API_BASE_URL}/equipes`, { headers }),
         fetch(`${API_BASE_URL}/torneios/${torneioId}/categorias/${categoriaId}/equipes`, { headers })
       ])
 
@@ -185,19 +176,21 @@ export default function VincularEquipeTorneioScreen() {
         })
 
         if (response.ok) {
-          setErrorMessage('Equipe vinculada com sucesso!')
-          setShowErrorDialog(true)
+          setMessage('Equipe vinculada com sucesso!')
+          setShowDialog(true)
 
           loadEquipes(torneioSelecionado!, categoriaSelecionada!)
         } else {
           const responseError = await response.json()
-          setErrorMessage(responseError.message || 'Erro ao vincular a equipe.')
-          setShowErrorDialog(true)
+          setError(true)
+          setMessage(responseError.message || 'Erro ao vincular a equipe.')
+          setShowDialog(true)
         }
       } catch (error: any) {
         console.error('Erro ao vincular equipe:', error)
-        setErrorMessage(error.message || 'Falha ao conectar com o servidor.')
-        setShowErrorDialog(true)
+        setError(true)
+        setMessage(error.message || 'Falha ao conectar com o servidor.')
+        setShowDialog(true)
       }
     }
 
@@ -207,7 +200,7 @@ export default function VincularEquipeTorneioScreen() {
   const isFormValid = modalidade && torneioSelecionado && equipeSelecionada
 
   return (
-    <Theme name={theme.name}>
+    <Theme>
       <YStack f={1} bg="$background" pt="$6" pb="$9" jc="space-between">
         <Header title="Vincular Equipe ao Torneio" />
 
@@ -219,7 +212,13 @@ export default function VincularEquipeTorneioScreen() {
               <Picker
                 selectedValue={modalidade}
                 onValueChange={(itemValue) => setModalidade(itemValue)}
-                style={{ height: 40, paddingHorizontal: 8 }}
+                style={{ 
+                  height: 50, 
+                  paddingHorizontal: 8,
+                  color: theme.color?.val || '#FFFFFF',
+                  fontSize: 20,
+                  fontWeight: '500'
+                }}
               >
                 <Picker.Item label="Selecione uma modalidade" value={null} />
                 {modalidades
@@ -238,7 +237,13 @@ export default function VincularEquipeTorneioScreen() {
               <Picker
                 selectedValue={torneioSelecionado}
                 onValueChange={(itemValue) => setTorneioSelecionado(itemValue)}
-                style={{ height: 40, paddingHorizontal: 8 }}
+                style={{ 
+                  height: 50, 
+                  paddingHorizontal: 8,
+                  color: theme.color?.val || '#FFFFFF',
+                  fontSize: 20,
+                  fontWeight: '500'
+                }}
                 enabled={modalidade !== null}
               >
                 <Picker.Item label="Selecione um torneio" value={null} />
@@ -256,7 +261,13 @@ export default function VincularEquipeTorneioScreen() {
               <Picker
                 selectedValue={categoriaSelecionada}
                 onValueChange={(itemValue) => setCategoriaSelecionada(itemValue)}
-                style={{ height: 40, paddingHorizontal: 8 }}
+                style={{ 
+                  height: 50, 
+                  paddingHorizontal: 8,
+                  color: theme.color?.val || '#FFFFFF',
+                  fontSize: 20,
+                  fontWeight: '500'
+                }}
                 enabled={torneioSelecionado !== null}
               >
                 <Picker.Item label="Selecione uma categoria" value={null} />
@@ -274,7 +285,13 @@ export default function VincularEquipeTorneioScreen() {
               <Picker
                 selectedValue={equipeSelecionada}
                 onValueChange={(itemValue) => setEquipeSelecionada(itemValue)}
-                style={{ height: 40, paddingHorizontal: 8 }}
+                style={{ 
+                  height: 50, 
+                  paddingHorizontal: 8,
+                  color: theme.color?.val || '#FFFFFF',
+                  fontSize: 20,
+                  fontWeight: '500'
+                }}
                 enabled={categoriaSelecionada !== null}
               >
                 <Picker.Item label="Selecione uma equipe" value={null} />
@@ -311,10 +328,11 @@ export default function VincularEquipeTorneioScreen() {
 
         <Footer />
 
-        <DialogError
-          open={showErrorDialog}
+        <Dialog
+          open={showDialog}
           onClose={handleCloseDialog}
-          message={errorMessage}
+          message={message}
+          type={error ? 'error' : 'success'}
         />
       </YStack>
     </Theme>
