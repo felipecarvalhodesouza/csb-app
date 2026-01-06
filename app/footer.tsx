@@ -41,7 +41,7 @@ export default function Footer() {
       ai="center"
     >
       {tabs.map((tab) => {
-        const ativo = pathname.startsWith(tab.path)
+        const ativo = pathname.startsWith(tab.path) || (pathname == '/torneio-em-andamento' && tab.path == '/torneios')
         return (
           <View key={tab.nome} f={1} ai="stretch">
             <Button

@@ -1,11 +1,16 @@
 {
   "name": "csb-app",
   "slug": "csb-app",
+  "icon": "./assets/logo_bkp.png",
   "plugins": [
     "@react-native-community/datetimepicker",
     "expo-router"
   ],
   "android": {
-    "package": "com.anonymous.csbapp"
+    "package": "com.anonymous.csbapp",
+    "adaptiveIcon": {
+        "foregroundImage": "./assets/logo_bkp.png",
+        "backgroundColor": "#000000"
+      }
   }
 }

@@ -15,6 +15,8 @@ import { MaterialIcons } from '@expo/vector-icons'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { getFavoriteModality } from '../utils/preferences'
 import { API_BASE_URL } from '../utils/config'
+import Equipe from './domain/equipe'
+import { apiFetch } from './utils/api'
 
 export default function SelecaoEquipesScreen() {
   const router = useRouter()
@@ -23,27 +25,16 @@ export default function SelecaoEquipesScreen() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const fetchEquipes = async () => {
+    const fetchEquipes = async (options:RequestInit = {}) => {
       try {
-        const user = await AsyncStorage.getItem('session_user')
-        const headers = {
-          Authorization: `Bearer ${JSON.parse(user).token}`,
-          'Content-Type': 'application/json',
-        }
-
+        
         const modality = await getFavoriteModality()
         
         if (!modality) {
           router.replace('/modalidades')
         }
 
-        const response = await fetch(`${API_BASE_URL}/equipes?codigoModalidade=${modality}`, {
-          headers,
-        })
-
-        if (!response.ok) throw new Error('Erro ao carregar equipes.')
-
-        const data = await response.json()
+        const data = await apiFetch(`${API_BASE_URL}/equipes?codigoModalidade=${modality}`, options) as Equipe[];
         setEquipes(data)
       } catch (error) {
         console.error(error)
