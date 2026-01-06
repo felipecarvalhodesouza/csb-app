@@ -6,9 +6,7 @@ import {
   Input,
   Button,
   Theme,
-  useTheme,
-  Image,
-  Dialog
+  Image
 } from 'tamagui'
 import { TouchableOpacity } from 'react-native'
 import PasswordStrengthBar from './componente/forca-senha'
@@ -16,7 +14,6 @@ import { API_BASE_URL } from '../utils/config'
 
 export default function CadastroScreen() {
   const router = useRouter()
-  const theme = useTheme()
 
   const [nome, setNome] = useState('')
   const [email, setEmail] = useState('')
@@ -131,7 +128,7 @@ export default function CadastroScreen() {
   }
 
   return (
-    <Theme name={theme.name}>
+    <Theme>
       <YStack f={1} jc="center" ai="center" p="$4" bg="$background">
         {/* Logo */}
         <Image
@@ -220,47 +217,47 @@ export default function CadastroScreen() {
         </TouchableOpacity>
 
         {/* Modal de Sucesso */}
-        <Dialog open={showSuccessDialog}>
-          <Dialog.Portal>
-            <Dialog.Overlay
-              key="overlay"
-              animation="quick"
-              opacity={0.5}
-              enterStyle={{ opacity: 0 }}
-              exitStyle={{ opacity: 0 }}
-            />
-            <Dialog.Content
-              elevate
-              bordered
-              p="$4"
-              backgroundColor="white"
-              w={300}
-              animation={[
-                'quick',
-                { opacity: { overshootClamping: true }, transform: { overshootClamping: true } },
-              ]}
+        {showSuccessDialog && (
+          <YStack
+            position="absolute"
+            top={0}
+            left={0}
+            width="100%"
+            height="100%"
+            bg="rgba(0,0,0,0.8)"
+            zIndex={200}
+            jc="center"
+            ai="center"
+          >
+            <YStack
+              width={280}
+              bg="white"
+              p="$5"
+              br="$8"
+              elevation="$6"
+              zIndex={201}
+              gap="$4"
+              ai="center"
             >
-              <YStack ai="center" gap="$2">
-                <Image
-                  source={require('../assets/success.png')}
-                  width={50}
-                  height={50}
-                  resizeMode="contain"
-                />
-                <Text fontWeight="700" fontSize="$4" textAlign="center" color="$green10">
-                  Conta criada com sucesso!
-                </Text>
-                <Text
-                  textAlign="center"
-                  fontSize="$2"
-                  color="gray"
-                >
-                  Um e-mail de validação foi enviado. Redirecionando para o login...
-                </Text>
-              </YStack>
-            </Dialog.Content>
-          </Dialog.Portal>
-        </Dialog>
+              <Image
+                source={require('../assets/success.png')}
+                width={50}
+                height={50}
+                resizeMode="contain"
+              />
+              <Text fontWeight="700" fontSize="$4" textAlign="center" color="$green10">
+                Conta criada com sucesso!
+              </Text>
+              <Text
+                textAlign="center"
+                fontSize="$2"
+                color="gray"
+              >
+                Um e-mail de validação foi enviado. Redirecionando para o login...
+              </Text>
+            </YStack>
+          </YStack>
+        )}
 
       </YStack>
     </Theme>

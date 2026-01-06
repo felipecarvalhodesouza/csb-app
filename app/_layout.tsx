@@ -2,7 +2,6 @@ import { Stack } from 'expo-router'
 import { TamaguiProvider, Theme } from 'tamagui'
 import config from '../tamagui.config'
 import { useColorScheme } from 'react-native'
-import { Provider as PaperProvider } from 'react-native-paper'
 
 export default function Layout() {
   const colorScheme = useColorScheme()

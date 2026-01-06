@@ -47,7 +47,7 @@ export default function EsqueciSenhaScreen() {
   }
 
   return (
-    <Theme name={theme}>
+    <Theme>
       <YStack f={1} jc="center" ai="center" p="$4" bg="$background">
         {/* Logo */}
         <Image

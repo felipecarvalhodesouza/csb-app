@@ -32,7 +32,7 @@ export default function Footer() {
   ]
 
   const tabs = perfil === 'ADMIN'
-    ? [...tabsBase, { nome: 'Administração', icone: 'admin-panel-settings', rota: 'admin', path: '/admin' }]
+    ? [...tabsBase, { nome: 'Admin', icone: 'admin-panel-settings', rota: 'admin', path: '/admin' }]
     : tabsBase
 
   return (
