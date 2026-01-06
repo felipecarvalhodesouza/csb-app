@@ -1,4 +1,4 @@
-package com.anonymous.csbapp
+package br.com.campeonato.santista.csbapp
 
 import android.os.Build
 import android.os.Bundle

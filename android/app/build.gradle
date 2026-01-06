@@ -87,9 +87,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace 'com.anonymous.csbapp'
+    namespace 'br.com.campeonato.santista.csbapp'
     defaultConfig {
-        applicationId 'com.anonymous.csbapp'
+        applicationId 'br.com.campeonato.santista.csbapp'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
