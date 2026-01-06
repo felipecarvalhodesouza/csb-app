@@ -13,9 +13,10 @@ import { Picker } from '@react-native-picker/picker'
 import Header from '../header'
 import Footer from '../footer'
 import { modalidades } from '../utils/modalidades'
-import AsyncStorage from '@react-native-async-storage/async-storage'
 import DialogError from '../componente/dialog-error'
 import { API_BASE_URL } from '../../utils/config'
+import { apiPost } from '../utils/api'
+import { set } from 'date-fns'
 
 export default function IncluirTorneioScreen() {
   const theme = useTheme()
@@ -25,15 +26,17 @@ export default function IncluirTorneioScreen() {
   const [modalidade, setModalidade] = useState<string | null>(null)
   const [ano, setAno] = useState('')
 
-const [errorMessage, setErrorMessage] = useState<string | null>(null)
-const [showErrorDialog, setShowErrorDialog] = useState(false)
+const [message, setMessage] = useState<string | null>(null)
+const [showDialog, setShowDialog] = useState(false)
+const [error, setError] = useState<boolean | null>(null)
 
 const handleCloseDialog = () => {
-  setShowErrorDialog(false)
-  setErrorMessage(null)
+  setShowDialog(false)
+  setMessage(null)
+  setError(null)
 }
 
-  const handleSalvar = async (options: RequestInit = {}) => {
+  const handleSalvar = async () => {
     try {
       const novoTorneio = {
         nome,
@@ -41,40 +44,23 @@ const handleCloseDialog = () => {
         ano: parseInt(ano),
       }
 
-      const user = await AsyncStorage.getItem('session_user')
-      const headers = {
-        ...(options.headers || {}),
-        'Authorization': `Bearer ${JSON.parse(user).token}`,
-        'Content-Type': 'application/json',
-      }
-
-      const response = await fetch(`${API_BASE_URL}/torneios`, {
-        ...options,
-        method: 'POST',
-        headers,
-        body: JSON.stringify(novoTorneio),
-      })
-
-      if (response.ok) {
-        setErrorMessage('Torneio criado com sucesso.')
-        setShowErrorDialog(true)
-        setTimeout(() => {
+      await apiPost(`${API_BASE_URL}/torneios`, novoTorneio)
+      setMessage('Torneio criado com sucesso.')
+      setShowDialog(true)
+      setTimeout(() => {
+        setShowDialog(false)
         router.replace('/admin')
-      }, 2000)
-      } else {
-        const responseError = await response.json();
-        setErrorMessage(responseError.message || 'Erro ao criar o torneio.')
-        setShowErrorDialog(true)
-      }
+      }, 3000)
     } catch (error: any) {
       console.error('Erro na requisição:', error)
-      setErrorMessage(error.message || 'Falha ao conectar com o servidor.')
-      setShowErrorDialog(true)
+      setError(true)
+      setMessage(error.message || 'Erro ao criar o torneio.')
+      setShowDialog(true)
     }
   }
 
   return (
-    <Theme name={theme.name}>
+    <Theme>
       <YStack f={1} bg="$background" pt="$6" pb="$9" jc="space-between">
         <Header title="Inclusão de Torneio" />
 
@@ -105,7 +91,13 @@ const handleCloseDialog = () => {
               <Picker
                 selectedValue={modalidade}
                 onValueChange={(itemValue) => setModalidade(itemValue)}
-                style={{ height: 40, paddingHorizontal: 8 }}
+                style={{ 
+                  height: 50, 
+                  paddingHorizontal: 8,
+                  color: theme.color?.val || '#FFFFFF',
+                  fontSize: 20,
+                  fontWeight: '500'
+                }}
               >
                 <Picker.Item label="Selecione uma modalidade" value={null} />
                 {modalidades
@@ -145,11 +137,11 @@ const handleCloseDialog = () => {
 
         <Footer />
 
-        {/* Dialog de Erro */}
         <DialogError
-        open={showErrorDialog}
-        onClose={handleCloseDialog}
-        message={errorMessage}
+          open={showDialog}
+          onClose={handleCloseDialog}
+          message={message}
+          type={error ? 'error' : 'success'}
         />
       </YStack>
     </Theme>
