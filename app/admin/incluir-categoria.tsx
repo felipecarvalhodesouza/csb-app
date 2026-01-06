@@ -14,9 +14,11 @@ import Header from '../header'
 import Footer from '../footer'
 import { modalidades } from '../utils/modalidades'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import DialogError from '../componente/dialog-error'
+import Dialog from '../componente/dialog-error'
 import Categoria from '../domain/categoria'
 import { API_BASE_URL } from '../../utils/config'
+import { apiFetch, apiPost } from '../utils/api'
+import Torneio from '../domain/torneio'
 
 export default function IncluirCategoriaScreen() {
   const theme = useTheme()
@@ -27,15 +29,16 @@ export default function IncluirCategoriaScreen() {
   const [torneios, setTorneios] = useState<any[]>([]) // Lista de torneios da modalidade
   const [torneioSelecionado, setTorneioSelecionado] = useState<string | null>(null)
   
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
-  const [showErrorDialog, setShowErrorDialog] = useState(false)
+  const [message, setMessage] = useState<string | null>(null)
+  const [showDialog, setShowDialog] = useState(false)
+  const [error, setError] = useState<boolean | null>(null)
 
   const handleCloseDialog = () => {
-    setShowErrorDialog(false)
-    setErrorMessage(null)
+    setShowDialog(false)
+    setMessage(null)
   }
 
-  const loadTorneios = async (modalidadeId: string) => {
+  const loadTorneios = async (modalidadeId: string, options:RequestInit = {}) => {
     if(modalidadeId == null || "Selecione uma modalidade" == modalidadeId){
       setTorneios(null)
       setModalidade(null)
@@ -43,14 +46,7 @@ export default function IncluirCategoriaScreen() {
     }
 
     try {
-      const user = await AsyncStorage.getItem('session_user')
-      const headers = {
-        'Authorization': `Bearer ${JSON.parse(user).token}`,
-        'Content-Type': 'application/json',
-      }
-
-      const response = await fetch(`${API_BASE_URL}/torneios/modalidade/${modalidadeId}`, { headers })
-      const torneios = await response.json()
+      const torneios = await apiFetch(`${API_BASE_URL}/torneios/modalidade/${modalidadeId}`, options) as Torneio[];
       setTorneios(torneios)
     } catch (error) {
       console.error('Erro ao carregar torneios:', error)
@@ -67,40 +63,17 @@ export default function IncluirCategoriaScreen() {
           }
         }
 
-        const user = await AsyncStorage.getItem('session_user')
-        const headers = {
-          'Authorization': `Bearer ${JSON.parse(user).token}`,
-          'Content-Type': 'application/json',
-        }
-
-        console.log(nomeCategoria)
-        console.log(torneioSelecionado)
-
-        const response = await fetch(`${API_BASE_URL}/torneios/${novaCategoria.torneio.id}/categorias`, {
-          method: 'POST',
-          headers,
-          body: JSON.stringify(novaCategoria),
-        })
-
-        if (response.ok) {
-          setErrorMessage('Categoria criada com sucesso!')
-          setShowErrorDialog(true)
-
-          setTimeout(() => {
-            setShowErrorDialog(false)
-            router.replace('/admin')
-          }, 3000)
-
-
-        } else {
-          const responseError = await response.json()
-          setErrorMessage(responseError.message || 'Erro ao criar a categoria.')
-          setShowErrorDialog(true)
-        }
+        await apiPost(`${API_BASE_URL}/torneios/${novaCategoria.torneio.id}/categorias`, novaCategoria)
+        setMessage('Categoria criada com sucesso!')
+        setShowDialog(true)
+        setTimeout(() => {
+          setShowDialog(false)
+          router.replace('/admin')
+        }, 3000)
       } catch (error: any) {
-        console.error('Erro na requisição:', error)
-        setErrorMessage(error.message || 'Falha ao conectar com o servidor.')
-        setShowErrorDialog(true)
+        setError(true)
+        setMessage(error.message || 'Erro ao criar a categoria.')
+        setShowDialog(true)
       }
     }
 
@@ -118,7 +91,7 @@ export default function IncluirCategoriaScreen() {
   const isFormValid = nomeCategoria && modalidade && torneioSelecionado;
 
   return (
-    <Theme name={theme.name}>
+    <Theme>
       <YStack f={1} bg="$background" pt="$6" pb="$9" jc="space-between">
         <Header title="Inclusão de Categoria" />
 
@@ -148,7 +121,13 @@ export default function IncluirCategoriaScreen() {
               <Picker
                 selectedValue={modalidade}
                 onValueChange={(itemValue) => setModalidade(itemValue)}
-                style={{ height: 40, paddingHorizontal: 8 }}
+                style={{ 
+                  height: 50, 
+                  paddingHorizontal: 8,
+                  color: theme.color?.val || '#FFFFFF',
+                  fontSize: 20,
+                  fontWeight: '500'
+                }}
               >
                 <Picker.Item label="Selecione uma modalidade" value={null} />
                 {modalidades
@@ -173,7 +152,13 @@ export default function IncluirCategoriaScreen() {
               <Picker
                 selectedValue={torneioSelecionado}
                 onValueChange={(itemValue) => setTorneioSelecionado(itemValue)}
-                style={{ height: 40, paddingHorizontal: 8 }}
+                style={{ 
+                  height: 50, 
+                  paddingHorizontal: 8,
+                  color: theme.color?.val || '#FFFFFF',
+                  fontSize: 20,
+                  fontWeight: '500'
+                }}
                 enabled={modalidade !== null}
               >
                 <Picker.Item label="Selecione um torneio" value={null} />
@@ -199,10 +184,11 @@ export default function IncluirCategoriaScreen() {
 
         <Footer />
 
-        <DialogError
-          open={showErrorDialog}
+        <Dialog
+          open={showDialog}
           onClose={handleCloseDialog}
-          message={errorMessage}
+          message={message}
+          type={error ? 'error' : 'success'}
         />
       </YStack>
     </Theme>

@@ -13,10 +13,9 @@ import { Picker } from '@react-native-picker/picker'
 import Header from '../header'
 import Footer from '../footer'
 import { modalidades } from '../utils/modalidades'
-import DialogError from '../componente/dialog-error'
+import Dialog from '../componente/dialog-error'
 import { API_BASE_URL } from '../../utils/config'
 import { apiPost } from '../utils/api'
-import { set } from 'date-fns'
 
 export default function IncluirTorneioScreen() {
   const theme = useTheme()
@@ -137,7 +136,7 @@ const handleCloseDialog = () => {
 
         <Footer />
 
-        <DialogError
+        <Dialog
           open={showDialog}
           onClose={handleCloseDialog}
           message={message}
