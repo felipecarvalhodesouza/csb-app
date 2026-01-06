@@ -7,8 +7,8 @@ import { getFavoriteModality } from '../utils/preferences'
 import { API_BASE_URL } from '../utils/config'
 
 export default function LoginScreen() {
-  const [email, setEmail] = useState('felipe_iverson@hotmail.com')
-  const [password, setPassword] = useState('12345678')
+  const [email, setEmail] = useState('desouzafelipecarvalho@gmail.com')
+  const [password, setPassword] = useState('admin@123')
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [emailError, setEmailError] = useState<string | null>(null)
 

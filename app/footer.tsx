@@ -28,7 +28,7 @@ export default function Footer() {
     { nome: 'Início', icone: 'home', rota: 'modalidades', path: '/modalidades' },
     { nome: 'Torneios', icone: 'sports', rota: 'torneios', path: '/torneios' },
     { nome: 'Equipes', icone: 'groups', rota: 'equipes', path: '/equipes' },
-    { nome: 'Estatísticas', icone: 'leaderboard', rota: 'modalidades', path: '/estatisticas' },
+    // { nome: 'Estatísticas', icone: 'leaderboard', rota: 'modalidades', path: '/estatisticas' },
   ]
 
   const tabs = perfil === 'ADMIN'
