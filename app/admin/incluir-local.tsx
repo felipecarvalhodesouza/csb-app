@@ -2,10 +2,10 @@ import React, { useState } from 'react'
 import { YStack, Input, Text, Button, Label, Separator, ScrollView, Theme, useTheme } from 'tamagui'
 import Header from '../header'
 import Footer from '../footer'
-import DialogError from '../componente/dialog-error'
-import AsyncStorage from '@react-native-async-storage/async-storage'
+import Dialog from '../componente/dialog-error'
 import { useRouter } from 'expo-router'
 import { API_BASE_URL } from '../../utils/config'
+import { apiPost } from '../utils/api'
 
 export default function IncluirLocalScreen() {
   const theme = useTheme()
@@ -20,12 +20,14 @@ export default function IncluirLocalScreen() {
   const [cidade, setCidade] = useState('')
   const [estado, setEstado] = useState('')
 
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
-  const [showErrorDialog, setShowErrorDialog] = useState(false)
+  const [message, setMessage] = useState<string | null>(null)
+  const [showDialog, setShowDialog] = useState(false)
+  const [error, setError] = useState<boolean | null>(null)
 
   const handleCloseDialog = () => {
-    setShowErrorDialog(false)
-    setErrorMessage(null)
+    setShowDialog(false)
+    setMessage(null)
+    setError(null)
   }
 
   const buscarEndereco = async () => {
@@ -37,8 +39,8 @@ export default function IncluirLocalScreen() {
       const data = await response.json()
 
       if (data.erro) {
-        setErrorMessage('CEP não encontrado.')
-        setShowErrorDialog(true)
+        setMessage('CEP não encontrado.')
+        setShowDialog(true)
         return
       }
 
@@ -47,49 +49,38 @@ export default function IncluirLocalScreen() {
       setCidade(data.localidade || '')
       setEstado(data.uf || '')
     } catch (error) {
-      setErrorMessage('Erro ao buscar endereço.')
-      setShowErrorDialog(true)
+      setMessage('Erro ao buscar endereço.')
+      setShowDialog(true)
     }
   }
 
   const handleSalvar = async () => {
     if (!nome || !cep || !logradouro || !numero || !bairro || !cidade || !estado) {
-      setErrorMessage('Preencha todos os campos obrigatórios.')
-      setShowErrorDialog(true)
+      setMessage('Preencha todos os campos obrigatórios.')
+      setShowDialog(true)
       return
     }
 
-    const user = await AsyncStorage.getItem('session_user')
-    const headers = {
-        'Authorization': `Bearer ${JSON.parse(user).token}`,
-        'Content-Type': 'application/json',
-    }
-
-
-    const local = { nome, cep, logradouro, numero, complemento, bairro, cidade, estado }
-    const response = await fetch(`${API_BASE_URL}/locais`, {
-        headers,
-        method: 'POST',
-        body: JSON.stringify(local),
-    })
-
-      if (response.ok) {
-        setErrorMessage('Local salvo com sucesso!')
-        setShowErrorDialog(true)
-        setTimeout(() => {
+    try{
+      const local = { nome, cep, logradouro, numero, complemento, bairro, cidade, estado }
+      const response  = await apiPost(`${API_BASE_URL}/locais`, local)
+      setMessage('Local salvo com sucesso!')
+      setShowDialog(true)
+      setTimeout(() => {
         router.replace('/admin')
       }, 2000)
-      } else {
-        const responseError = await response.json();
-        setErrorMessage(responseError.message || 'Erro ao criar o local.')
-        setShowErrorDialog(true)
+    } catch (error: any) {
+        const responseError = error as { message: string }
+        setError(true)
+        setMessage(responseError.message || 'Erro ao criar o local.')
+        setShowDialog(true)
       }
   }
 
   const isFormValid = !!nome && !!cep && !!logradouro && !!numero && !!bairro && !!cidade && !!estado
 
   return (
-    <Theme name={theme.name}>
+    <Theme>
       <YStack f={1} bg="$background" pt="$6" pb="$9" jc="space-between">
         <Header title="Incluir Local" />
         <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32 }} space="$4">
@@ -152,7 +143,12 @@ export default function IncluirLocalScreen() {
             </Button>
           </YStack>
         </ScrollView>
-        <DialogError open={showErrorDialog} onClose={handleCloseDialog} message={errorMessage} />
+        <Dialog 
+          open={showDialog} 
+          onClose={handleCloseDialog} 
+          message={message} 
+          type={error ? 'error' : 'success'}
+        />
         <Footer />
       </YStack>
     </Theme>

@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'expo-router'
-import { YStack, Text, Input, Button, Separator, Theme, useTheme } from 'tamagui'
+import { YStack, Text, Input, Button, Separator, Theme, useTheme, ScrollView } from 'tamagui'
 import { Picker } from '@react-native-picker/picker'
 import Header from '../header'
 import Footer from '../footer'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import DialogError from '../componente/dialog-error'
+import Dialog from '../componente/dialog-error'
 import { DatePickerModal } from 'react-native-paper-dates'
 import { format } from 'date-fns'
 import { modalidades } from '../utils/modalidades'
 import { API_BASE_URL } from '../../utils/config'
+import { apiPost } from '../utils/api'
 
 export default function IncluirAtletaScreen() {
   const theme = useTheme()
@@ -27,12 +28,14 @@ export default function IncluirAtletaScreen() {
   const [equipeSelecionada, setEquipeSelecionada] = useState<string | null>(null)
 
   const [showDatePicker, setShowDatePicker] = useState(false)
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
-  const [showErrorDialog, setShowErrorDialog] = useState(false)
+  const [message, setMessage] = useState<string | null>(null)
+  const [showDialog, setShowDialog] = useState(false)
+  const [error, setError] = useState<boolean | null>(null)
 
   const handleCloseDialog = () => {
-    setShowErrorDialog(false)
-    setErrorMessage(null)
+    setShowDialog(false)
+    setMessage(null)
+    setError(null)
   }
 
   const loadTorneios = async (modalidadeId: string) => {
@@ -108,35 +111,18 @@ export default function IncluirAtletaScreen() {
           }
         }
 
-        const user = await AsyncStorage.getItem('session_user')
-        const headers = {
-          'Authorization': `Bearer ${JSON.parse(user).token}`,
-          'Content-Type': 'application/json',
-        }
+        await apiPost(`${API_BASE_URL}/atletas`, novoAtleta)
+        setMessage('Atleta criado com sucesso!')
+        setShowDialog(true)
 
-        const response = await fetch(`${API_BASE_URL}/atletas`, {
-          method: 'POST',
-          headers,
-          body: JSON.stringify(novoAtleta),
-        })
-
-        if (response.ok) {
-          setErrorMessage('Atleta criado com sucesso!')
-          setShowErrorDialog(true)
-
-          setTimeout(() => {
-            setShowErrorDialog(false)
-            router.replace('/admin')
-          }, 3000)
-        } else {
-          const responseError = await response.json()
-          setErrorMessage(responseError.message || 'Erro ao criar o atleta.')
-          setShowErrorDialog(true)
-        }
+        setTimeout(() => {
+          setShowDialog(false)
+          router.replace('/admin')
+        }, 3000)
       } catch (error: any) {
-        console.error('Erro na requisição:', error)
-        setErrorMessage(error.message || 'Falha ao conectar com o servidor.')
-        setShowErrorDialog(true)
+        setError
+        setMessage(error.message || 'Erro ao criar o atleta.')
+        setShowDialog(true)
       }
     }
 
@@ -147,168 +133,187 @@ export default function IncluirAtletaScreen() {
     nome && dataNascimento && altura && peso && modalidade && torneioSelecionado && equipeSelecionada
 
   return (
-    <Theme name={theme.name}>
+    <Theme>
       <YStack f={1} bg="$background" pt="$6" pb="$9" jc="space-between">
         <Header title="Inclusão de Atleta" />
+        <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32 }} space="$4">
+          <YStack p="$4" space="$4">
+            {/* Nome */}
+            <YStack space="$1">
+              <Text fontSize={14} color="$gray10">Nome do Atleta</Text>
+              <Input
+                placeholder="Digite o nome"
+                value={nome}
+                onChangeText={setNome}
+                bg="$color2"
+                borderRadius="$3"
+                p="$3"
+              />
+            </YStack>
 
-        <YStack p="$4" space="$4">
-          {/* Nome */}
-          <YStack space="$1">
-            <Text fontSize={14} color="$gray10">Nome do Atleta</Text>
-            <Input
-              placeholder="Digite o nome"
-              value={nome}
-              onChangeText={setNome}
-              bg="$color2"
-              borderRadius="$3"
-              p="$3"
-            />
-          </YStack>
-
-          {/* Data de Nascimento */}
-          <YStack space="$1">
-            <Text fontSize={14} color="$gray10">Data de Nascimento</Text>
-            <Button
-              onPress={() => setShowDatePicker(true)}
-              backgroundColor="$color2"
-              color="black"
-            >
-              {dataNascimento ? format(dataNascimento, 'dd/MM/yyyy') : 'Selecionar Data'}
-            </Button>
-
-            <DatePickerModal
-              locale="pt-BR"
-              mode="single"
-              visible={showDatePicker}
-              date={dataNascimento || new Date()}
-              onDismiss={() => setShowDatePicker(false)}
-              onConfirm={({ date }) => {
-                setShowDatePicker(false)
-                setDataNascimento(date)
-              }}
-            />
-          </YStack>
-
-          {/* Altura */}
-          <YStack space="$1">
-            <Text fontSize={14} color="$gray10">Altura (cm)</Text>
-            <Input
-              placeholder="Ex: 180"
-              keyboardType="numeric"
-              value={altura}
-              onChangeText={setAltura}
-              bg="$color2"
-              borderRadius="$3"
-              p="$3"
-            />
-          </YStack>
-
-          {/* Peso */}
-          <YStack space="$1">
-            <Text fontSize={14} color="$gray10">Peso (kg)</Text>
-            <Input
-              placeholder="Ex: 75"
-              keyboardType="numeric"
-              value={peso}
-              onChangeText={setPeso}
-              bg="$color2"
-              borderRadius="$3"
-              p="$3"
-            />
-          </YStack>
-
-          {/* Modalidade */}
-          <YStack space="$1">
-            <Text fontSize={14} color="$gray10">Modalidade</Text>
-            <YStack
-              borderRadius="$3"
-              borderWidth={1}
-              borderColor="$color4"
-              bg="$color2"
-              overflow="hidden"
-            >
-              <Picker
-                selectedValue={modalidade}
-                onValueChange={(itemValue) => setModalidade(itemValue)}
-                style={{ height: 40, paddingHorizontal: 8 }}
+            {/* Data de Nascimento */}
+            <YStack space="$1">
+              <Text fontSize={14} color="$gray10">Data de Nascimento</Text>
+              <Button
+                onPress={() => setShowDatePicker(true)}
+                backgroundColor="$color2"
+                color="#FFFFFF"
               >
-                <Picker.Item label="Selecione uma modalidade" value={null} />
-                {modalidades
-                  .filter((m) => !m.disable)
-                  .map((m) => (
-                    <Picker.Item key={m.id} label={m.nome} value={m.id} />
+                {dataNascimento ? format(dataNascimento, 'dd/MM/yyyy') : 'Selecionar Data'}
+              </Button>
+
+              <DatePickerModal
+                locale="pt-BR"
+                mode="single"
+                visible={showDatePicker}
+                date={dataNascimento || new Date()}
+                onDismiss={() => setShowDatePicker(false)}
+                onConfirm={({ date }) => {
+                  setShowDatePicker(false)
+                  setDataNascimento(date)
+                }}
+              />
+            </YStack>
+
+            {/* Altura */}
+            <YStack space="$1">
+              <Text fontSize={14} color="$gray10">Altura (cm)</Text>
+              <Input
+                placeholder="Ex: 180"
+                keyboardType="numeric"
+                value={altura}
+                onChangeText={setAltura}
+                bg="$color2"
+                borderRadius="$3"
+                p="$3"
+              />
+            </YStack>
+
+            {/* Peso */}
+            <YStack space="$1">
+              <Text fontSize={14} color="$gray10">Peso (kg)</Text>
+              <Input
+                placeholder="Ex: 75"
+                keyboardType="numeric"
+                value={peso}
+                onChangeText={setPeso}
+                bg="$color2"
+                borderRadius="$3"
+                p="$3"
+              />
+            </YStack>
+
+            {/* Modalidade */}
+            <YStack space="$1">
+              <Text fontSize={14} color="$gray10">Modalidade</Text>
+              <YStack
+                borderRadius="$3"
+                borderWidth={1}
+                borderColor="$color4"
+                bg="$color2"
+                overflow="hidden"
+              >
+                <Picker
+                  selectedValue={modalidade}
+                  onValueChange={(itemValue) => setModalidade(itemValue)}
+                  style={{
+                    height: 50,
+                    paddingHorizontal: 8,
+                    color: theme.color?.val || '#FFFFFF',
+                    fontSize: 20,
+                    fontWeight: '500'
+                  }}
+                >
+                  <Picker.Item label="Selecione uma modalidade" value={null} />
+                  {modalidades
+                    .filter((m) => !m.disable)
+                    .map((m) => (
+                      <Picker.Item key={m.id} label={m.nome} value={m.id} />
+                    ))}
+                </Picker>
+              </YStack>
+            </YStack>
+
+            {/* Torneio */}
+            <YStack space="$1">
+              <Text fontSize={14} color="$gray10">Torneio</Text>
+              <YStack
+                borderRadius="$3"
+                borderWidth={1}
+                borderColor="$color4"
+                bg="$color2"
+                overflow="hidden"
+              >
+                <Picker
+                  selectedValue={torneioSelecionado}
+                  onValueChange={(itemValue) => setTorneioSelecionado(itemValue)}
+                  style={{
+                    height: 50,
+                    paddingHorizontal: 8,
+                    color: theme.color?.val || '#FFFFFF',
+                    fontSize: 20,
+                    fontWeight: '500'
+                  }}
+                  enabled={modalidade !== null}
+                >
+                  <Picker.Item label="Selecione um torneio" value={null} />
+                  {Array.isArray(torneios) && torneios.map((t) => (
+                    <Picker.Item key={t.id} label={t.nome} value={t.id} />
                   ))}
-              </Picker>
+                </Picker>
+              </YStack>
             </YStack>
-          </YStack>
 
-          {/* Torneio */}
-          <YStack space="$1">
-            <Text fontSize={14} color="$gray10">Torneio</Text>
-            <YStack
-              borderRadius="$3"
-              borderWidth={1}
-              borderColor="$color4"
-              bg="$color2"
-              overflow="hidden"
-            >
-              <Picker
-                selectedValue={torneioSelecionado}
-                onValueChange={(itemValue) => setTorneioSelecionado(itemValue)}
-                style={{ height: 40, paddingHorizontal: 8 }}
-                enabled={modalidade !== null}
+            {/* Equipe */}
+            <YStack space="$1">
+              <Text fontSize={14} color="$gray10">Equipe</Text>
+              <YStack
+                borderRadius="$3"
+                borderWidth={1}
+                borderColor="$color4"
+                bg="$color2"
+                overflow="hidden"
               >
-                <Picker.Item label="Selecione um torneio" value={null} />
-                {Array.isArray(torneios) && torneios.map((t) => (
-                  <Picker.Item key={t.id} label={t.nome} value={t.id} />
-                ))}
-              </Picker>
+                <Picker
+                  selectedValue={equipeSelecionada}
+                  onValueChange={(itemValue) => setEquipeSelecionada(itemValue)}
+                  style={{
+                    height: 50,
+                    paddingHorizontal: 8,
+                    color: theme.color?.val || '#FFFFFF',
+                    fontSize: 20,
+                    fontWeight: '500'
+                  }}
+                  enabled={torneioSelecionado !== null}
+                >
+                  <Picker.Item label="Selecione uma equipe" value={null} />
+                  {Array.isArray(equipes) && equipes.map((e) => (
+                    <Picker.Item key={e.id} label={e.nome} value={e.id} />
+                  ))}
+                </Picker>
+              </YStack>
             </YStack>
-          </YStack>
 
-          {/* Equipe */}
-          <YStack space="$1">
-            <Text fontSize={14} color="$gray10">Equipe</Text>
-            <YStack
-              borderRadius="$3"
-              borderWidth={1}
-              borderColor="$color4"
-              bg="$color2"
-              overflow="hidden"
+            <Separator my="$3" />
+
+            <Button
+              backgroundColor={!isFormValid ? 'grey' : 'black'}
+              color="white"
+              w="100%"
+              onPress={handleSalvar}
+              disabled={!isFormValid}
             >
-              <Picker
-                selectedValue={equipeSelecionada}
-                onValueChange={(itemValue) => setEquipeSelecionada(itemValue)}
-                style={{ height: 40, paddingHorizontal: 8 }}
-                enabled={torneioSelecionado !== null}
-              >
-                <Picker.Item label="Selecione uma equipe" value={null} />
-                {Array.isArray(equipes) && equipes.map((e) => (
-                  <Picker.Item key={e.id} label={e.nome} value={e.id} />
-                ))}
-              </Picker>
-            </YStack>
+              Salvar Atleta
+            </Button>
           </YStack>
-
-          <Separator my="$3" />
-
-          <Button
-            backgroundColor={!isFormValid ? 'grey' : 'black'}
-            color="white"
-            w="100%"
-            onPress={handleSalvar}
-            disabled={!isFormValid}
-          >
-            Salvar Atleta
-          </Button>
-        </YStack>
-
+        </ScrollView>
         <Footer />
 
-        <DialogError
-          open={showErrorDialog}
+        <Dialog
+          open={showDialog}
           onClose={handleCloseDialog}
-          message={errorMessage}
+          message={message}
+          type={error ? 'error' : 'success'}
         />
       </YStack>
     </Theme>

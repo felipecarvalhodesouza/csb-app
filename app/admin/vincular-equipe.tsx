@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'expo-router'
-import { YStack, Text, Button, Separator, Theme, useTheme } from 'tamagui'
+import { YStack, Text, Button, Separator, Theme, useTheme, ScrollView } from 'tamagui'
 import { Picker } from '@react-native-picker/picker'
 import Header from '../header'
 import Footer from '../footer'
@@ -203,129 +203,130 @@ export default function VincularEquipeTorneioScreen() {
     <Theme>
       <YStack f={1} bg="$background" pt="$6" pb="$9" jc="space-between">
         <Header title="Vincular Equipe ao Torneio" />
+        <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32 }} space="$4">
 
-        <YStack p="$4" space="$4">
-          {/* Modalidade */}
-          <YStack space="$1">
-            <Text fontSize={14} color="$gray10">Modalidade</Text>
-            <YStack borderRadius="$3" borderWidth={1} borderColor="$color4" bg="$color2" overflow="hidden">
-              <Picker
-                selectedValue={modalidade}
-                onValueChange={(itemValue) => setModalidade(itemValue)}
-                style={{ 
-                  height: 50, 
-                  paddingHorizontal: 8,
-                  color: theme.color?.val || '#FFFFFF',
-                  fontSize: 20,
-                  fontWeight: '500'
-                }}
-              >
-                <Picker.Item label="Selecione uma modalidade" value={null} />
-                {modalidades
-                  .filter((m) => !m.disable)
-                  .map((m) => (
-                    <Picker.Item key={m.id} label={m.nome} value={m.id} />
+          <YStack p="$4" space="$4">
+            {/* Modalidade */}
+            <YStack space="$1">
+              <Text fontSize={14} color="$gray10">Modalidade</Text>
+              <YStack borderRadius="$3" borderWidth={1} borderColor="$color4" bg="$color2" overflow="hidden">
+                <Picker
+                  selectedValue={modalidade}
+                  onValueChange={(itemValue) => setModalidade(itemValue)}
+                  style={{ 
+                    height: 50, 
+                    paddingHorizontal: 8,
+                    color: theme.color?.val || '#FFFFFF',
+                    fontSize: 20,
+                    fontWeight: '500'
+                  }}
+                >
+                  <Picker.Item label="Selecione uma modalidade" value={null} />
+                  {modalidades
+                    .filter((m) => !m.disable)
+                    .map((m) => (
+                      <Picker.Item key={m.id} label={m.nome} value={m.id} />
+                    ))}
+                </Picker>
+              </YStack>
+            </YStack>
+
+            {/* Torneio */}
+            <YStack space="$1">
+              <Text fontSize={14} color="$gray10">Torneio</Text>
+              <YStack borderRadius="$3" borderWidth={1} borderColor="$color4" bg="$color2" overflow="hidden">
+                <Picker
+                  selectedValue={torneioSelecionado}
+                  onValueChange={(itemValue) => setTorneioSelecionado(itemValue)}
+                  style={{ 
+                    height: 50, 
+                    paddingHorizontal: 8,
+                    color: theme.color?.val || '#FFFFFF',
+                    fontSize: 20,
+                    fontWeight: '500'
+                  }}
+                  enabled={modalidade !== null}
+                >
+                  <Picker.Item label="Selecione um torneio" value={null} />
+                  {Array.isArray(torneios) && torneios.map((t) => (
+                    <Picker.Item key={t.id} label={t.nome} value={t.id} />
                   ))}
-              </Picker>
+                </Picker>
+              </YStack>
+            </YStack>
+
+            {/* Categoria */}
+            <YStack space="$1">
+              <Text fontSize={14} color="$gray10">Categoria</Text>
+              <YStack borderRadius="$3" borderWidth={1} borderColor="$color4" bg="$color2" overflow="hidden">
+                <Picker
+                  selectedValue={categoriaSelecionada}
+                  onValueChange={(itemValue) => setCategoriaSelecionada(itemValue)}
+                  style={{ 
+                    height: 50, 
+                    paddingHorizontal: 8,
+                    color: theme.color?.val || '#FFFFFF',
+                    fontSize: 20,
+                    fontWeight: '500'
+                  }}
+                  enabled={torneioSelecionado !== null}
+                >
+                  <Picker.Item label="Selecione uma categoria" value={null} />
+                  {Array.isArray(categorias) && categorias.map((t) => (
+                    <Picker.Item key={t.id} label={t.nome} value={t.id} />
+                  ))}
+                </Picker>
+              </YStack>
+            </YStack>
+
+            {/* Equipe Disponível */}
+            <YStack space="$1">
+              <Text fontSize={14} color="$gray10">Equipe</Text>
+              <YStack borderRadius="$3" borderWidth={1} borderColor="$color4" bg="$color2" overflow="hidden">
+                <Picker
+                  selectedValue={equipeSelecionada}
+                  onValueChange={(itemValue) => setEquipeSelecionada(itemValue)}
+                  style={{ 
+                    height: 50, 
+                    paddingHorizontal: 8,
+                    color: theme.color?.val || '#FFFFFF',
+                    fontSize: 20,
+                    fontWeight: '500'
+                  }}
+                  enabled={categoriaSelecionada !== null}
+                >
+                  <Picker.Item label="Selecione uma equipe" value={null} />
+                  {Array.isArray(equipesDisponiveis) && equipesDisponiveis.map((e) => (
+                    <Picker.Item key={e.id} label={e.nome} value={e.id} />
+                  ))}
+                </Picker>
+              </YStack>
+            </YStack>
+
+            <Separator my="$3" />
+
+            <Button
+              backgroundColor={!isFormValid ? 'grey' : 'black'}
+              color="white"
+              w="100%"
+              onPress={handleVincular}
+              disabled={!isFormValid}
+            >
+              Vincular Equipe
+            </Button>
+
+            {/* Listagem de equipes já vinculadas */}
+            <YStack mt="$4" space="$2">
+              <Text fontSize={16} fontWeight="bold">Equipes já vinculadas ao torneio:</Text>
+              {equipesVinculadas.length === 0 && (
+                <Text color="$gray10">Nenhuma equipe vinculada.</Text>
+              )}
+              {equipesVinculadas.map((equipe) => (
+                <Text key={equipe.id} color="$gray10">- {equipe.nome}</Text>
+              ))}
             </YStack>
           </YStack>
-
-          {/* Torneio */}
-          <YStack space="$1">
-            <Text fontSize={14} color="$gray10">Torneio</Text>
-            <YStack borderRadius="$3" borderWidth={1} borderColor="$color4" bg="$color2" overflow="hidden">
-              <Picker
-                selectedValue={torneioSelecionado}
-                onValueChange={(itemValue) => setTorneioSelecionado(itemValue)}
-                style={{ 
-                  height: 50, 
-                  paddingHorizontal: 8,
-                  color: theme.color?.val || '#FFFFFF',
-                  fontSize: 20,
-                  fontWeight: '500'
-                }}
-                enabled={modalidade !== null}
-              >
-                <Picker.Item label="Selecione um torneio" value={null} />
-                {Array.isArray(torneios) && torneios.map((t) => (
-                  <Picker.Item key={t.id} label={t.nome} value={t.id} />
-                ))}
-              </Picker>
-            </YStack>
-          </YStack>
-
-          {/* Categoria */}
-          <YStack space="$1">
-            <Text fontSize={14} color="$gray10">Categoria</Text>
-            <YStack borderRadius="$3" borderWidth={1} borderColor="$color4" bg="$color2" overflow="hidden">
-              <Picker
-                selectedValue={categoriaSelecionada}
-                onValueChange={(itemValue) => setCategoriaSelecionada(itemValue)}
-                style={{ 
-                  height: 50, 
-                  paddingHorizontal: 8,
-                  color: theme.color?.val || '#FFFFFF',
-                  fontSize: 20,
-                  fontWeight: '500'
-                }}
-                enabled={torneioSelecionado !== null}
-              >
-                <Picker.Item label="Selecione uma categoria" value={null} />
-                {Array.isArray(categorias) && categorias.map((t) => (
-                  <Picker.Item key={t.id} label={t.nome} value={t.id} />
-                ))}
-              </Picker>
-            </YStack>
-          </YStack>
-
-          {/* Equipe Disponível */}
-          <YStack space="$1">
-            <Text fontSize={14} color="$gray10">Equipe</Text>
-            <YStack borderRadius="$3" borderWidth={1} borderColor="$color4" bg="$color2" overflow="hidden">
-              <Picker
-                selectedValue={equipeSelecionada}
-                onValueChange={(itemValue) => setEquipeSelecionada(itemValue)}
-                style={{ 
-                  height: 50, 
-                  paddingHorizontal: 8,
-                  color: theme.color?.val || '#FFFFFF',
-                  fontSize: 20,
-                  fontWeight: '500'
-                }}
-                enabled={categoriaSelecionada !== null}
-              >
-                <Picker.Item label="Selecione uma equipe" value={null} />
-                {Array.isArray(equipesDisponiveis) && equipesDisponiveis.map((e) => (
-                  <Picker.Item key={e.id} label={e.nome} value={e.id} />
-                ))}
-              </Picker>
-            </YStack>
-          </YStack>
-
-          <Separator my="$3" />
-
-          <Button
-            backgroundColor={!isFormValid ? 'grey' : 'black'}
-            color="white"
-            w="100%"
-            onPress={handleVincular}
-            disabled={!isFormValid}
-          >
-            Vincular Equipe
-          </Button>
-
-          {/* Listagem de equipes já vinculadas */}
-          <YStack mt="$4" space="$2">
-            <Text fontSize={16} fontWeight="bold">Equipes já vinculadas ao torneio:</Text>
-            {equipesVinculadas.length === 0 && (
-              <Text color="$gray10">Nenhuma equipe vinculada.</Text>
-            )}
-            {equipesVinculadas.map((equipe) => (
-              <Text key={equipe.id} color="$gray10">- {equipe.nome}</Text>
-            ))}
-          </YStack>
-        </YStack>
-
+        </ScrollView>
         <Footer />
 
         <Dialog
