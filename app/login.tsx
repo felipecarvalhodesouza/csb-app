@@ -7,8 +7,8 @@ import { getFavoriteModality } from '../utils/preferences'
 import { API_BASE_URL } from '../utils/config'
 
 export default function LoginScreen() {
-  const [email, setEmail] = useState('desouzafelipecarvalho@gmail.com')
-  const [password, setPassword] = useState('admin@123')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [emailError, setEmailError] = useState<string | null>(null)
 
@@ -67,7 +67,7 @@ export default function LoginScreen() {
   }
 
   return (
-    <Theme name={theme.name}>
+    <Theme>
       <YStack f={1} jc="center" ai="center" p="$4" bg="$background">
         {/* Logo */}
         <Image
