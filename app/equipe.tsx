@@ -88,10 +88,7 @@ export default function HomeEquipe() {
       <YStack f={1} bg="$background" jc="space-between" pb="$9" pt="$6">
         <Header title={nomeEquipe} subtitle="Calendário de Jogos" equipe={equipeId} />
 
-        <ScrollView
-          contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32 }}
-          space="$4"
-        >
+        <ScrollView contentContainerStyle={{ paddingHorizontal: 8, paddingBottom: 32 }}>
           {/* Ao Vivo */}
           {jogosAoVivo.length > 0 && (
             <YStack mb="$4" space>
@@ -112,7 +109,7 @@ export default function HomeEquipe() {
           {/* Demais jogos agrupados por categoria */}
           {Object.entries(jogosPorCategoria).map(([categoriaNome, jogosCategoria]) => (
             <YStack key={categoriaNome} space="$2" mt="$3">
-              <Text fontWeight="600" fontSize={16} color="$gray10">
+              <Text fontWeight="600" fontSize={16} color="$gray10" pl={8}>
                 {categoriaNome}
               </Text>
               {jogosCategoria.map((jogo) => (

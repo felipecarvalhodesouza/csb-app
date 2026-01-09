@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { YStack, XStack, Text, Button, Theme, Sheet, ScrollView, Card, Tabs } from 'tamagui'
-import { ChevronLeft, Undo } from '@tamagui/lucide-icons'
+import { Flag, Undo } from '@tamagui/lucide-icons'
 import Header from './header'
 import Footer from './footer'
 import { useLocalSearchParams, useRouter } from 'expo-router'
@@ -239,8 +239,11 @@ export default function EstatisticasAoVivoScreen() {
       <YStack f={1} bg="$background" jc="space-between" pb="$9" pt="$6">
         <Header
           title={jogo.mandante.nome + ' vs ' + jogo.visitante.nome}
-          subtitle={`${placarMandante} - ${placarVisitante}`}
-          button={<Button icon={ChevronLeft} chromeless onPress={() => router.back()} />}
+          subtitle={`${placarMandante} - ${placarVisitante}`} 
+          //button={<Button icon={ChevronLeft} chromeless onPress={() => router.back()} />}
+          button={
+            <Button icon={Flag} onPress={encerrarJogo} disabled={quarto < 4 || jogoEncerrado || placarMandante === placarVisitante} ></Button>
+          }
         />
 
         {jogoEncerrado && (
@@ -278,7 +281,6 @@ export default function EstatisticasAoVivoScreen() {
           </YStack>
           <Button icon={Undo} chromeless onPress={undoLastAction} disabled={actionHistory.length === 0}>Desfazer</Button>
           <Button onPress={nextQuarter} disabled={jogoEncerrado} chromeless> {quarto >=  4 ? 'Prorrogação' : 'Próximo Período'}</Button>
-          <Button onPress={encerrarJogo} disabled={quarto < 4 || jogoEncerrado || placarMandante === placarVisitante} >Encerrar</Button>
         </XStack>
     }
 

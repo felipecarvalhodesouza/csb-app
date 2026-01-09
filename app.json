@@ -3,7 +3,7 @@
     "name": "CSB App",
     "slug": "csb-app",
     "scheme": "csbapp",
-    "version": "1.0.0",
+    "version": "1.0.2",
     "icon": "./assets/icon.png",
     "plugins": [
       "@react-native-community/datetimepicker",
@@ -11,7 +11,7 @@
     ],
     "android": {
       "package": "br.com.campeonato.santista.csbapp",
-      "versionCode": 1,
+      "versionCode": 3,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#000000"

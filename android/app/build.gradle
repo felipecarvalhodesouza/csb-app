@@ -92,8 +92,8 @@ android {
         applicationId 'br.com.campeonato.santista.csbapp'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0.0"
+        versionCode 3
+        versionName "1.0.2"
 
         buildConfigField "String", "REACT_NATIVE_RELEASE_LEVEL", "\"${findProperty('reactNativeReleaseLevel') ?: 'stable'}\""
     }
@@ -104,7 +104,6 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
-
         release {
             storeFile file(MYAPP_UPLOAD_STORE_FILE)
             storePassword MYAPP_UPLOAD_STORE_PASSWORD
@@ -113,9 +112,7 @@ android {
         }
     }
     buildTypes {
-        debug { 
-            signingConfig signingConfigs.debug 
-        }
+        debug { signingConfig signingConfigs.debug }
         release {
             signingConfig signingConfigs.release
         }

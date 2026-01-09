@@ -10,6 +10,7 @@ import { modalidades } from '../utils/modalidades'
 import { API_BASE_URL } from '../../utils/config'
 
 import MultiSelect from 'react-native-multiple-select'
+import { apiPost } from '../utils/api'
 
 export default function VincularAtletaCategoriaScreen() {
   const router = useRouter()
@@ -29,12 +30,14 @@ export default function VincularAtletaCategoriaScreen() {
 
   const [atletasVinculados, setAtletasVinculados] = useState<any[]>([])
 
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
-  const [showErrorDialog, setShowErrorDialog] = useState(false)
+  const [message, setMessage] = useState<string | null>(null)
+  const [showDialog, setShowDialog] = useState(false)
+  const [error, setError] = useState<boolean | null>(null)
 
   const handleCloseDialog = () => {
-    setShowErrorDialog(false)
-    setErrorMessage(null)
+    setShowDialog(false)
+    setMessage(null)
+    setError(null)
   }
 
   const loadTorneios = async (modalidadeId: string) => {
@@ -213,29 +216,15 @@ export default function VincularAtletaCategoriaScreen() {
           atletasId: atletasSelecionados.map(Number)
         }
 
-        const user = await AsyncStorage.getItem('session_user')
-        const headers = {
-          'Authorization': `Bearer ${JSON.parse(user).token}`,
-          'Content-Type': 'application/json',
-        }
-        const response = await fetch(`${API_BASE_URL}/torneios/${torneioSelecionado}/categorias/${categoriaSelecionada}/atletas`, {
-          headers,
-          method: 'POST',
-          body: JSON.stringify(body),
-        })
-        if (response.ok) {
-          setErrorMessage('Atletas vinculados com sucesso!')
-          setShowErrorDialog(true)
-          loadAtletas(torneioSelecionado!, categoriaSelecionada!, equipeSelecionada)
-        } else {
-          const responseError = await response.json()
-          setErrorMessage(responseError.message || 'Erro ao vincular atletas.')
-          setShowErrorDialog(true)
-        }
+        apiPost(`${API_BASE_URL}/torneios/${torneioSelecionado}/categorias/${categoriaSelecionada}/atletas`, body)
+        setMessage('Atletas vinculados com sucesso!')
+        setShowDialog(true)
+        loadAtletas(torneioSelecionado!, categoriaSelecionada!, equipeSelecionada)
+
       } catch (error: any) {
-        console.error('Erro ao vincular atletas:', error)
-        setErrorMessage(error.message || 'Falha ao conectar com o servidor.')
-        setShowErrorDialog(true)
+        setError(true)
+        setMessage(error.message || 'Erro ao vincular atleta.')
+        setShowDialog(true)
       }
     }
     vincularAtletas()
@@ -247,7 +236,7 @@ export default function VincularAtletaCategoriaScreen() {
     <Theme>
       <YStack f={1} bg="$background" pt="$6" pb="$9" jc="space-between">
         <Header title="Vincular Atleta à Categoria" />
-        <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32 }} space="$4">
+        <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32 }} space="$4" nestedScrollEnabled>
         
         <YStack p="$4" space="$4">
           {/* Modalidade */}
@@ -257,7 +246,13 @@ export default function VincularAtletaCategoriaScreen() {
               <Picker
                 selectedValue={modalidade}
                 onValueChange={(itemValue) => setModalidade(itemValue)}
-                style={{ height: 40, paddingHorizontal: 8 }}
+                style={{ 
+                  height: 50, 
+                  paddingHorizontal: 8,
+                  color: '#FFFFFF',
+                  fontSize: 20,
+                  fontWeight: '500'
+                }}
               >
                 <Picker.Item label="Selecione uma modalidade" value={null} />
                 {modalidades
@@ -275,7 +270,13 @@ export default function VincularAtletaCategoriaScreen() {
               <Picker
                 selectedValue={torneioSelecionado}
                 onValueChange={(itemValue) => setTorneioSelecionado(itemValue)}
-                style={{ height: 40, paddingHorizontal: 8 }}
+                style={{ 
+                  height: 50, 
+                  paddingHorizontal: 8,
+                  color: '#FFFFFF',
+                  fontSize: 20,
+                  fontWeight: '500'
+                }}
                 enabled={modalidade !== null}
               >
                 <Picker.Item label="Selecione um torneio" value={null} />
@@ -292,7 +293,13 @@ export default function VincularAtletaCategoriaScreen() {
               <Picker
                 selectedValue={categoriaSelecionada}
                 onValueChange={(itemValue) => setCategoriaSelecionada(itemValue)}
-                style={{ height: 40, paddingHorizontal: 8 }}
+                style={{ 
+                  height: 50, 
+                  paddingHorizontal: 8,
+                  color: '#FFFFFF',
+                  fontSize: 20,
+                  fontWeight: '500'
+                }}
                 enabled={torneioSelecionado !== null}
               >
                 <Picker.Item label="Selecione uma categoria" value={null} />
@@ -309,7 +316,13 @@ export default function VincularAtletaCategoriaScreen() {
               <Picker
                 selectedValue={equipeSelecionada}
                 onValueChange={(itemValue) => setEquipeSelecionada(itemValue)}
-                style={{ height: 40, paddingHorizontal: 8 }}
+                style={{ 
+                  height: 50, 
+                  paddingHorizontal: 8,
+                  color: '#FFFFFF',
+                  fontSize: 20,
+                  fontWeight: '500'
+                }}
                 enabled={categoriaSelecionada !== null}
               >
                 <Picker.Item label="Selecione uma equipe" value={null} />
@@ -371,9 +384,10 @@ export default function VincularAtletaCategoriaScreen() {
         </ScrollView>
         <Footer />
         <DialogError
-          open={showErrorDialog}
+          open={showDialog}
           onClose={handleCloseDialog}
-          message={errorMessage}
+          message={message}
+          type={error ? 'error'  : 'success'}
         />
       </YStack>
     </Theme>
