@@ -1,11 +1,8 @@
 import { useLocalSearchParams } from 'expo-router'
 import {
   YStack,
-  XStack,
   Text,
-  Image,
   Theme,
-  useTheme,
   ScrollView,
   Spinner,
 } from 'tamagui'
@@ -21,7 +18,6 @@ import { API_BASE_URL } from '../utils/config'
 
 export default function CategoriaJogosScreen() {
   const { torneioId, categoriaId, nomeCategoria, nomeTorneio } = useLocalSearchParams<{ torneioId:string, categoriaId: string, nomeCategoria:string, nomeTorneio: string}>()
-  const theme = useTheme()
   const router = useRouter()
 
   const [jogos, setJogos] = useState<Jogo[]>([])
@@ -66,7 +62,7 @@ export default function CategoriaJogosScreen() {
   }
 
   return (
-    <Theme name={theme.name}>
+    <Theme>
       <YStack f={1} bg="$background" jc="space-between" pb="$9" pt="$6">
         <Header title={nomeTorneio} subtitle={nomeCategoria}  />
 

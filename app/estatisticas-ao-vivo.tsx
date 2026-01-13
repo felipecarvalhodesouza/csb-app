@@ -4,7 +4,7 @@ import { Flag, Undo } from '@tamagui/lucide-icons'
 import Header from './header'
 import Footer from './footer'
 import { useLocalSearchParams, useRouter } from 'expo-router'
-import { apiFetch, apiPost } from './utils/api'
+import { apiFetch, apiPost, apiDelete } from './utils/api'
 import Jogo from './domain/jogo'
 import AthleteCards from './componente/player-card-game'
 import Evento from './domain/evento'
@@ -167,11 +167,12 @@ export default function EstatisticasAoVivoScreen() {
     }
   }
 
-  function undoLastAction() {
+  async function undoLastAction() {
     if (actionHistory.length === 0) return
     const last = actionHistory[actionHistory.length - 1]
     updateAthleteStats(last.athleteId, last.stat, -last.value)
     setActionHistory(h => h.slice(0, -1))
+    await apiDelete<any>(`${API_BASE_URL}/jogos/${jogoId}/eventos`, {})
   }
 
   function handleSubstituicao(athlete: Atleta) {

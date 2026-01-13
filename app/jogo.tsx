@@ -2,7 +2,7 @@ import {
   YStack,
   XStack,
   Text,
-  Button,
+  Image,
   ScrollView,
   Theme,
   Spinner
@@ -20,6 +20,7 @@ import EstatisticasJogo from './componente/estatisticas-jogo'
 import { useEffect } from 'react'
 import { API_BASE_URL } from '../utils/config'
 import LanceALance from './componente/lance-a-lance'
+import { TeamScore } from './componente/team-score'
 
 export default function TelaJogo() {
 
@@ -61,23 +62,31 @@ export default function TelaJogo() {
           title={jogo.mandante.nome + ' vs ' + jogo.visitante.nome}
       />
       <ScrollView bg="$background" pr="$4" pl="$4">
-        {/* Header com placar */}
-        <XStack jc="space-between" ai="center" m="$3">
-          <Text fontSize={20} fontWeight="700">
-            {jogo.placarMandante | 0}
+      <XStack jc="space-between" ai="center" m="$3">
+        <TeamScore
+          team={jogo.mandante}
+          score={jogo.placarMandante}
+          align="left"
+        />
+
+        <YStack ai="center" space="$1">
+          <Text fontSize={16} fontWeight="700" color="$gray10">
+              {jogo.status}
+          </Text>
+          <Text fontSize={16} fontWeight="700" color="$gray10">
+              Período
           </Text>
           <Text fontSize={14} color="$gray10">
             {jogo.periodo || 'Não iniciado'}
           </Text>
-          <Text fontSize={20} fontWeight="700">
-            {jogo.placarVisitante | 0}
-          </Text>
-        </XStack>
+        </YStack>
 
-        <XStack jc="space-between" mb="$4" ml={"$3"} mr={"$3"}>
-          <Text fontSize={12} color="$gray10">{jogo.mandante.nome.substring(0,3).toUpperCase()}</Text>
-          <Text fontSize={12} color="$gray10">{jogo.visitante.nome.substring(0,3).toUpperCase()}</Text>
-        </XStack>
+        <TeamScore
+          team={jogo.visitante}
+          score={jogo.placarVisitante}
+          align="right"
+        />
+      </XStack>
 
         {/* YouTube ao vivo */}
         {jogo.streamUrl && (

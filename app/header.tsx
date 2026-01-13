@@ -3,7 +3,6 @@ import {
   YStack,
   XStack,
   Text,
-  Image,
   Button,
   ListItem,
   Separator
@@ -15,6 +14,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { apiFetch } from './utils/api'
 import Equipe from './domain/equipe'
 import { API_BASE_URL } from '../utils/config'
+import { MaterialIcons } from '@expo/vector-icons'
 
 type HeaderSectionProps = {
   title: string
@@ -62,12 +62,23 @@ export default function Header({ title, subtitle, button, equipe }: HeaderSectio
       <YStack px="$4" pt="$1" pb="$3" bg="$background">
         <XStack jc="space-between" ai="center">
           {!button && !equipe && (
-            <Image
-              source={require('../assets/logo.png')}
-              width={50}
-              height={50}
-            />
-          )}
+              <Button
+                size="$3"
+                onPress={() => router.replace(`/modalidades`)}
+                fd="column"
+                ai="center"
+                jc="center"
+                h="$6"
+                backgroundColor={"$color1"}
+              >
+                  <MaterialIcons
+                    name="home"
+                    size={28}
+                    color="white"
+                  />
+              </Button>
+            )}
+
           {button && !equipe && (<>{button}</>)}
 
           {!button && equipe && (
@@ -152,14 +163,14 @@ export default function Header({ title, subtitle, button, equipe }: HeaderSectio
               title="Perfil"
               onPress={() => {
                 setOpen(false)
-                router.push('/perfil')
+                //router.push('/perfil')
               }}
             />
             <ListItem
               title="Configurações"
               onPress={() => {
                 setOpen(false)
-                router.push('/configuracoes')
+                //router.push('/configuracoes')
               }}
             />
 

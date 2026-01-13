@@ -3,6 +3,7 @@ import { MaterialIcons } from '@expo/vector-icons'
 import { useRouter, usePathname } from 'expo-router'
 import { useEffect, useState } from 'react'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
 
 export default function Footer() {
   const router = useRouter()
@@ -20,19 +21,28 @@ export default function Footer() {
     fetchPerfil()
   }, [])
 
-  const handleConfirmar = (rota: string) => {
+  const handleConfirmar = (rota: TabRota) => {
     router.replace(`/${rota}`)
   }
 
-  const tabsBase = [
-    { nome: 'Início', icone: 'home', rota: 'modalidades', path: '/modalidades' },
-    { nome: 'Torneios', icone: 'sports', rota: 'torneios', path: '/torneios' },
-    { nome: 'Equipes', icone: 'groups', rota: 'equipes', path: '/equipes' },
-    // { nome: 'Estatísticas', icone: 'leaderboard', rota: 'modalidades', path: '/estatisticas' },
+  type TabRota = 'modalidades' | 'torneios' | 'equipes' | 'admin' | 'estatisticas';
+  type Tab = {
+    nome: string;
+    icone: string;
+    rota: TabRota;
+    path: string;
+    community: boolean;
+  }
+
+  const tabsBase: Tab[] = [
+    //{ nome: 'Início', icone: 'home', rota: 'modalidades', path: '/modalidades', community: false },
+    { nome: 'Torneios', icone: 'trophy', rota: 'torneios', path: '/torneios', community: true },
+    { nome: 'Equipes', icone: 'groups', rota: 'equipes', path: '/equipes', community: false },
+    //{ nome: 'Estatísticas', icone: 'leaderboard', rota: 'estatisticas', path: '/estatisticas', community: false },
   ]
 
-  const tabs = perfil === 'ADMIN'
-    ? [...tabsBase, { nome: 'Admin', icone: 'admin-panel-settings', rota: 'admin', path: '/admin' }]
+  const tabs: Tab[] = perfil === 'ADMIN'
+    ? [...tabsBase, { nome: 'Admin', icone: 'admin-panel-settings', rota: 'admin', path: '/admin', community: false }]
     : tabsBase
 
   return (
@@ -53,11 +63,16 @@ export default function Footer() {
               h="$6"
               backgroundColor={"$color1"}
             >
-              <MaterialIcons
-                name={tab.icone as any}
-                size={28}
-                color={ativo ? 'white' : '#999'}
-              />
+              {!tab.community && (
+                <MaterialIcons
+                  name={tab.icone as any}
+                  size={28}
+                  color={ativo ? 'white' : '#999'}
+                />
+              )}
+              {tab.community && (
+                <MaterialCommunityIcons name={tab.icone as any} size={28} color={ativo ? 'white' : '#999'} />
+              )}
               <Text
                 fontSize={12}
                 color={ativo ? 'white' : '#999'}
