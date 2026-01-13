@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'expo-router'
 import { YStack, Text, Input, Button, Image, Separator, Theme, useTheme } from 'tamagui'
 import { TouchableOpacity } from 'react-native'
@@ -11,6 +11,7 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('')
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [emailError, setEmailError] = useState<string | null>(null)
+  const [rememberEmail, setRememberEmail] = useState(false)
 
   const router = useRouter()
   const theme = useTheme()
@@ -40,6 +41,12 @@ export default function LoginScreen() {
 
     setErrorMessage(null)
 
+    if (rememberEmail) {
+      await AsyncStorage.setItem('remember_email', email)
+    } else {
+      await AsyncStorage.removeItem('remember_email')
+    }
+
     try {
       const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
@@ -65,6 +72,18 @@ export default function LoginScreen() {
       setErrorMessage(err.message || 'Falha ao realizar login. Tente novamente.')
     }
   }
+
+  useEffect(() => {
+  const loadEmail = async () => {
+    const savedEmail = await AsyncStorage.getItem('remember_email')
+    if (savedEmail) {
+      setEmail(savedEmail)
+      setRememberEmail(true)
+    }
+  }
+
+  loadEmail()
+}, [])
 
   return (
     <Theme>
@@ -103,6 +122,32 @@ export default function LoginScreen() {
             value={password}
             onChangeText={setPassword}
           />
+
+        <TouchableOpacity
+          onPress={() => setRememberEmail(!rememberEmail)}
+          style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10 }}
+        >
+          <YStack
+            w={18}
+            h={18}
+            borderWidth={1.5}
+            borderColor="$color"
+            borderRadius={4}
+            jc="center"
+            ai="center"
+            bg={rememberEmail ? '$color' : 'transparent'}
+          >
+            {rememberEmail && (
+              <Text color="$background" fontSize={12} fontWeight="bold">
+                ✓
+              </Text>
+            )}
+          </YStack>
+
+          <Text ml="$2" fontSize="$2">
+            Lembrar e-mail
+          </Text>
+        </TouchableOpacity>
         </YStack>
 
         {/* Mensagem de erro geral */}
