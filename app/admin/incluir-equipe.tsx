@@ -38,7 +38,9 @@ export default function IncluirEquipeScreen() {
       try {
         const novaEquipe: Partial<Equipe> = {
           nome: nomeEquipe,
+          modalidade: modalidade || '',
           imagemPath: null, // Por enquanto vazio
+          categorias: null, // Por enquanto vazio
         }
 
         await apiPost(`${API_BASE_URL}/equipes`, novaEquipe)

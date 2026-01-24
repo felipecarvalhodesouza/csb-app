@@ -92,10 +92,9 @@ export default function VincularEquipeTorneioScreen() {
       }
 
       const [disponiveisRes, vinculadasRes] = await Promise.all([
-        fetch(`${API_BASE_URL}/equipes`, { headers }),
+        fetch(`${API_BASE_URL}/equipes?codigoModalidade=${modalidade}`, { headers }),
         fetch(`${API_BASE_URL}/torneios/${torneioId}/categorias/${categoriaId}/equipes`, { headers })
       ])
-
 
       let equipesDisponiveisData: any[] = []
       let equipesVinculadasData: any[] = []
