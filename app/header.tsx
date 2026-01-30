@@ -20,10 +20,11 @@ type HeaderSectionProps = {
   title: string
   subtitle?: string
   button?: React.ReactNode
+  button2?: React.ReactNode
   equipe?: any
 }
 
-export default function Header({ title, subtitle, button, equipe }: HeaderSectionProps) {
+export default function Header({ title, subtitle, button, button2, equipe }: HeaderSectionProps) {
   const [open, setOpen] = useState(false)
   const [confirmLogout, setConfirmLogout] = useState(false)
   const [favorito, setFavorito] = useState(false)
@@ -106,12 +107,17 @@ export default function Header({ title, subtitle, button, equipe }: HeaderSectio
               </Text>
             )}
           </YStack>
-          <Button
-            icon={LogOut}
-            chromeless
-            onPress={() => setConfirmLogout(true)}
-            aria-label="Logout"
-          />
+
+          {button2 && (<>{button2}</>)}
+
+          {!button2 && (
+            <Button
+              icon={LogOut}
+              chromeless
+              onPress={() => setConfirmLogout(true)}
+              aria-label="Logout"
+            />
+          )}
         </XStack>
       </YStack>
 

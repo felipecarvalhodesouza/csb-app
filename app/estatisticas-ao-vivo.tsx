@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import { YStack, XStack, Text, Button, Theme, Sheet, ScrollView, Card, Tabs } from 'tamagui'
-import { Flag, Undo } from '@tamagui/lucide-icons'
+import { YStack, XStack, Text, Button, Theme, Tabs } from 'tamagui'
+import { Flag, Undo, ChevronLeft } from '@tamagui/lucide-icons'
 import Header from './header'
 import Footer from './footer'
 import { useLocalSearchParams, useRouter } from 'expo-router'
@@ -33,6 +33,11 @@ export default function EstatisticasAoVivoScreen() {
       try {
         const jogoData = await apiFetch<any>(`${API_BASE_URL}/jogos/${jogoId}`)
         setJogo(jogoData)
+        setActionHistory(jogoData.eventos.map((evento: any) => ({
+          athleteId: evento.responsavel?.id,
+          stat: evento.stat,
+          value: evento.pontos ? evento.pontos : 1
+        })))
         setQuarto(jogoData.periodo || 1)
         setMandante(
           (jogoData.atletasMandante || []).map(a => ({
@@ -171,8 +176,8 @@ export default function EstatisticasAoVivoScreen() {
     if (actionHistory.length === 0) return
     const last = actionHistory[actionHistory.length - 1]
     updateAthleteStats(last.athleteId, last.stat, -last.value)
-    setActionHistory(h => h.slice(0, -1))
     await apiDelete<any>(`${API_BASE_URL}/jogos/${jogoId}/eventos`, {})
+    setActionHistory(h => h.slice(0, -1))
   }
 
   function handleSubstituicao(athlete: Atleta) {
@@ -241,8 +246,8 @@ export default function EstatisticasAoVivoScreen() {
         <Header
           title={jogo.mandante.nome + ' vs ' + jogo.visitante.nome}
           subtitle={`${placarMandante} - ${placarVisitante}`} 
-          //button={<Button icon={ChevronLeft} chromeless onPress={() => router.back()} />}
-          button={
+          button={<Button icon={ChevronLeft} chromeless onPress={() => router.back()} />}
+          button2={
             <Button icon={Flag} onPress={encerrarJogo} disabled={quarto < 4 || jogoEncerrado || placarMandante === placarVisitante} ></Button>
           }
         />

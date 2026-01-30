@@ -43,7 +43,7 @@ export default function HomeEquipe() {
       if(jogo.status == 'PREVISTO'){
         router.push(`/selecao-atletas-partida?jogoId=${jogo.id}&torneioId=${torneioId}`)
       } else {
-        router.replace(`/estatisticas-ao-vivo?jogoId=${jogo.id}`)
+        router.push(`/estatisticas-ao-vivo?jogoId=${jogo.id}`)
       }
     
   }
