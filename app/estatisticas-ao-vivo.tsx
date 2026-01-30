@@ -12,6 +12,9 @@ import { getEstatisticaPorAthlete } from './domain/estatistica'
 import { Atleta } from './domain/atleta'
 import { API_BASE_URL } from '../utils/config'
 import { getBrazilLocalDateTimeString } from './utils/date-formatter'
+import { Alert } from 'react-native'
+import Dialog from './componente/dialog-error'
+import { set } from 'date-fns'
 
 export default function EstatisticasAoVivoScreen() {
   const { jogoId } = useLocalSearchParams()
@@ -26,6 +29,8 @@ export default function EstatisticasAoVivoScreen() {
   const [modalSubstituicao, setModalSubstituicao] = useState(false)
   const [athleteToSubstitute, setAthleteToSubstitute] = useState<Atleta | null>(null)
   const [actionHistory, setActionHistory] = useState<any[]>([])
+  const [showDialog, setShowDialog] = useState(false)
+  const [message, setMessage] = useState<string | null>(null)
 
   useEffect(() => {
     async function fetchJogo() {
@@ -97,6 +102,11 @@ export default function EstatisticasAoVivoScreen() {
     if(atleta.faltas >= 5 || atleta.faltasDesqualificantes >= 2){
       atleta.expulso = true;
     }
+  }
+
+  const handleCloseDialog = () => {
+    setShowDialog(false)
+    setMessage(null)
   }
 
   async function updateAthleteStats(athleteId: number, stat: keyof Atleta | string, value: number) {
@@ -174,9 +184,19 @@ export default function EstatisticasAoVivoScreen() {
 
   async function undoLastAction() {
     if (actionHistory.length === 0) return
+
+    try{
+          await apiDelete<any>(`${API_BASE_URL}/jogos/${jogoId}/eventos`, {})
+    } catch(e) {
+        setMessage( 
+        e.message || 'Erro ao desfazer a última ação',
+      )
+      setShowDialog(true)
+      return;
+    }
+
     const last = actionHistory[actionHistory.length - 1]
     updateAthleteStats(last.athleteId, last.stat, -last.value)
-    await apiDelete<any>(`${API_BASE_URL}/jogos/${jogoId}/eventos`, {})
     setActionHistory(h => h.slice(0, -1))
   }
 
@@ -357,6 +377,13 @@ export default function EstatisticasAoVivoScreen() {
         )}
 
         <Footer />
+
+        <Dialog
+          open={showDialog}
+          onClose={handleCloseDialog}
+          message={message}
+          type={'error'}
+        />
       </YStack>
     </Theme>
   )
