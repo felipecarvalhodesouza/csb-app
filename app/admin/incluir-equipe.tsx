@@ -107,7 +107,7 @@ export default function IncluirEquipeScreen() {
                 {modalidades
                   .filter((m) => !m.disable)
                   .map((m) => (
-                    <Picker.Item key={m.id} label={m.nome} value={m.id} />
+                    <Picker.Item key={m.id} label={m.nome} value={m.id - 1} />
                   ))}
               </Picker>
             </YStack>
