@@ -308,7 +308,7 @@ export default function EstatisticasAoVivoScreen() {
           <Button icon={Undo} chromeless onPress={undoLastAction} disabled={actionHistory.length === 0}>Desfazer</Button>
           <Button onPress={nextQuarter} disabled={jogoEncerrado} chromeless> {quarto >=  4 ? 'Prorrogação' : 'Próximo Período'}</Button>
         </XStack>
-    }
+      }
 
         {/* Team Tabs */}
         <Tabs value={activeTeam} onValueChange={v => setActiveTeam(v as 'mandante' | 'visitante') } ml={"$4"} mr={"$4"}>
@@ -331,6 +331,7 @@ export default function EstatisticasAoVivoScreen() {
               addPoints={addPoints}
               updateAthleteStats={updateAthleteStats}
               handleSubstituicao={handleSubstituicao}
+              jogoEncerrado={jogoEncerrado}
             />
           )}
           { activeTeam === 'visitante' && (
@@ -339,6 +340,7 @@ export default function EstatisticasAoVivoScreen() {
               addPoints={addPoints}
               updateAthleteStats={updateAthleteStats}
               handleSubstituicao={handleSubstituicao}
+              jogoEncerrado={jogoEncerrado}
             />
           )}
 
@@ -365,6 +367,7 @@ export default function EstatisticasAoVivoScreen() {
                     key={reserva.id}
                     mb="$2"
                     onPress={() => substituirAtleta(reserva)}
+                    disabled={jogoEncerrado}
                   >
                     {reserva.nome} <Text color="$gray10">#{reserva.numero}</Text>
                   </Button>

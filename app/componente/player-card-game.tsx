@@ -9,6 +9,7 @@ type AthleteCardsProps = {
   addPoints: (id: number, pts: number, equipeId: number) => void
   updateAthleteStats: (id: number, stat: keyof Atleta | string, value: number) => void
   handleSubstituicao: (athlete: Atleta) => void
+  jogoEncerrado: boolean
 }
 
 export default function AthleteCards({
@@ -16,6 +17,7 @@ export default function AthleteCards({
   addPoints,
   updateAthleteStats,
   handleSubstituicao,
+  jogoEncerrado
 }: AthleteCardsProps) {
   
 
@@ -80,6 +82,7 @@ export default function AthleteCards({
                   onPress={() => handleSubstituicao(a)}
                   mr="$2"
                   aria-label="Substituir atleta"
+                  disabled={jogoEncerrado}
                 />
                 <XStack jc="center" gap={4} mt="$2" mb="$2">
                   {[...Array(5)].map((_, idx) => (
@@ -97,21 +100,21 @@ export default function AthleteCards({
                 <Text fontWeight="700" fontSize={18}>{a.pontos} pts</Text>
               </XStack>
               <XStack mt="$2" jc="space-between">
-                <Button disabled={a.expulso} onPress={() => addPoints(a.id, 1, Number(a.equipeId))} icon={Plus}>1 PT</Button>
-                <Button disabled={a.expulso} onPress={() => addPoints(a.id, 2, Number(a.equipeId))} icon={Plus}>2 PTS</Button>
-                <Button disabled={a.expulso} onPress={() => addPoints(a.id, 3, Number(a.equipeId))} icon={Plus}>3 PTS</Button>
+                <Button disabled={a.expulso || jogoEncerrado} onPress={() => addPoints(a.id, 1, Number(a.equipeId))} icon={Plus}>1 PT</Button>
+                <Button disabled={a.expulso || jogoEncerrado} onPress={() => addPoints(a.id, 2, Number(a.equipeId))} icon={Plus}>2 PTS</Button>
+                <Button disabled={a.expulso || jogoEncerrado} onPress={() => addPoints(a.id, 3, Number(a.equipeId))} icon={Plus}>3 PTS</Button>
               </XStack>
               <XStack jc="space-between" mt="$2" flexWrap="wrap">
-                <Button disabled={a.expulso} width={18} maxWidth={100} flex={1} mr="$2" onPress={() => updateAthleteStats(a.id, 'rebotes', 1)}>
+                <Button disabled={a.expulso || jogoEncerrado} width={18} maxWidth={100} flex={1} mr="$2" onPress={() => updateAthleteStats(a.id, 'rebotes', 1)}>
                   <Text fontSize={12} textAlign='center'>REB: {a.rebotes}</Text>
                 </Button>
-                <Button disabled={a.expulso} width={18} maxWidth={100} flex={1} mr="$2" onPress={() => updateAthleteStats(a.id, 'assistencias', 1)}>
+                <Button disabled={a.expulso || jogoEncerrado} width={18} maxWidth={100} flex={1} mr="$2" onPress={() => updateAthleteStats(a.id, 'assistencias', 1)}>
                   <Text fontSize={12} textAlign='center'>AST: {a.assistencias}</Text>
                 </Button>
-                <Button disabled={a.expulso} width={18} maxWidth={100} flex={1} mr="$2" onPress={() => updateAthleteStats(a.id, 'roubos', 1)}>
+                <Button disabled={a.expulso || jogoEncerrado} width={18} maxWidth={100} flex={1} mr="$2" onPress={() => updateAthleteStats(a.id, 'roubos', 1)}>
                   <Text fontSize={12} textAlign='center'>STL: {a.roubos}</Text>
                 </Button>
-                <Button disabled={a.expulso} width={18} maxWidth={100} flex={1} mr="$2" onPress={() => updateAthleteStats(a.id, 'tocos', 1)}>
+                <Button disabled={a.expulso || jogoEncerrado} width={18} maxWidth={100} flex={1} mr="$2" onPress={() => updateAthleteStats(a.id, 'tocos', 1)}>
                   <Text fontSize={12} textAlign='center'>BLK: {a.tocos}</Text>
                 </Button>
                 <Button
@@ -119,7 +122,7 @@ export default function AthleteCards({
                     maxWidth={100}
                     flex={1}
                     onPress={() => handleOpenFaltaModal(a.id)}
-                    disabled={a.expulso}
+                    disabled={a.expulso || jogoEncerrado}
                   >
                   <Text fontSize={12} textAlign='center'>FL: {a.faltas}</Text>
                 </Button>

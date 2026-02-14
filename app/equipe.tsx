@@ -9,11 +9,12 @@ import {
 import { useRouter } from 'expo-router'
 import Footer from './footer'
 import Header from './header'
-import { useEffect, useState } from 'react'
+import { useState, useCallback } from 'react'
 import Jogo from './domain/jogo'
 import GameCard from './componente/game-card'
 import { apiFetch } from './utils/api'
 import { API_BASE_URL } from '../utils/config'
+import { useFocusEffect } from '@react-navigation/native'
 
 export default function HomeEquipe() {
   const { equipeId, nomeEquipe, torneioId } = useLocalSearchParams<{equipeId: string, nomeEquipe: string, torneioId: string}>()
@@ -22,22 +23,28 @@ export default function HomeEquipe() {
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
   
+const fetchJogos = useCallback(async (options: RequestInit = {}) => {
+  try {
+    setLoading(true)
 
-  useEffect(() => {
-    const fetchJogos = async (options: RequestInit = {}) => {
-      try {
-        const data = await apiFetch<Jogo[]>(`${API_BASE_URL}/torneios/${torneioId}/equipes/${equipeId}/jogos`, options)
-        setJogos(data)
-      } catch (error) {
-        console.error('Error fetching jogos:', error)
-        setError((error as Error).message)
-      } finally {
-        setLoading(false)
-      }
-    }
+    const data = await apiFetch<Jogo[]>(
+      `${API_BASE_URL}/torneios/${torneioId}/equipes/${equipeId}/jogos`,
+      options
+    )
 
+    setJogos(data)
+  } catch (error) {
+    setError((error as Error).message)
+  } finally {
+    setLoading(false)
+  }
+}, [torneioId, equipeId])
+
+useFocusEffect(
+  useCallback(() => {
     fetchJogos()
-  }, [])
+  }, [fetchJogos])
+)
 
   function handleLongPress(jogo: Jogo) {
       if(jogo.status == 'PREVISTO'){
