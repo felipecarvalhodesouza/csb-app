@@ -71,7 +71,7 @@ export default function TelaJogo() {
 
         <YStack ai="center" space="$1">
           <Text fontSize={16} fontWeight="700" color="$gray10">
-              {jogo.status}
+              {jogo.status === 'EM_ANDAMENTO' ? 'Em andamento' : jogo.status === 'ENCERRADO' ? 'Jogo encerrado' : 'Jogo não iniciado'}
           </Text>
           <Text fontSize={16} fontWeight="700" color="$gray10">
               Período
@@ -92,7 +92,7 @@ export default function TelaJogo() {
         {jogo.streamUrl && (
           <YStack mb="$4">
             <YoutubePlayer height={200} play={false} videoId={jogo.streamUrl} />
-            { jogo.status === 'EM ANDAMENTO' && (
+            { jogo.status === 'EM_ANDAMENTO' && (
               <Text color="$red10" fontSize={12} mt="$1">Ao vivo</Text>
             )}
           </YStack>

@@ -1,35 +1,35 @@
 import { useState, useEffect } from 'react'
-import {
-  YStack,
-  XStack,
-  Text,
-  Button,
-  ListItem,
-  Separator
-} from 'tamagui'
+import { YStack, XStack, Text, Button } from 'tamagui'
+import { MaterialIcons } from '@expo/vector-icons'
+import { Star } from '@tamagui/lucide-icons'
 import { useRouter } from 'expo-router'
-import { Pressable } from 'react-native'
-import { LogOut, Star } from '@tamagui/lucide-icons'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { apiFetch } from './utils/api'
 import Equipe from './domain/equipe'
 import { API_BASE_URL } from '../utils/config'
-import { MaterialIcons } from '@expo/vector-icons'
+import LeftDrawer from './componente/LeftDrawer'
+import RightDrawer from './componente/RightDrawer'
 
-type HeaderSectionProps = {
+type HeaderProps = {
   title: string
   subtitle?: string
+  equipe?: any
   button?: React.ReactNode
   button2?: React.ReactNode
-  equipe?: any
 }
 
-export default function Header({ title, subtitle, button, button2, equipe }: HeaderSectionProps) {
-  const [open, setOpen] = useState(false)
-  const [confirmLogout, setConfirmLogout] = useState(false)
+export default function Header({
+  title,
+  subtitle,
+  equipe,
+  button,
+  button2
+}: HeaderProps) {
+  const [leftOpen, setLeftOpen] = useState(false)
+  const [rightOpen, setRightOpen] = useState(false)
   const [favorito, setFavorito] = useState(false)
-  const router = useRouter()
 
+  const router = useRouter()
 
   useEffect(() => {
     async function checkFavorito() {
@@ -42,52 +42,48 @@ export default function Header({ title, subtitle, button, button2, equipe }: Hea
 
   const handleToggleFavorito = async () => {
     if (!equipe) return
+
     if (favorito) {
       await AsyncStorage.removeItem('equipe_favorita')
       setFavorito(false)
     } else {
-      const equipeResponse = await apiFetch<Equipe>(`${API_BASE_URL}/equipes/${equipe}`)
-      await AsyncStorage.setItem('equipe_favorita', JSON.stringify(equipeResponse))
+      const equipeResponse = await apiFetch<Equipe>(
+        `${API_BASE_URL}/equipes/${equipe}`
+      )
+      await AsyncStorage.setItem(
+        'equipe_favorita',
+        JSON.stringify(equipeResponse)
+      )
       setFavorito(true)
     }
   }
 
   const handleLogout = async () => {
-    setConfirmLogout(false)
-    setOpen(false)
+    setRightOpen(false)
+    await AsyncStorage.removeItem('session_user')
     router.replace('/login')
   }
 
   return (
     <>
-      <YStack px="$4" pt="$1" pb="$3" bg="$background">
+      <YStack px="$4" pt="$2" pb="$3" bg="$background">
         <XStack jc="space-between" ai="center">
+          
+          {/* Botão esquerdo */}
           {!button && !equipe && (
-              <Button
-                size="$3"
-                onPress={() => router.replace(`/modalidades`)}
-                fd="column"
-                ai="center"
-                jc="center"
-                h="$6"
-                backgroundColor={"$color1"}
-              >
-                  <MaterialIcons
-                    name="home"
-                    size={28}
-                    color="white"
-                  />
-              </Button>
-            )}
+            <Button
+              size="$3"
+              onPress={() => setLeftOpen(true)}
+              backgroundColor="$color1"
+            >
+              <MaterialIcons name="menu" size={26} color="white" />
+            </Button>
+          )}
 
-          {button && !equipe && (<>{button}</>)}
+          {button && <>{button}</>}
 
           {!button && equipe && (
-            <Button
-              chromeless
-              onPress={handleToggleFavorito}
-              aria-label="Favorito"
-            >
+            <Button chromeless onPress={handleToggleFavorito}>
               <Star
                 color={favorito ? 'yellow' : 'black'}
                 fill={favorito ? 'yellow' : 'transparent'}
@@ -97,149 +93,43 @@ export default function Header({ title, subtitle, button, button2, equipe }: Hea
             </Button>
           )}
 
-          <YStack f={1} ai="center" jc="center">
+          {/* Centro */}
+          <YStack f={1} ai="center">
             <Text fontSize={16} fontWeight="600" ta="center">
               {title}
             </Text>
             {subtitle && (
-              <Text fontSize={!button ? 12 : 24} color="$gray10" ta="center">
+              <Text fontSize={12} color="$gray10" ta="center">
                 {subtitle}
               </Text>
             )}
           </YStack>
 
-          {button2 && (<>{button2}</>)}
-
-          {!button2 && (
+          {/* Botão direito */}
+          {button2 ? (
+            button2
+          ) : (
             <Button
-              icon={LogOut}
               chromeless
-              onPress={() => setConfirmLogout(true)}
-              aria-label="Logout"
-            />
+              onPress={() => setRightOpen(true)}
+            >
+              <MaterialIcons
+                name="account-circle"
+                size={28}
+                color="white"
+              />
+            </Button>
           )}
         </XStack>
       </YStack>
 
-      {/* Modal de menu */}
-      {open && (
-        <YStack
-          position="absolute"
-          top={0}
-          left={0}
-          width="100%"
-          height="100%"
-          bg="rgba(0, 0, 0, 0.6)"
-          zIndex={100}
-          jc="center"
-          ai="center"
-        >
-          <Pressable
-            onPress={() => setOpen(false)}
-            style={{
-              position: 'absolute',
-              width: '100%',
-              height: '100%',
-            }}
-          />
+      <LeftDrawer open={leftOpen} onClose={() => setLeftOpen(false)} />
 
-          <YStack
-            width={320}
-            bg="$backgroundStrong"
-            p="$5"
-            br="$8"
-            elevation="$5"
-            zIndex={101}
-            animation="quick"
-            enterStyle={{ opacity: 0, scale: 0.9 }}
-            exitStyle={{ opacity: 0, scale: 0.9 }}
-            opacity={1}
-            scale={1}
-            gap="$3"
-            shadowColor="black"
-            shadowOffset={{ width: 0, height: 4 }}
-            shadowOpacity={0.3}
-            shadowRadius={10}
-          >
-            <Text fontSize={20} fontWeight="700" ta="center" mb="$2">
-              Menu
-            </Text>
-
-            <ListItem
-              title="Perfil"
-              onPress={() => {
-                setOpen(false)
-                //router.push('/perfil')
-              }}
-            />
-            <ListItem
-              title="Configurações"
-              onPress={() => {
-                setOpen(false)
-                //router.push('/configuracoes')
-              }}
-            />
-
-            <Separator my="$3" />
-
-            <Button
-              size="$4"
-              theme="red"
-              onPress={() => setConfirmLogout(true)}
-            >
-              Sair
-            </Button>
-
-            <Button
-              size="$3"
-              variant="outlined"
-              onPress={() => setOpen(false)}
-            >
-              <Text>Fechar</Text>
-            </Button>
-          </YStack>
-        </YStack>
-      )}
-
-      {/* Modal de confirmação de logout */}
-      {confirmLogout && (
-        <YStack
-          position="absolute"
-          top={0}
-          left={0}
-          width="100%"
-          height="100%"
-          bg="rgba(0,0,0,0.8)"
-          zIndex={200}
-          jc="center"
-          ai="center"
-        >
-          <YStack
-            width={280}
-            bg="$color2"
-            p="$5"
-            br="$8"
-            elevation="$6"
-            zIndex={201}
-            gap="$4"
-            ai="center"
-            bc="$color4"
-            bw={1}
-          >
-            <Text fontSize={18} fontWeight="700" ta="center" mb="$2">
-              Deseja realmente sair?
-            </Text>
-            <XStack gap="$3" jc="center">
-              <Button theme="red" onPress={handleLogout}>
-                Sim
-              </Button>
-              <Button variant="outlined" onPress={() => setConfirmLogout(false)}>
-                Cancelar
-              </Button>
-            </XStack>
-          </YStack>
-        </YStack>
-      )}
+      <RightDrawer
+        open={rightOpen}
+        onClose={() => setRightOpen(false)}
+        onLogout={handleLogout}
+      />
     </>
   )
 }

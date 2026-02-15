@@ -22,10 +22,29 @@ export default function Footer() {
   }, [])
 
   const handleConfirmar = (rota: TabRota) => {
-    router.replace(`/${rota}`)
+    router.replace(tabPathFromRota(rota) as any)
   }
 
   type TabRota = 'modalidades' | 'torneios' | 'equipes' | 'admin' | 'estatisticas';
+
+  // Helper to map TabRota to valid path strings
+  function tabPathFromRota(rota: TabRota): string {
+    switch (rota) {
+      case 'modalidades':
+        return '/modalidades'
+      case 'torneios':
+        return '/torneios'
+      case 'equipes':
+        return '/equipes'
+      case 'admin':
+        return '/admin'
+      case 'estatisticas':
+        return '/estatisticas'
+      default:
+        return '/modalidades'
+    }
+  }
+  
   type Tab = {
     nome: string;
     icone: string;
@@ -35,10 +54,10 @@ export default function Footer() {
   }
 
   const tabsBase: Tab[] = [
-    //{ nome: 'Início', icone: 'home', rota: 'modalidades', path: '/modalidades', community: false },
+    { nome: 'Início', icone: 'home', rota: 'modalidades', path: '/modalidades', community: false },
     { nome: 'Torneios', icone: 'trophy', rota: 'torneios', path: '/torneios', community: true },
     { nome: 'Equipes', icone: 'groups', rota: 'equipes', path: '/equipes', community: false },
-    //{ nome: 'Estatísticas', icone: 'leaderboard', rota: 'estatisticas', path: '/estatisticas', community: false },
+    { nome: 'Estatísticas', icone: 'leaderboard', rota: 'estatisticas', path: '/estatisticas', community: false },
   ]
 
   const tabs: Tab[] = perfil === 'ADMIN'

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { YStack, XStack, Text, Button, Theme, Tabs } from 'tamagui'
-import { Flag, Undo, ChevronLeft } from '@tamagui/lucide-icons'
+import { Flag, Undo, ChevronLeft, FileArchive } from '@tamagui/lucide-icons'
 import Header from './header'
 import Footer from './footer'
 import { useLocalSearchParams, useRouter } from 'expo-router'
@@ -12,7 +12,7 @@ import { getEstatisticaPorAthlete } from './domain/estatistica'
 import { Atleta } from './domain/atleta'
 import { API_BASE_URL } from '../utils/config'
 import { getBrazilLocalDateTimeString } from './utils/date-formatter'
-import { Alert } from 'react-native'
+import { Alert, Platform } from 'react-native'
 import Dialog from './componente/dialog-error'
 import { set } from 'date-fns'
 
@@ -27,6 +27,7 @@ export default function EstatisticasAoVivoScreen() {
   const [jogoEncerrado, setJogoEncerrado] = useState(false)
   const [loading, setLoading] = useState(true)
   const [modalSubstituicao, setModalSubstituicao] = useState(false)
+  const [modalAdministracao, setModalAdministracao] = useState(false)
   const [athleteToSubstitute, setAthleteToSubstitute] = useState<Atleta | null>(null)
   const [actionHistory, setActionHistory] = useState<any[]>([])
   const [showDialog, setShowDialog] = useState(false)
@@ -173,12 +174,14 @@ export default function EstatisticasAoVivoScreen() {
         descricao: ''
       })
       setQuarto(q => q + 1)
+      setModalAdministracao(false)
   }
 
     async function encerrarJogo() {
     if (quarto >= 4 && placarMandante !== placarVisitante){
         setJogoEncerrado(true);
         await apiPost<any>(`${API_BASE_URL}/jogos/${jogoId}/encerrar`, {})
+        setModalAdministracao(false)
     }
   }
 
@@ -204,6 +207,31 @@ export default function EstatisticasAoVivoScreen() {
     setAthleteToSubstitute(athlete)
     setModalSubstituicao(true)
   }
+
+	function handleGerarSumula() {
+	  apiFetch(
+	    `${API_BASE_URL}/jogos/${jogoId}/sumula`,
+	    {},
+	    'html'
+	  )
+	    .then((html) => {
+	      if (Platform.OS === 'web') {
+	        const newWindow = window.open('', '_blank')
+
+	        if (newWindow) {
+	          newWindow.document.open()
+	          newWindow.document.write(html)
+	          newWindow.document.close()
+	        }
+	      } else {
+        
+	      }
+
+	    })
+	    .catch(() => {
+	      alert('Erro ao gerar súmula')
+	    })
+	  }
 
   function substituirAtleta(reserva: Atleta) {
     handleEvent({
@@ -267,37 +295,41 @@ export default function EstatisticasAoVivoScreen() {
           title={jogo.mandante.nome + ' vs ' + jogo.visitante.nome}
           subtitle={`${placarMandante} - ${placarVisitante}`} 
           button={<Button icon={ChevronLeft} chromeless onPress={() => router.back()} />}
-          button2={
-            <Button icon={Flag} onPress={encerrarJogo} disabled={quarto < 4 || jogoEncerrado || placarMandante === placarVisitante} ></Button>
-          }
         />
 
         {jogoEncerrado && (
-          <YStack
-            px="$4"
-            py="$2"
-            bg="$red2"
-            borderRadius={20}
-            mb="$2"
-            ai="center"
-            jc="center"
-            alignSelf="center"
-            elevation={3}
-            borderWidth={2}
-            borderColor="$red6"
-            maxWidth={200}
-          >
-            <Text
-              fontWeight="700"
-              fontSize={16}
-              color="$red10"
-              letterSpacing={1}
-              textAlign="center"
+          <XStack jc="center" ai="center" px="$4" py="$2" bg="$backgroundStrong" borderRadius={8} mb="$2">
+            <YStack
+              px="$4"
+              py="$2"
+              bg="$red2"
+              borderRadius={20}
+              mb="$2"
+              ai="center"
+              jc="center"
+              alignSelf="center"
+              elevation={3}
+              borderWidth={2}
+              borderColor="$red6"
+              maxWidth={200}
             >
-              🏁 Jogo Encerrado
-            </Text>
-          </YStack>
+              <Text
+                fontWeight="700"
+                fontSize={16}
+                color="$red10"
+                letterSpacing={1}
+                textAlign="center"
+              >
+                🏁 Jogo Encerrado
+              </Text>
+            </YStack>
+            <Button m="$1" icon={FileArchive} onPress={handleGerarSumula} disabled={!jogoEncerrado} chromeless>
+              Gerar Súmula
+            </Button>
+          </XStack>
         )}
+
+
 
         {!jogoEncerrado &&
           <XStack jc="space-between" ai="center" px="$4" py="$2" bg="$backgroundStrong" borderRadius={8} mb="$2">
@@ -306,9 +338,9 @@ export default function EstatisticasAoVivoScreen() {
             <Text fontWeight="700" fontSize={18} textAlign="center">{quarto > 4 ? 'OT ' + (quarto - 4) : quarto}</Text>
           </YStack>
           <Button icon={Undo} chromeless onPress={undoLastAction} disabled={actionHistory.length === 0}>Desfazer</Button>
-          <Button onPress={nextQuarter} disabled={jogoEncerrado} chromeless> {quarto >=  4 ? 'Prorrogação' : 'Próximo Período'}</Button>
+          <Button icon={Flag} onPress={() => setModalAdministracao(true)} disabled={jogoEncerrado} >Administrar</Button>
         </XStack>
-      }
+       }
 
         {/* Team Tabs */}
         <Tabs value={activeTeam} onValueChange={v => setActiveTeam(v as 'mandante' | 'visitante') } ml={"$4"} mr={"$4"}>
@@ -373,6 +405,35 @@ export default function EstatisticasAoVivoScreen() {
                   </Button>
                 ))}
               <Button mt="$4" onPress={() => setModalSubstituicao(false)}>
+                Fechar
+              </Button>
+            </YStack>
+          </YStack>
+        )}
+
+        {modalAdministracao && (
+            <YStack
+              position="absolute"
+              top={0}
+              left={0}
+              width="100%"
+              height="100%"
+              bg="rgba(0,0,0,0.8)"
+              zIndex={100}
+              jc="center"
+            >
+            <YStack p="$6" zIndex={101}>
+                <Button m="$1" onPress={nextQuarter} disabled={jogoEncerrado} chromeless> {quarto >=  4 ? 'Prorrogação' : 'Próximo Período'}</Button>
+                <Button m="$1" onPress={encerrarJogo} disabled={quarto < 4 || jogoEncerrado || placarMandante === placarVisitante} >
+                  Encerrar Partida
+                </Button>
+                <Button m="$1" disabled={jogoEncerrado} >
+                  Editar Parciais
+                </Button>
+                <Button m="$1" disabled={jogoEncerrado} >
+                  Auditoria de Eventos
+                </Button>
+              <Button mt="$1" onPress={() => setModalAdministracao(false)}>
                 Fechar
               </Button>
             </YStack>

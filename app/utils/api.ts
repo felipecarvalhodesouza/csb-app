@@ -1,7 +1,11 @@
 import { router } from 'expo-router'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
-export async function apiFetch<T = any>(url: string, options: RequestInit = {}) {
+export async function apiFetch<T = any>(
+  url: string,
+  options: RequestInit = {},
+  responseType: 'json' | 'blob' | 'html' = 'json'
+) {
   const user = await AsyncStorage.getItem('session_user')
 
   const response = await fetch(url, {
@@ -9,7 +13,7 @@ export async function apiFetch<T = any>(url: string, options: RequestInit = {}) 
     headers: {
       ...(options.headers || {}),
       Authorization: user ? `Bearer ${JSON.parse(user).token}` : '',
-      'Content-Type': 'application/json',
+      ...(responseType === 'json' && { 'Content-Type': 'application/json' }),
     },
   })
 
@@ -17,6 +21,14 @@ export async function apiFetch<T = any>(url: string, options: RequestInit = {}) 
     await AsyncStorage.removeItem('session_user')
     router.replace('/login')
     throw new Error('Sessão expirada')
+  }
+
+  if (responseType === 'blob') {
+    return response.blob() as unknown as T
+  }
+
+  if (responseType === 'html') {
+    return response.text() as any
   }
 
   let responseBody: any = null

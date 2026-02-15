@@ -21,6 +21,7 @@
     "date-fns": "^4.1.0",
     "dayjs": "^1.11.18",
     "expo": "^54.0.30",
+    "expo-image-picker": "^17.0.10",
     "expo-router": "~6.0.21",
     "expo-status-bar": "~3.0.9",
     "react": "19.1.0",

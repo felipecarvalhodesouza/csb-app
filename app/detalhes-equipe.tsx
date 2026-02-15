@@ -6,9 +6,9 @@ import {
   Text,
   View,
   Theme,
-  useTheme,
   ScrollView,
   Spinner,
+  Button,
 } from 'tamagui'
 import { MaterialIcons } from '@expo/vector-icons'
 import AsyncStorage from '@react-native-async-storage/async-storage'
@@ -16,15 +16,28 @@ import Header from './header'
 import Footer from './footer'
 import { Atleta } from './domain/atleta'
 import { API_BASE_URL } from '../utils/config'
+import { Edit3 } from '@tamagui/lucide-icons'
+import { GestureResponderEvent } from 'react-native'
 
 export default function EquipeDetalhesScreen() {
-const router = useRouter()
 const { id, nome } = useLocalSearchParams()
 const nomeEquipe = Array.isArray(nome) ? nome[0] : nome
-const theme = useTheme()
 
 const [atletas, setAtletas] = useState<Atleta[]>([])
 const [loading, setLoading] = useState(true)
+const [perfil, setPerfil] = useState<string | null>(null)
+const router = useRouter()
+
+  useEffect(() => {
+    const fetchPerfil = async () => {
+      const session = await AsyncStorage.getItem('session_user')
+      if (session) {
+        const user = JSON.parse(session)
+        setPerfil(user.role)
+      }
+    }
+    fetchPerfil()
+  }, [])
 
   useEffect(() => {
     const fetchAtletas = async () => {
@@ -62,10 +75,27 @@ const [loading, setLoading] = useState(true)
     fetchAtletas()
   }, [id])
 
+  const getHeaderProps = () => {
+    let headerProps: { title: string; button?: React.ReactNode } = {
+      title: nomeEquipe || 'Detalhes da Equipe',
+    }
+
+    if (perfil === 'ADMIN') {
+      headerProps.button = (
+        <Button icon={Edit3} onPress={handleEditar}></Button>
+      )
+    }
+    return headerProps
+  }
+
+  function handleEditar(event: GestureResponderEvent): void {
+    router.push(`admin/editar-equipe?id=${id}`)
+  }
+
   return (
-    <Theme name={theme.name}>
+    <Theme>
       <YStack f={1} bg="$background" pt="$6" pb="$9">
-        <Header title={nomeEquipe} subtitle="Detalhes da Equipe" />
+        <Header {...getHeaderProps()}/>
 
         {loading ? (
           <YStack f={1} jc="center" ai="center">
@@ -108,3 +138,7 @@ const [loading, setLoading] = useState(true)
     </Theme>
   )
 }
+function handleEditar(event: GestureResponderEvent): void {
+  throw new Error('Function not implemented.')
+}
+
