@@ -14,13 +14,12 @@ import Footer from './footer'
 import Header from './header'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { getFavoriteModality } from '../utils/preferences'
 import { API_BASE_URL } from '../utils/config'
 
 export default function CategoriasScreen() {
   const theme = useTheme()
   const router = useRouter()
-  const { torneio, nomeTorneio } = useLocalSearchParams<{ torneio: string, nomeTorneio: string }>() 
+  const { torneio, nomeTorneio, mode } = useLocalSearchParams<{ torneio: string, nomeTorneio: string, mode: string }>() 
   const [categorias, setCategorias] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -49,11 +48,15 @@ export default function CategoriasScreen() {
   }, [torneio])
 
   const handleSelecionarCategoria = (torneioId: number, categoriaId: number, nomeCategoria: string) => {
-    router.push(`/categoria?torneioId=${torneioId}&categoriaId=${categoriaId}&nomeCategoria=${nomeCategoria}&nomeTorneio=${nomeTorneio}`)
+    if (mode === 'estatisticas') {
+      router.push(`/estatisticas?torneioId=${torneioId}&categoriaId=${categoriaId}&nomeCategoria=${nomeCategoria}&nomeTorneio=${nomeTorneio}`)
+    } else {
+      router.push(`/categoria?torneioId=${torneioId}&categoriaId=${categoriaId}&nomeCategoria=${nomeCategoria}&nomeTorneio=${nomeTorneio}`)
+    }
   }
 
   return (
-    <Theme name={theme.name}>
+    <Theme>
       <YStack f={1} bg="$background" jc="space-between" pt="$6" pb="$9">
         <Header title={nomeTorneio} subtitle='Basquete'/>
 

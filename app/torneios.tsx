@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useRouter } from 'expo-router'
+import { useLocalSearchParams, useRouter } from 'expo-router'
 import {
   YStack,
   XStack,
@@ -21,6 +21,7 @@ import { apiFetch } from './utils/api'
 export default function TorneiosScreen() {
   const theme = useTheme()
   const router = useRouter()
+  const { mode } = useLocalSearchParams()
 
   const [torneios, setTorneios] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -44,7 +45,7 @@ export default function TorneiosScreen() {
   }, [])
 
   const handleSelecionar = (torneioId: number, nomeTorneio: string) => {
-    router.replace(`/categorias?torneio=${torneioId}&nomeTorneio=${nomeTorneio}`)
+    router.replace(`/categorias?torneio=${torneioId}&nomeTorneio=${nomeTorneio}&mode=${mode}`)
   }
 
   return (

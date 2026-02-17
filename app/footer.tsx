@@ -1,6 +1,6 @@
 import { XStack, Text, Button, View } from 'tamagui'
 import { MaterialIcons } from '@expo/vector-icons'
-import { useRouter, usePathname } from 'expo-router'
+import { useRouter, usePathname, useLocalSearchParams } from 'expo-router'
 import { useEffect, useState } from 'react'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
@@ -9,6 +9,7 @@ export default function Footer() {
   const router = useRouter()
   const pathname = usePathname()
   const [perfil, setPerfil] = useState<string | null>(null)
+  const { mode } = useLocalSearchParams<{ mode: string }>() 
 
   useEffect(() => {
     const fetchPerfil = async () => {
@@ -33,13 +34,13 @@ export default function Footer() {
       case 'modalidades':
         return '/modalidades'
       case 'torneios':
-        return '/torneios'
+        return '/torneios?mode=torneios'
       case 'equipes':
         return '/equipes'
       case 'admin':
         return '/admin'
       case 'estatisticas':
-        return '/estatisticas'
+        return '/torneios?mode=estatisticas'
       default:
         return '/modalidades'
     }
@@ -70,7 +71,13 @@ export default function Footer() {
       ai="center"
     >
       {tabs.map((tab) => {
-        const ativo = pathname.startsWith(tab.path) || (pathname == '/torneio-em-andamento' && tab.path == '/torneios')
+        const isEstatisticas = pathname == '/torneios' && mode === 'estatisticas'
+        const isTorneios = pathname == '/torneios' && mode === 'torneios'
+        const ativo = (pathname.startsWith(tab.path) && !isEstatisticas && !isTorneios) ||
+                      (pathname == '/torneio-em-andamento' && tab.path == '/torneios') ||  
+                      (tab.rota === 'estatisticas' && isEstatisticas) ||
+                      (tab.rota === 'torneios' && isTorneios)
+                      
         return (
           <View key={tab.nome} f={1} ai="stretch">
             <Button
