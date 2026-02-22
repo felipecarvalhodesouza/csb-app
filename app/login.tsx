@@ -98,7 +98,7 @@ export default function LoginScreen() {
         />
 
         {/* Título */}
-        <Text fontSize={20} fontWeight="700" mb="$4">CSB</Text>
+        <Text fontSize={20} fontWeight="700" mb="$4">Campeonato Santista</Text>
 
         {/* Inputs */}
         <YStack w="100%" space="$3">
