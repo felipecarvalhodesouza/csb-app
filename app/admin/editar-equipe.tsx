@@ -16,7 +16,7 @@ import Header from '../header'
 import Footer from '../footer'
 import Dialog from '../componente/dialog-error'
 import { modalidades } from '../utils/modalidades'
-import { API_BASE_URL } from '../../utils/config'
+import { API_BASE_URL, BUCKET_BASE_URL } from '../../utils/config'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { apiFetch, apiPut } from '../utils/api'
 
@@ -32,6 +32,7 @@ export default function EditarEquipeScreen() {
 
   const [nomeEquipe, setNomeEquipe] = useState('')
   const [modalidade, setModalidade] = useState<string>('')
+  const [equipe, setEquipe] = useState<EquipeResponse | null>(null)
 
   const [imagemUri, setImagemUri] = useState<string | null>(null)
   const [imagemFile, setImagemFile] = useState<any>(null)
@@ -58,6 +59,7 @@ export default function EditarEquipeScreen() {
         setNomeEquipe(equipe.nome)
         setModalidade(equipe.modalidade)
         setImagemUri(equipe.imagemPath || null)
+        setEquipe(equipe)
       } catch (e: any) {
         setError(true)
         setMessage(e.message)
@@ -83,11 +85,7 @@ export default function EditarEquipeScreen() {
     if (!result.canceled) {
       const asset = result.assets[0]
       setImagemUri(asset.uri)
-      setImagemFile({
-        uri: asset.uri,
-        name: 'equipe.jpg',
-        type: 'image/jpeg',
-      })
+      setImagemFile(asset.file)
     }
   }
 
@@ -182,6 +180,14 @@ export default function EditarEquipeScreen() {
         <Header title="Editar Equipe" />
 
         <YStack p="$4" space="$4">
+          { equipe?.imagemPath && (
+            <Image
+              source={{ uri: `${BUCKET_BASE_URL}${equipe.imagemPath}` }}
+              style={{ width: 120, height: 120, borderRadius: 30, alignSelf: 'center' }}
+              resizeMode="contain"
+            />
+          ) }
+
           {/* Nome */}
           <YStack space="$1">
             <Text fontSize={14} color="$gray10">
@@ -215,7 +221,7 @@ export default function EditarEquipeScreen() {
             {imagemUri && (
               <Image
                 source={{ uri: imagemUri }}
-                style={{ width: 120, height: 120, borderRadius: 8 }}
+                style={{ width: 120, height: 120, borderRadius: 25, alignSelf: 'center' }}
               />
             )}
 

@@ -8,13 +8,13 @@ import {
   Theme,
   ScrollView,
   Spinner,
+  Image
 } from 'tamagui'
 import Footer from './footer'
 import Header from './header'
 import { MaterialIcons } from '@expo/vector-icons'
-import AsyncStorage from '@react-native-async-storage/async-storage'
 import { getFavoriteModality } from '../utils/preferences'
-import { API_BASE_URL } from '../utils/config'
+import { API_BASE_URL, BUCKET_BASE_URL } from '../utils/config'
 import Equipe from './domain/equipe'
 import { apiFetch } from './utils/api'
 
@@ -78,16 +78,23 @@ export default function SelecaoEquipesScreen() {
                 hoverStyle={{ bg: '$color3' }}
                 pressStyle={{ bg: '$color4' }}
               >
-                <View
-                  bg="$blue10"
-                  p="$3"
-                  br="$10"
-                  mr="$3"
-                  ai="center"
-                  jc="center"
-                >
-                  <MaterialIcons name="groups" size={24} color="white" />
-                </View>
+                {!equipe.imagemPath ? (
+                  <View
+                    bg="$blue10"
+                    p="$3"
+                    br="$10"
+                    mr="$3"
+                    ai="center"
+                    jc="center"
+                  > 
+                    <MaterialIcons name="groups" size={24} color="white" />
+                  </View> ) : (
+                    <Image
+                      source={{ uri: `${BUCKET_BASE_URL}${equipe.imagemPath}` }}
+                      style={{ width: 50, height: 50, borderRadius: 25, marginRight: 12 }}
+                       resizeMode="contain"
+                    />
+                )}
 
                 <YStack>
                   <Text fontSize={16} color="white">{equipe.nome}</Text>
