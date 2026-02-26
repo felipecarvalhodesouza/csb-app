@@ -92,7 +92,7 @@ export default function IncluirJogoScreen() {
     }
   }
 
-  const loadEquipes = async (torneioId: string) => {
+  const loadEquipes = async (torneioId: string, categoriaId: string) => {
     try {
       const user = await AsyncStorage.getItem('session_user')
       const headers = {
@@ -100,7 +100,7 @@ export default function IncluirJogoScreen() {
         'Content-Type': 'application/json',
       }
 
-      const response = await fetch(`${API_BASE_URL}/torneios/${torneioId}/equipes`, { headers })
+      const response = await fetch(`${API_BASE_URL}/torneios/${torneioId}/categorias/${categoriaId}/equipes`, { headers })
       const data = await response.json()
       setEquipes(data)
     } catch (error) {
@@ -166,8 +166,10 @@ export default function IncluirJogoScreen() {
   }, [torneioSelecionado])
 
   useEffect(() => {
-    if (categoriaSelecionada) loadEquipes(categoriaSelecionada)
-  }, [categoriaSelecionada])
+    if (categoriaSelecionada && torneioSelecionado){
+      loadEquipes(torneioSelecionado, categoriaSelecionada)
+    }
+  }, [categoriaSelecionada, torneioSelecionado])
 
   const handleSalvar = async () => {
     try {
