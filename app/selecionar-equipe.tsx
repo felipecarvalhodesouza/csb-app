@@ -14,7 +14,7 @@ import Footer from './footer'
 import Header from './header'
 import { Dimensions } from 'react-native'
 import Equipe from './domain/equipe'
-import { API_BASE_URL } from '../utils/config'
+import { API_BASE_URL, BUCKET_BASE_URL } from '../utils/config'
 
 const { width: screenWidth } = Dimensions.get('window')
 const placeholder = require('../assets/team.png')
@@ -88,7 +88,7 @@ export default function SelecionarEquipe() {
               opacity={selected === equipe.id ? 1 : 0.6}
             >
               <Image
-                source={equipe.imagemPath ? { uri: equipe.imagemPath } : placeholder}
+                source={equipe.imagemPath ? { uri: `${BUCKET_BASE_URL}${equipe.imagemPath}` } : placeholder}
                 width={200}
                 height={200}
                 resizeMode="contain"
