@@ -2,6 +2,7 @@ import { YStack, XStack, Text, Image, useWindowDimensions, Separator } from 'tam
 import Jogo from '../domain/jogo'
 import format, { formatHour } from '../utils/date-formatter'
 import { Pressable } from 'react-native'
+import { BUCKET_BASE_URL } from '../../utils/config'
 
 export default function GameCard({ jogo, onPress, onLongPress, isAdmin  }: GameCardProps) {
   const { width } = useWindowDimensions()
@@ -38,7 +39,7 @@ export default function GameCard({ jogo, onPress, onLongPress, isAdmin  }: GameC
           <Image
             source={
               jogo.mandante.imagemPath
-                ? { uri: jogo.mandante.imagemPath }
+                ? { uri: `${BUCKET_BASE_URL}${jogo.mandante.imagemPath}` }
                 : require('../../assets/team.png')
             }
             width={40}
@@ -92,7 +93,7 @@ export default function GameCard({ jogo, onPress, onLongPress, isAdmin  }: GameC
           <Image
             source={
               jogo.visitante.imagemPath
-                ? { uri: jogo.visitante.imagemPath }
+                ? { uri: `${BUCKET_BASE_URL}${jogo.visitante.imagemPath}` }
                 : require('../../assets/team.png')
             }
             width={40}
