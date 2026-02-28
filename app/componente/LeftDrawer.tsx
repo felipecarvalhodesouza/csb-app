@@ -1,6 +1,8 @@
-import { YStack, Text, ListItem } from 'tamagui'
+import { YStack, Text, ListItem, Separator } from 'tamagui'
 import { Pressable, Dimensions } from 'react-native'
 import { useRouter } from 'expo-router'
+import { FaWhatsapp, FaInstagram } from 'react-icons/fa'
+import { Mail } from '@tamagui/lucide-icons'
 
 type Props = {
   open: boolean
@@ -51,6 +53,22 @@ export default function LeftDrawer({ open, onClose }: Props) {
         <ListItem title="Hall da Fama" onPress={onClose} />
         <ListItem title="Jogadores" onPress={onClose} />
         <ListItem title="Transmissões" onPress={onClose} />
+
+        <Separator />
+
+        <Text fontSize={20} fontWeight="700">
+          Contatos
+        </Text>
+
+        <YStack>
+          <FaWhatsapp size={24} color="green" />
+          <FaInstagram size={24} color="purple" style={{ marginTop: 10 }} />
+          <Mail size={24} color="white" mt={10} />
+        </YStack>
+
+
+
+        
       </YStack>
 
       {/* Overlay clicável */}
