@@ -9,10 +9,11 @@ import Footer from '../footer'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import DialogError from '../componente/dialog-error'
 import { DatePickerModal, TimePickerModal } from 'react-native-paper-dates'
-import { format } from 'date-fns'
+import { format, set } from 'date-fns'
 import { getFavoriteModality } from '../../utils/preferences'
 import { API_BASE_URL } from '../../utils/config'
 import { apiFetch } from '../utils/api'
+import { GenericPicker } from '../componente/GenericPicker'
 
 export default function IncluirJogoScreen() {
   const theme = useTheme()
@@ -25,7 +26,13 @@ export default function IncluirJogoScreen() {
   const [categorias, setCategorias] = useState<any[]>([])
   const [equipes, setEquipes] = useState<any[]>([])
   const [equipeMandante, setEquipeMandante] = useState<string | null>(null)
+  const [tecnicosMandante, setTecnicosMandante] = useState<any[]>([])
+  const [tecnicoMandante, setTecnicoMandante] = useState<string | null>(null)
+
+  const [tecnicosVisitante, setTecnicosVisitante] = useState<any[]>([])
+  const [tecnicoVisitante, setTecnicoVisitante] = useState<string | null>(null)
   const [equipeVisitante, setEquipeVisitante] = useState<string | null>(null)
+
   const [locais, setLocais] = useState<any[]>([])
   const [localSelecionado, setLocalSelecionado] = useState<string | null>(null)
 
@@ -110,15 +117,7 @@ export default function IncluirJogoScreen() {
 
   const loadLocais = async () => {
     try {
-      const user = await AsyncStorage.getItem('session_user')
-      const headers = {
-        'Authorization': `Bearer ${JSON.parse(user).token}`,
-        'Content-Type': 'application/json',
-      }
-
-      const response = await fetch(`${API_BASE_URL}/locais`, { headers })
-      const data = await response.json()
-      setLocais(data)
+      apiFetch<any[]>(`${API_BASE_URL}/locais`).then(data => setLocais(data))
     } catch (error) {
       console.error('Erro ao carregar locais:', error)
     }
@@ -148,6 +147,32 @@ export default function IncluirJogoScreen() {
     }
   }
 
+  const loadTecnicos = async (equipeId: string, isMandante: boolean) => {
+    if(equipeId == null || "Selecione uma equipe" == equipeId){
+        if (isMandante) {
+          setTecnicosMandante(null)
+          setTecnicoMandante(null)
+          setEquipeMandante(null)
+        } else {
+          setTecnicosVisitante(null)
+          setTecnicoVisitante(null)
+          setEquipeVisitante(null)
+        }
+        return;
+    }
+    
+    try {
+      apiFetch<any[]>(`${API_BASE_URL}/equipes/${equipeId}/tecnicos`).then(data => { 
+        if (isMandante) {
+          setTecnicosMandante(data)
+        } else {
+          setTecnicosVisitante(data)
+        }
+      })
+    } catch (error) {
+      console.error('Erro ao carregar técnicos:', error)
+    }}
+
   useEffect(() => {
     const fetchTorneiosELocais = async () => {
       const modalidadeAwait = await modalidade
@@ -170,6 +195,18 @@ export default function IncluirJogoScreen() {
       loadEquipes(torneioSelecionado, categoriaSelecionada)
     }
   }, [categoriaSelecionada, torneioSelecionado])
+
+  useEffect(() => {
+    if (equipeMandante) {
+      loadTecnicos(equipeMandante, true) 
+    }
+  }, [equipeMandante])
+
+  useEffect(() => {
+    if (equipeVisitante) {
+      loadTecnicos(equipeVisitante, false) 
+    }
+  }, [equipeVisitante])
 
   const handleSalvar = async () => {
     try {
@@ -202,7 +239,9 @@ export default function IncluirJogoScreen() {
       const novoJogo: any = {
         data,
         mandante: { id: Number(equipeMandante) },
+        tecnicoMandante: tecnicoMandante ? { id: Number(tecnicoMandante) } : null,
         visitante: { id: Number(equipeVisitante) },
+        tecnicoVisitante: tecnicoVisitante ? { id: Number(tecnicoVisitante) } : null,
         torneio: { id: Number(torneioSelecionado) },
         categoria: { id: Number(categoriaSelecionada) },
         streamUrl: youtubeLink || null,
@@ -296,6 +335,26 @@ export default function IncluirJogoScreen() {
             </YStack>
 
             <YStack space="$1">
+              <Text fontSize={14} color="$gray10">Técnico Mandante</Text>
+              <YStack
+                borderRadius="$3"
+                borderWidth={1}
+                borderColor="$color4"
+                bg="$color2"
+                overflow="hidden"
+              >
+                <GenericPicker
+                  items={tecnicosMandante}
+                  value={tecnicoMandante}
+                  onChange={setTecnicoMandante}
+                  getLabel={(t) => t.nome}
+                  getValue={(t) => t.id}
+                  enabled={equipeMandante !== null}
+                />
+              </YStack>
+            </YStack>
+
+            <YStack space="$1">
               <Text>Equipe Visitante</Text>
               <Picker
                 selectedValue={equipeVisitante}
@@ -308,6 +367,26 @@ export default function IncluirJogoScreen() {
                   <Picker.Item key={e.id} label={e.nome} value={e.id} />
                 ))}
               </Picker>
+            </YStack>
+
+            <YStack space="$1">
+              <Text fontSize={14} color="$gray10">Técnico Visitante</Text>
+              <YStack
+                borderRadius="$3"
+                borderWidth={1}
+                borderColor="$color4"
+                bg="$color2"
+                overflow="hidden"
+              >
+                <GenericPicker
+                  items={tecnicosVisitante}
+                  value={tecnicoVisitante}
+                  onChange={setTecnicoVisitante}
+                  getLabel={(t) => t.nome}
+                  getValue={(t) => t.id}
+                  enabled={equipeVisitante !== null}
+                />
+              </YStack>
             </YStack>
 
             <YStack space="$1">

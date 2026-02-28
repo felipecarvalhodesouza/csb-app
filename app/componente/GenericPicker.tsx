@@ -1,0 +1,61 @@
+import React from 'react'
+import { Picker } from '@react-native-picker/picker'
+import { Platform, TextStyle } from 'react-native'
+
+interface GenericPickerProps<T> {
+  items: T[]
+  value: any
+  onChange: (value: any) => void
+  getLabel: (item: T) => string
+  getValue: (item: T) => any
+  placeholder?: string
+  filter?: (item: T) => boolean
+  enabled?: boolean
+}
+
+export function GenericPicker<T>({
+  items,
+  value,
+  onChange,
+  getLabel,
+  getValue,
+  placeholder = 'Selecione uma opção',
+  filter,
+  enabled = true,
+}: GenericPickerProps<T>) {
+
+const filteredItems = filter ? items.filter(filter) : items
+
+const webStyle: TextStyle = {
+  height: 40,
+  padding: 8,
+}
+
+const nativeStyle: TextStyle = {
+  height: 50,
+  padding: 8,
+  color: '#FFFFFF',
+  fontSize: 20,
+  fontWeight: '500',
+}
+
+const pickerStyle = Platform.OS === 'web' ? webStyle : nativeStyle
+
+  return (
+    <Picker
+      enabled={enabled}
+      selectedValue={value}
+      onValueChange={(itemValue) => onChange(itemValue)}
+      style={pickerStyle}
+    >
+      <Picker.Item label={placeholder} value={null} />
+      {filteredItems && filteredItems.map((item, index) => (
+        <Picker.Item
+          key={index}
+          label={getLabel(item)}
+          value={getValue(item)}
+        />
+      ))}
+    </Picker>
+  )
+}

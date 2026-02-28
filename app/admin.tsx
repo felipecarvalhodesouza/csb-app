@@ -20,6 +20,8 @@ const opcoesAdmin = [
   { nome: 'Inclusão de Atleta', icone: 'account-plus-outline', rota: '/admin/incluir-atleta', disable: false },
   { nome: 'Vincular Atleta à Categoria', icone: 'account-plus-outline', rota: '/admin/vincular-atleta', disable: false },
   { nome: 'Transferir Atleta', icone: 'account-plus-outline', rota: '/admin/transferir-atleta', disable: true },
+  { nome: 'Inclusão de Técnico', icone: 'account-plus-outline', rota: '/admin/incluir-tecnico', disable: false },
+  { nome: 'Vincular Técnico à Equipe', icone: 'account-plus-outline', rota: '/admin/vincular-tecnico', disable: true },
   { nome: 'Inclusão de Local', icone: 'account-plus-outline', rota: '/admin/incluir-local', disable: false },
   { nome: 'Inclusão de Jogos', icone: 'account-plus-outline', rota: '/admin/incluir-jogo', disable: false },
   { nome: 'Alteração de Permissões', icone: 'shield-account-outline', rota: '/admin/alterar-permissoes', disable: true },

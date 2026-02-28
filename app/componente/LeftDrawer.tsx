@@ -65,10 +65,6 @@ export default function LeftDrawer({ open, onClose }: Props) {
           <FaInstagram size={24} color="purple" style={{ marginTop: 10 }} />
           <Mail size={24} color="white" mt={10} />
         </YStack>
-
-
-
-        
       </YStack>
 
       {/* Overlay clicável */}
