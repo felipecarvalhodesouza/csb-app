@@ -3,11 +3,12 @@ import { useRouter } from 'expo-router'
 import { YStack, Text, Input, Button, Separator, Theme, useTheme, XStack, Checkbox } from 'tamagui'
 import Header from '../header'
 import Footer from '../footer'
-import DialogError from '../componente/dialog-error'
+import Dialog from '../componente/dialog-error'
 import { API_BASE_URL } from '../../utils/config'
 import { modalidades } from '../utils/modalidades'
 import { apiPost } from '../utils/api'
 import { Check } from '@tamagui/lucide-icons'
+import { set } from 'date-fns'
 
 export default function IncluirMesarioScreen() {
     const theme = useTheme()
@@ -18,12 +19,14 @@ export default function IncluirMesarioScreen() {
     const [emailValid, setEmailValid] = useState(true)
     const [modalidadesSelecionadas, setModalidadesSelecionadas] = useState<number[]>([])
 
-    const [errorMessage, setErrorMessage] = useState<string | null>(null)
-    const [showErrorDialog, setShowErrorDialog] = useState(false)
+    const [message, setMessage] = useState<string | null>(null)
+    const [showDialog, setShowDialog] = useState(false)
+    const [erro, setErro] = useState<boolean | null>(null)
 
     const handleCloseDialog = () => {
-        setShowErrorDialog(false)
-        setErrorMessage(null)
+        setShowDialog(false)
+        setMessage(null)
+        setErro(null)
     }
 
     const handleSalvar = async () => {
@@ -36,18 +39,18 @@ export default function IncluirMesarioScreen() {
 
             await apiPost(`${API_BASE_URL}/mesarios`, novoMesario)
 
-            setErrorMessage('Mesário cadastrado com sucesso!')
-            setShowErrorDialog(true)
+            setMessage('Mesário cadastrado com sucesso!')
+            setShowDialog(true)
 
             setTimeout(() => {
-                setShowErrorDialog(false)
+                setShowDialog(false)
                 router.replace('/admin')
             }, 3000)
 
         } catch (error: any) {
-            console.error('Erro na requisição:', error)
-            setErrorMessage(error.message || 'Falha ao conectar com o servidor.')
-            setShowErrorDialog(true)
+            setErro(true)
+            setMessage(error.message || 'Falha ao conectar com o servidor.')
+            setShowDialog(true)
         }
     }
 
@@ -138,10 +141,11 @@ export default function IncluirMesarioScreen() {
 
                 <Footer />
 
-                <DialogError
-                    open={showErrorDialog}
+                <Dialog
+                    open={showDialog}
                     onClose={handleCloseDialog}
-                    message={errorMessage}
+                    message={message}
+                    type={erro ? 'error' : 'success'}
                 />
             </YStack>
         </Theme>
