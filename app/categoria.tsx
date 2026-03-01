@@ -45,6 +45,15 @@ export default function CategoriaJogosScreen() {
   const jogosAoVivo = jogos.filter((jogo) => jogo.transmissao?.toLowerCase() === 'live')
   const jogosNormais = jogos.filter((jogo) => jogo.transmissao?.toLowerCase() !== 'live')
 
+  function handleLongPress(jogo: Jogo) {
+      if(jogo.status == 'PREVISTO'){
+        router.push(`/selecao-atletas-partida?jogoId=${jogo.id}&torneioId=${torneioId}`)
+      } else {
+        router.push(`/estatisticas-ao-vivo?jogoId=${jogo.id}`)
+      }
+  }
+
+
   if (loading) {
     return (
       <YStack f={1} jc="center" ai="center">
@@ -86,6 +95,8 @@ export default function CategoriaJogosScreen() {
                       params: { next: `/jogo?jogoId=${jogo.id}` },
                     })
                   }
+                  onLongPress={() => handleLongPress(jogo)}
+                  isAdmin={true}
                 />
               ))}
             </YStack>
@@ -103,6 +114,8 @@ export default function CategoriaJogosScreen() {
                     params: { next: `/jogo?jogoId=${jogo.id}` },
                   })
                 }
+                onLongPress={() => handleLongPress(jogo)}
+                isAdmin={true}
               />
             ))
           ) : (
