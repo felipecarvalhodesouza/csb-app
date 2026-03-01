@@ -5,7 +5,6 @@ import {
   Text,
   View,
   Theme,
-  useTheme,
   ScrollView,
 } from 'tamagui'
 import { setFavoriteModality } from '../utils/preferences'
@@ -13,12 +12,12 @@ import Footer from './footer'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import Header from './header'
 import { modalidades } from './utils/modalidades'
+import { Tela } from './componente/layout/tela'
 
 
 
 export default function ModalidadesScreen() {
   const router = useRouter()
-  const theme = useTheme()
 
   const handleSelecionar = async (mod: string, id: number, disable: boolean) => {
     if (disable) {
@@ -29,12 +28,8 @@ export default function ModalidadesScreen() {
   }
 
   return (
-    <Theme>
-      <YStack f={1} bg="$background" jc="space-between" pb={"$9"} pt={"$6"}>
-      <Header title="Campeonato Santista" />
-
+    <Tela title="Campeonato Santista">
         {/* Modalidades */}
-        <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32 }} space="$4">
           {modalidades.map((mod) => (
             <XStack
               key={mod.nome}
@@ -63,9 +58,6 @@ export default function ModalidadesScreen() {
               <MaterialCommunityIcons name="chevron-right" size={24} color={mod.disable ? "$gray6" : "#ccc"} />
             </XStack>
           ))}
-        </ScrollView>
-        <Footer />
-      </YStack>
-    </Theme>
+    </Tela>
   )
 }
