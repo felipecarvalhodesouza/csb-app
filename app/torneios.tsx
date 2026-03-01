@@ -92,7 +92,7 @@ export default function TorneiosScreen() {
                     <MaterialCommunityIcons name="trophy" size={24} color={isEmAndamento ? "yellow" : "white"} />
                   </View>
 
-                  <YStack>
+                  <YStack maxWidth="100%" flexShrink={1}>
                     <Text fontSize={16} color="white">{torneio.nome}</Text>
                     <Text fontSize={12} color="$gray10">
                       {isEmAndamento ? 'Torneio em andamento' : `Status: ${torneio.status}`}
