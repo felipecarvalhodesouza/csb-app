@@ -241,8 +241,10 @@ export default function IncluirJogoScreen() {
         horaJogo.getMinutes()
       )
 
+      const dataHoraString = format(data, "yyyy-MM-dd'T'HH:mm:ss") // Enviar como string para evitar problemas de timezone no backend
+
       const novoJogo: any = {
-        data,
+        data: dataHoraString,
         mandante: { id: Number(equipeMandante) },
         tecnicoMandante: tecnicoMandante ? { id: Number(tecnicoMandante) } : null,
         visitante: { id: Number(equipeVisitante) },
