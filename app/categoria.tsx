@@ -1,4 +1,4 @@
-import { useLocalSearchParams } from 'expo-router'
+import { useFocusEffect, useLocalSearchParams } from 'expo-router'
 import {
   YStack,
   Text,
@@ -9,7 +9,7 @@ import {
 import { useRouter } from 'expo-router'
 import Footer from './footer'
 import Header from './header'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import Jogo from './domain/jogo'
 import GameCard from './componente/game-card'
 import { apiFetch } from './utils/api'
@@ -24,23 +24,25 @@ export default function CategoriaJogosScreen() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    const fetchJogos = async () => {
-      try {
-        setLoading(true)
-        const data = await apiFetch<Jogo[]>(`${API_BASE_URL}/torneios/${torneioId}/categorias/${categoriaId}/jogos`)
-        setJogos(data)
-      } catch (err: any) {
-        setError(err.message || 'Erro desconhecido.')
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    if (categoriaId && torneioId) {
-      fetchJogos()
-    }
+  const fetchJogos = useCallback(async (options: RequestInit = {}) => {
+        try {
+          setLoading(true)
+          const data = await apiFetch<Jogo[]>(`${API_BASE_URL}/torneios/${torneioId}/categorias/${categoriaId}/jogos`)
+          setJogos(data)
+        } catch (err: any) {
+          setError(err.message || 'Erro desconhecido.')
+        } finally {
+          setLoading(false)
+        }
   }, [torneioId, categoriaId])
+
+  useFocusEffect(
+    useCallback(() => {
+      if (categoriaId && torneioId) {
+        fetchJogos()
+      }
+    }, [fetchJogos])
+  )
 
   const jogosAoVivo = jogos.filter((jogo) => jogo.transmissao?.toLowerCase() === 'live')
   const jogosNormais = jogos.filter((jogo) => jogo.transmissao?.toLowerCase() !== 'live')
