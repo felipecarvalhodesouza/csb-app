@@ -1,6 +1,7 @@
 import React from 'react'
 import { Picker } from '@react-native-picker/picker'
 import { Platform, TextStyle } from 'react-native'
+import { YStack } from 'tamagui'
 
 interface GenericPickerProps<T> {
   items: T[]
@@ -42,20 +43,28 @@ const nativeStyle: TextStyle = {
 const pickerStyle = Platform.OS === 'web' ? webStyle : nativeStyle
 
   return (
-    <Picker
-      enabled={enabled}
-      selectedValue={value}
-      onValueChange={(itemValue) => onChange(itemValue)}
-      style={pickerStyle}
+    <YStack
+      borderRadius="$3"
+      borderWidth={1}
+      borderColor="$color4"
+      bg="$color2"
+      overflow="hidden"
     >
-      <Picker.Item label={placeholder} value={null} />
-      {filteredItems && filteredItems.map((item, index) => (
-        <Picker.Item
-          key={index}
-          label={getLabel(item)}
-          value={getValue(item)}
-        />
-      ))}
-    </Picker>
+      <Picker
+        enabled={enabled}
+        selectedValue={value}
+        onValueChange={(itemValue) => onChange(itemValue)}
+        style={pickerStyle}
+      >
+        <Picker.Item label={placeholder} value={null} />
+        {filteredItems && filteredItems.map((item, index) => (
+          <Picker.Item
+            key={index}
+            label={getLabel(item)}
+            value={getValue(item)}
+          />
+        ))}
+      </Picker>
+    </YStack>
   )
 }

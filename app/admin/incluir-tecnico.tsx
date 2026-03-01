@@ -107,36 +107,20 @@ export default function IncluirTecnicoScreen() {
             {/* Modalidade */}
             <YStack space="$1">
               <Text fontSize={14} color="$gray10">Modalidade</Text>
-              <YStack
-                borderRadius="$3"
-                borderWidth={1}
-                borderColor="$color4"
-                bg="$color2"
-                overflow="hidden"
-              >
-              <GenericPicker
-                items={modalidades}
-                value={modalidade}
-                onChange={setModalidade}
-                getLabel={(m) => m.nome}
-                getValue={(m) => m.id}
-                filter={(m) => !m.disable}
-              />
-              </YStack>
+                <GenericPicker
+                  items={modalidades}
+                  value={modalidade}
+                  onChange={setModalidade}
+                  getLabel={(m) => m.nome}
+                  getValue={(m) => m.id}
+                  filter={(m) => !m.disable}
+                />
             </YStack>
 
 
             {/* Equipe */}
             <YStack space="$1">
               <Text fontSize={14} color="$gray10">Equipe</Text>
-              <YStack
-                borderRadius="$3"
-                borderWidth={1}
-                borderColor="$color4"
-                bg="$color2"
-                overflow="hidden"
-              >
-
               <GenericPicker
                 items={equipes}
                 value={equipeSelecionada}
@@ -146,7 +130,6 @@ export default function IncluirTecnicoScreen() {
                 filter={(e) => !e.disable}
                 enabled={modalidade !== null}
               />
-              </YStack>
             </YStack>
 
             <Separator my="$3" />

@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'expo-router'
 import {
-  YStack, Text, Input, Button, Separator, Theme, useTheme, Label, ScrollView
+  YStack, Text, Input, Button, Separator, Theme, useTheme, Label, ScrollView,
 } from 'tamagui'
 import { Picker } from '@react-native-picker/picker'
 import Header from '../header'
 import Footer from '../footer'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import DialogError from '../componente/dialog-error'
 import { DatePickerModal, TimePickerModal } from 'react-native-paper-dates'
 import { format, set } from 'date-fns'
 import { getFavoriteModality } from '../../utils/preferences'
 import { API_BASE_URL } from '../../utils/config'
 import { apiFetch } from '../utils/api'
 import { GenericPicker } from '../componente/GenericPicker'
+import Dialog from '../componente/dialog-error'
 
 export default function IncluirJogoScreen() {
   const theme = useTheme()
@@ -51,99 +51,100 @@ export default function IncluirJogoScreen() {
 
   const [showDatePicker, setShowDatePicker] = useState(false)
   const [showTimePicker, setShowTimePicker] = useState(false)
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
-  const [showErrorDialog, setShowErrorDialog] = useState(false)
+  const [message, setMessage] = useState<string | null>(null)
+  const [showDialog, setShowDialog] = useState(false)
+  const [error, setError] = useState<boolean | null>(null)
   const [erroLink, setErroLink] = useState<string | null>(null)
   const [youtubeLink, setYoutubeLink] = useState<string>('')
 
   const handleCloseDialog = () => {
-    setShowErrorDialog(false)
-    setErrorMessage(null)
+    setShowDialog(false)
+    setMessage(null)
+    setError(null)
   }
 
   const loadTorneios = async (modalidadeId: string) => {
     try {
-      const user = await AsyncStorage.getItem('session_user')
-      const headers = {
-        'Authorization': `Bearer ${JSON.parse(user).token}`,
-        'Content-Type': 'application/json',
-      }
-
-      const response = await fetch(`${API_BASE_URL}/torneios/modalidade/${modalidadeId}`, { headers })
-      const data = await response.json()
+      const data = await apiFetch<any[]>(`${API_BASE_URL}/torneios/modalidade/${modalidadeId}`)
       setTorneios(data)
       setTorneioSelecionado(null)
       setCategoriaSelecionada(null)
       setCategorias([])
       setEquipes([])
     } catch (error) {
-      console.error('Erro ao carregar torneios:', error)
+      setError(true)
+      setMessage(error.message || 'Erro ao carregar torneios.')
+      setShowDialog(true)
     }
   }
 
   const loadCategorias = async (torneioId: string) => {
     try {
-      const user = await AsyncStorage.getItem('session_user')
-      const headers = {
-        'Authorization': `Bearer ${JSON.parse(user).token}`,
-        'Content-Type': 'application/json',
-      }
+      const categorias = await apiFetch<any[]>(`${API_BASE_URL}/torneios/${torneioId}/categorias`)
 
-      const response = await fetch(`${API_BASE_URL}/torneios/${torneioId}/categorias`, { headers })
-      const data = await response.json()
-      setCategorias(data)
+      setCategorias(categorias)
       setCategoriaSelecionada(null)
       setEquipes([])
+
     } catch (error) {
-      console.error('Erro ao carregar categorias:', error)
+      setError(true)
+      setMessage(error.message || 'Erro ao carregar categorias.')
+      setShowDialog(true)
     }
   }
 
   const loadEquipes = async (torneioId: string, categoriaId: string) => {
     try {
-      const user = await AsyncStorage.getItem('session_user')
-      const headers = {
-        'Authorization': `Bearer ${JSON.parse(user).token}`,
-        'Content-Type': 'application/json',
-      }
-
-      const response = await fetch(`${API_BASE_URL}/torneios/${torneioId}/categorias/${categoriaId}/equipes`, { headers })
-      const data = await response.json()
-      setEquipes(data)
+      const equipes = await apiFetch<any[]>(`${API_BASE_URL}/torneios/${torneioId}/categorias/${categoriaId}/equipes`)
+      setEquipes(equipes)
     } catch (error) {
-      console.error('Erro ao carregar equipes:', error)
+      setError(true)
+      setMessage(error.message || 'Erro ao carregar equipes.')
+      setShowDialog(true)
     }
   }
 
   const loadLocais = async () => {
     try {
-      apiFetch<any[]>(`${API_BASE_URL}/locais`).then(data => setLocais(data))
+      apiFetch<any[]>(`${API_BASE_URL}/locais`)
+      .then(data => setLocais(data))
     } catch (error) {
-      console.error('Erro ao carregar locais:', error)
+      setError(true)
+      setMessage(error.message || 'Erro ao carregar locais.')
+      setShowDialog(true)
     }
   }
 
   const loadArbitros = async (modalidadeId: string) => {
     try {
-      apiFetch<any[]>(`${API_BASE_URL}/arbitros/modalidade/${modalidadeId}`).then(data => setArbitros(data))
+      apiFetch<any[]>(`${API_BASE_URL}/arbitros/modalidade/${modalidadeId}`)
+      .then(data => setArbitros(data))
     } catch (error) {
-      console.error('Erro ao carregar árbitros:', error)
+      setError(true)
+      setMessage(error.message || 'Erro ao carregar árbitros.')
+      setShowDialog(true)
     }
   }
 
   const loadEstatisticos = async (modalidadeId: string) => {
     try {
-      apiFetch<any[]>(`${API_BASE_URL}/estatisticos/modalidade/${modalidadeId}`).then(data => setEstatisticos(data))
+      apiFetch<any[]>(`${API_BASE_URL}/estatisticos/modalidade/${modalidadeId}`)
+      .then(data => setEstatisticos(data))
     } catch (error) {
-      console.error('Erro ao carregar estatísticos:', error)
+      setError(true)
+      setMessage(error.message || 'Erro ao carregar estatísticos.')
+      setShowDialog(true)
     }
   }
 
   const loadMesarios = async (modalidadeId: string) => {
     try {
-      apiFetch<any[]>(`${API_BASE_URL}/mesarios/modalidade/${modalidadeId}`).then(data => setMesarios(data))
+      apiFetch<any[]>(`${API_BASE_URL}/mesarios/modalidade/${modalidadeId}`)
+      .then(data => setMesarios(data))
     } catch (error) {
-      console.error('Erro ao carregar mesários:', error)
+      setError(true)
+      setMessage(error.message || 'Erro ao carregar mesários.')
+      setShowDialog(true)
     }
   }
 
@@ -170,7 +171,9 @@ export default function IncluirJogoScreen() {
         }
       })
     } catch (error) {
-      console.error('Erro ao carregar técnicos:', error)
+      setError(true)
+      setMessage(error.message || 'Erro ao carregar técnicos.')
+      setShowDialog(true)
     }}
 
   useEffect(() => {
@@ -211,8 +214,9 @@ export default function IncluirJogoScreen() {
   const handleSalvar = async () => {
     try {
       if (!isValidYoutubeUrl(youtubeLink)) {
-        setErrorMessage('Link inválido.')
-        setShowErrorDialog(true)
+        setError(true)
+        setMessage('Link inválido.')
+        setShowDialog(true)
         return
       }
 
@@ -223,8 +227,9 @@ export default function IncluirJogoScreen() {
       }
 
       if (!dataJogo || !horaJogo) {
-        setErrorMessage('Data e hora são obrigatórias.')
-        setShowErrorDialog(true)
+        setError(true)
+        setMessage('Data e hora são obrigatórias.')
+        setShowDialog(true)
         return
       }
 
@@ -262,21 +267,24 @@ export default function IncluirJogoScreen() {
       })
 
       if (response.ok) {
-        setErrorMessage('Jogo criado com sucesso!')
-        setShowErrorDialog(true)
+        setError(false)
+        setMessage('Jogo criado com sucesso!')
+        setShowDialog(true)
+
         setTimeout(() => {
-          setShowErrorDialog(false)
+          setShowDialog(false)
           router.replace('/admin')
         }, 3000)
       } else {
         const responseError = await response.json()
-        setErrorMessage(responseError.message || 'Erro ao criar o jogo.')
-        setShowErrorDialog(true)
+        setError(true)
+        setMessage(responseError.message || 'Erro ao criar o jogo.')
+        setShowDialog(true)
       }
     } catch (error: any) {
-      console.error('Erro na requisição:', error)
-      setErrorMessage(error.message || 'Falha ao conectar com o servidor.')
-      setShowErrorDialog(true)
+      setError(true)
+      setMessage(error.message || 'Erro desconhecido.')
+      setShowDialog(true)
     }
   }
 
@@ -336,13 +344,6 @@ export default function IncluirJogoScreen() {
 
             <YStack space="$1">
               <Text fontSize={14} color="$gray10">Técnico Mandante</Text>
-              <YStack
-                borderRadius="$3"
-                borderWidth={1}
-                borderColor="$color4"
-                bg="$color2"
-                overflow="hidden"
-              >
                 <GenericPicker
                   items={tecnicosMandante}
                   value={tecnicoMandante}
@@ -351,7 +352,6 @@ export default function IncluirJogoScreen() {
                   getValue={(t) => t.id}
                   enabled={equipeMandante !== null}
                 />
-              </YStack>
             </YStack>
 
             <YStack space="$1">
@@ -371,13 +371,6 @@ export default function IncluirJogoScreen() {
 
             <YStack space="$1">
               <Text fontSize={14} color="$gray10">Técnico Visitante</Text>
-              <YStack
-                borderRadius="$3"
-                borderWidth={1}
-                borderColor="$color4"
-                bg="$color2"
-                overflow="hidden"
-              >
                 <GenericPicker
                   items={tecnicosVisitante}
                   value={tecnicoVisitante}
@@ -386,7 +379,6 @@ export default function IncluirJogoScreen() {
                   getValue={(t) => t.id}
                   enabled={equipeVisitante !== null}
                 />
-              </YStack>
             </YStack>
 
             <YStack space="$1">
@@ -520,7 +512,14 @@ export default function IncluirJogoScreen() {
             </Button>
           </YStack>
         </ScrollView>
-        <DialogError open={showErrorDialog} onClose={handleCloseDialog} message={errorMessage} />
+        
+        <Dialog
+          open={showDialog}
+          onClose={handleCloseDialog}
+          message={message}
+          type={error ? 'error' : 'success'}
+        />
+
         <Footer />
       </YStack>
     </Theme>

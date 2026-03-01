@@ -5,7 +5,6 @@ import {
   Text,
   View,
   Theme,
-  useTheme,
   ScrollView,
 } from 'tamagui'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
@@ -13,6 +12,7 @@ import Header from './header'
 import Footer from './footer'
 
 const opcoesAdmin = [
+  { nome: 'Gerenciar Usuários', icone: 'format-list-bulleted', rota: '/admin/gerenciar-usuarios', disable: false },
   { nome: 'Inclusão de Torneio', icone: 'trophy-outline', rota: '/admin/incluir-torneio', disable: false },
   { nome: 'Inclusão de Categoria', icone: 'medal', rota: '/admin/incluir-categoria', disable: false },
   { nome: 'Inclusão de Equipe', icone: 'account-group-outline', rota: '/admin/incluir-equipe', disable: false },
