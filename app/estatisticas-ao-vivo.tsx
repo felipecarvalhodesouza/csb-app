@@ -49,7 +49,7 @@ export default function EstatisticasAoVivoScreen() {
           (jogoData.atletasMandante || []).map(a => ({
             id: a.id,
             nome: a.atleta.nome ?? 'Sem nome',
-            numero: a.atleta.numero ?? '',
+            numero: a.numeroCamisaJogo ?? '',
             equipeId: a.atleta.equipe.id,
             teamId: 'mandante',
             pontos: a.pontos | 0,
@@ -67,7 +67,7 @@ export default function EstatisticasAoVivoScreen() {
           (jogoData.atletasVisitante || []).map(a => ({
             id: a.id,
             nome: a.atleta.nome ?? 'Sem nome',
-            numero: a.atleta.numero ?? '',
+            numero: a.numeroCamisaJogo ?? '',
             equipeId: a.atleta.equipe.id,
             teamId: 'visitante',
             pontos: a.pontos | 0,
