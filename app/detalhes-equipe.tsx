@@ -5,19 +5,17 @@ import {
   XStack,
   Text,
   View,
-  Theme,
   ScrollView,
   Spinner,
   Button,
 } from 'tamagui'
 import { MaterialIcons } from '@expo/vector-icons'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import Header from './header'
-import Footer from './footer'
 import { Atleta } from './domain/atleta'
 import { API_BASE_URL } from '../utils/config'
 import { Edit3 } from '@tamagui/lucide-icons'
 import { GestureResponderEvent } from 'react-native'
+import { Tela } from './componente/layout/tela'
 
 export default function EquipeDetalhesScreen() {
 const { id, nome } = useLocalSearchParams()
@@ -93,9 +91,7 @@ const router = useRouter()
   }
 
   return (
-    <Theme>
-      <YStack f={1} bg="$background" pt="$6" pb="$9">
-        <Header {...getHeaderProps()}/>
+    <Tela {...getHeaderProps()} scroll={false}>
 
         {loading ? (
           <YStack f={1} jc="center" ai="center">
@@ -132,13 +128,6 @@ const router = useRouter()
             )}
           </ScrollView>
         )}
-
-        <Footer />
-      </YStack>
-    </Theme>
+    </Tela>
   )
 }
-function handleEditar(event: GestureResponderEvent): void {
-  throw new Error('Function not implemented.')
-}
-

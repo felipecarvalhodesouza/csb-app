@@ -6,6 +6,10 @@ import { TelaContainer } from './tela-container'
 
 type TelaProps = {
   title: string
+  subtitle?: string
+  equipe?: any
+  button?: React.ReactNode
+  button2?: React.ReactNode
   children: ReactNode
   scroll?: boolean
   paddingHorizontal?: number
@@ -13,6 +17,10 @@ type TelaProps = {
 
 export function Tela({
   title,
+  subtitle,
+  equipe,
+  button,
+  button2,
   children,
   scroll = true,
   paddingHorizontal = 16,
@@ -20,7 +28,7 @@ export function Tela({
   return (
     <Theme>
         <TelaContainer>
-        <Header title={title} />
+        <Header title={title} subtitle={subtitle} equipe={equipe} button={button} button2={button2} />
 
         {scroll ? (
           <ScrollView
@@ -33,7 +41,7 @@ export function Tela({
             {children}
           </ScrollView>
         ) : (
-          <YStack f={1} px={paddingHorizontal}>
+          <YStack f={1}>
             {children}
           </YStack>
         )}

@@ -1,15 +1,11 @@
 import { useRouter } from 'expo-router'
 import {
-  YStack,
   XStack,
   Text,
   View,
-  Theme,
-  ScrollView,
 } from 'tamagui'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
-import Header from './header'
-import Footer from './footer'
+import { Tela } from './componente/layout/tela'
 
 const opcoesAdmin = [
   { nome: 'Gerenciar Usuários', icone: 'format-list-bulleted', rota: '/admin/gerenciar-usuarios', disable: false },
@@ -39,11 +35,7 @@ export default function AdminScreen() {
   }
 
   return (
-    <Theme>
-      <YStack f={1} bg="$background" jc="space-between" pb={"$9"} pt={"$6"}>
-        <Header title="Administração" />
-
-        <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32 }} space="$4">
+    <Tela title="Administração">
           {opcoesAdmin.map((opcao) => (
             <XStack
               key={opcao.nome}
@@ -74,10 +66,6 @@ export default function AdminScreen() {
               <MaterialCommunityIcons name="chevron-right" size={24} color={opcao.disable ? "$gray6" : "#ccc"} />
             </XStack>
           ))}
-        </ScrollView>
-
-        <Footer />
-      </YStack>
-    </Theme>
+    </Tela>
   )
 }

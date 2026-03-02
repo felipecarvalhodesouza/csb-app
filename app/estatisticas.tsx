@@ -11,6 +11,7 @@ import StatsSection from './componente/StatsSection'
 import Header from './header'
 import Footer from './footer'
 import { useLocalSearchParams } from 'expo-router'
+import { Tela } from './componente/layout/tela'
 
 import type { EstatisticasResponse, EstatisticaGrupo } from './types/estatisticas'
 
@@ -42,11 +43,7 @@ export default function EstatisticasScreen() {
   }
 
   return (
-    <Theme>
-      <YStack f={1} bg="$background" pt="$6" pb="$9" jc="space-between">
-      <Header title={nomeTorneio} subtitle={nomeCategoria} />
-
-      <ScrollView>
+    <Tela title={nomeTorneio} subtitle={nomeCategoria} paddingHorizontal={0}>
         <YStack p="$4" gap="$4">
           {data.map((grupo: EstatisticaGrupo) => (
             <StatsSection
@@ -57,10 +54,6 @@ export default function EstatisticasScreen() {
             />
           ))}
         </YStack>
-      </ScrollView>
-
-      <Footer />
-      </YStack>
-    </Theme>
+    </Tela>
   )
 }

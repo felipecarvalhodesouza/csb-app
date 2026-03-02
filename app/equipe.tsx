@@ -2,19 +2,16 @@ import { useLocalSearchParams } from 'expo-router'
 import {
   YStack,
   Text,
-  Theme,
-  ScrollView,
   Spinner,
 } from 'tamagui'
 import { useRouter } from 'expo-router'
-import Footer from './footer'
-import Header from './header'
 import { useState, useCallback } from 'react'
 import Jogo from './domain/jogo'
 import GameCard from './componente/game-card'
 import { apiFetch } from './utils/api'
 import { API_BASE_URL } from '../utils/config'
 import { useFocusEffect } from '@react-navigation/native'
+import { Tela } from './componente/layout/tela'
 
 export default function HomeEquipe() {
   const { equipeId, nomeEquipe, torneioId } = useLocalSearchParams<{equipeId: string, nomeEquipe: string, torneioId: string}>()
@@ -91,11 +88,7 @@ useFocusEffect(
   }
 
   return (
-    <Theme>
-      <YStack f={1} bg="$background" jc="space-between" pb="$9" pt="$6">
-        <Header title={nomeEquipe} subtitle="Calendário de Jogos" equipe={equipeId} />
-
-        <ScrollView contentContainerStyle={{ paddingHorizontal: 8, paddingBottom: 32 }}>
+    <Tela title={nomeEquipe} subtitle="Calendário de Jogos" equipe={equipeId} paddingHorizontal={8}>
           {/* Ao Vivo */}
           {jogosAoVivo.length > 0 && (
             <YStack mb="$4" space>
@@ -137,10 +130,6 @@ useFocusEffect(
               </Text>
             </YStack>
           )}
-        </ScrollView>
-
-        <Footer />
-      </YStack>
-    </Theme>
+    </Tela>
   )
 }

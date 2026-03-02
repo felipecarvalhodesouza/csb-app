@@ -4,9 +4,8 @@ import { ScrollView } from 'react-native';
 import Torneio from './domain/torneio';
 import { apiFetch } from './utils/api'
 import { API_BASE_URL } from '../utils/config'
-import { YStack, Text, Spinner, Theme } from 'tamagui';
-import Header from './header';
-import Footer from './footer';
+import { YStack, Text, Spinner } from 'tamagui';
+import {Tela } from './componente/layout/tela';
 
 export default function TorneiosScreen() {
   const router = useRouter()
@@ -48,10 +47,7 @@ export default function TorneiosScreen() {
   }
 
   return (
-    <Theme>
-      <YStack f={1} bg="$background" jc="space-between" pb="$9" pt="$6">
-        <Header title="Torneios" />
-
+    <Tela title="Torneios" scroll={false}>
         {loading ? (
           <YStack f={1} jc="center" ai="center">
             <Spinner size="large" color="$blue10" />
@@ -74,8 +70,6 @@ export default function TorneiosScreen() {
             </ScrollView>
           )
         )}
-        <Footer />
-      </YStack>
-    </Theme>
+    </Tela>
   )
 }

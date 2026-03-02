@@ -12,13 +12,12 @@ import {
   Spinner,
 } from 'tamagui'
 
-import Header from '../header'
-import Footer from '../footer'
 import Dialog from '../componente/dialog-error'
 import { modalidades } from '../utils/modalidades'
 import { API_BASE_URL, BUCKET_BASE_URL } from '../../utils/config'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { apiFetch, apiPut } from '../utils/api'
+import { Tela } from '../componente/layout/tela'
 
 type EquipeResponse = {
   id: number
@@ -28,6 +27,7 @@ type EquipeResponse = {
 }
 
 export default function EditarEquipeScreen() {
+  const router = useRouter()
   const { id } = useLocalSearchParams<{ id: string }>()
 
   const [nomeEquipe, setNomeEquipe] = useState('')
@@ -175,93 +175,94 @@ export default function EditarEquipeScreen() {
   }
 
   return (
-    <Theme>
-      <YStack f={1} bg="$background" pt="$6" pb="$9" jc="space-between">
-        <Header title="Editar Equipe" />
+    <>
+      <Tela title="Editar Equipe"
+            scroll={false}>
 
-        <YStack p="$4" space="$4">
-          { equipe?.imagemPath && (
-            <Image
-              source={{ uri: `${BUCKET_BASE_URL}${equipe.imagemPath}` }}
-              style={{ width: 120, height: 120, borderRadius: 30, alignSelf: 'center' }}
-              resizeMode="contain"
-            />
-          ) }
-
-          {/* Nome */}
-          <YStack space="$1">
-            <Text fontSize={14} color="$gray10">
-              Nome da Equipe
-            </Text>
-            <Input
-              value={nomeEquipe}
-              onChangeText={setNomeEquipe}
-              bg="$color2"
-              borderRadius="$3"
-              p="$3"
-            />
-          </YStack>
-
-          {/* Modalidade - READ ONLY */}
-          <YStack space="$1">
-            <Text fontSize={14} color="$gray10">
-              Modalidade
-            </Text>
-            <Text fontSize={16} color="white">
-              {nomeModalidade}
-            </Text>
-          </YStack>
-
-          {/* Imagem */}
-          <YStack space="$2">
-            <Text fontSize={14} color="$gray10">
-              Imagem da Equipe
-            </Text>
-
-            {imagemUri && (
+          <YStack p="$4" space="$4">
+            { equipe?.imagemPath && (
               <Image
-                source={{ uri: imagemUri }}
-                style={{ width: 120, height: 120, borderRadius: 25, alignSelf: 'center' }}
+                source={{ uri: `${BUCKET_BASE_URL}${equipe.imagemPath}` }}
+                style={{ width: 120, height: 120, borderRadius: 30, alignSelf: 'center' }}
+                resizeMode="contain"
               />
-            )}
+            ) }
+
+            {/* Nome */}
+            <YStack space="$1">
+              <Text fontSize={14} color="$gray10">
+                Nome da Equipe
+              </Text>
+              <Input
+                value={nomeEquipe}
+                onChangeText={setNomeEquipe}
+                bg="$color2"
+                borderRadius="$3"
+                p="$3"
+              />
+            </YStack>
+
+            {/* Modalidade - READ ONLY */}
+            <YStack space="$1">
+              <Text fontSize={14} color="$gray10">
+                Modalidade
+              </Text>
+              <Text fontSize={16} color="white">
+                {nomeModalidade}
+              </Text>
+            </YStack>
+
+            {/* Imagem */}
+            <YStack space="$2">
+              <Text fontSize={14} color="$gray10">
+                Imagem da Equipe
+              </Text>
+
+              {imagemUri && (
+                <Image
+                  source={{ uri: imagemUri }}
+                  style={{ width: 120, height: 120, borderRadius: 25, alignSelf: 'center' }}
+                />
+              )}
+
+              <Button
+                onPress={handleSelecionarImagem}
+                backgroundColor="$color4"
+              >
+                Selecionar Imagem
+              </Button>
+
+              <Button
+                onPress={handleUploadImagem}
+                backgroundColor="black"
+                disabled={!imagemFile || uploading}
+              >
+                {uploading ? 'Enviando...' : 'Upar Imagem'}
+              </Button>
+            </YStack>
+
+            <Separator my="$3" />
 
             <Button
-              onPress={handleSelecionarImagem}
-              backgroundColor="$color4"
+              backgroundColor={saving ? 'grey' : 'black'}
+              color="white"
+              onPress={handleSalvarEquipe}
+              disabled={saving || !nomeEquipe}
             >
-              Selecionar Imagem
-            </Button>
-
-            <Button
-              onPress={handleUploadImagem}
-              backgroundColor="black"
-              disabled={!imagemFile || uploading}
-            >
-              {uploading ? 'Enviando...' : 'Upar Imagem'}
+              {saving ? 'Salvando...' : 'Salvar Alterações'}
             </Button>
           </YStack>
-
-          <Separator my="$3" />
-
-          <Button
-            backgroundColor={saving ? 'grey' : 'black'}
-            color="white"
-            onPress={handleSalvarEquipe}
-            disabled={saving || !nomeEquipe}
-          >
-            {saving ? 'Salvando...' : 'Salvar Alterações'}
-          </Button>
-        </YStack>
-
-        <Footer />
-
-        <Dialog
-          open={showDialog}
-          onClose={() => setShowDialog(false)}
-          message={message}
-          type={error ? 'error' : 'success'}
-        />
-      </YStack>
-    </Theme>
+      </Tela>
+    
+      <Dialog open={showDialog}
+              onClose={() => {
+                setShowDialog(false)
+                if (!error) {
+                  router.push(`/detalhes-equipe?id=${equipe.id}&nome=${nomeEquipe}`)
+                }
+              }}
+              message={message}
+              type={error ? 'error' : 'success'} />
+    </>
   )
 }

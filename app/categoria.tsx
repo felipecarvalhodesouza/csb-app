@@ -2,18 +2,15 @@ import { useFocusEffect, useLocalSearchParams } from 'expo-router'
 import {
   YStack,
   Text,
-  Theme,
-  ScrollView,
   Spinner,
 } from 'tamagui'
 import { useRouter } from 'expo-router'
-import Footer from './footer'
-import Header from './header'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import Jogo from './domain/jogo'
 import GameCard from './componente/game-card'
 import { apiFetch } from './utils/api'
 import { API_BASE_URL } from '../utils/config'
+import { Tela } from './componente/layout/tela'
 
 
 export default function CategoriaJogosScreen() {
@@ -73,14 +70,7 @@ export default function CategoriaJogosScreen() {
   }
 
   return (
-    <Theme>
-      <YStack f={1} bg="$background" jc="space-between" pb="$9" pt="$6">
-        <Header title={nomeTorneio} subtitle={nomeCategoria}  />
-
-        <ScrollView
-          contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32 }}
-          space="$4"
-        >
+    <Tela title={nomeTorneio} subtitle={nomeCategoria}>
           {/* Ao Vivo */}
           {jogosAoVivo.length > 0 && (
             <YStack mb="$4" space>
@@ -127,10 +117,6 @@ export default function CategoriaJogosScreen() {
               </Text>
             </YStack>
           )}
-        </ScrollView>
-
-        <Footer />
-      </YStack>
-    </Theme>
+  </Tela>
   )
 }

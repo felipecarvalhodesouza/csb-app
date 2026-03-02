@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useLocalSearchParams, useRouter } from 'expo-router'
+import { useRouter } from 'expo-router'
 import {
   YStack,
   XStack,
@@ -10,13 +10,12 @@ import {
   Spinner,
   Image
 } from 'tamagui'
-import Footer from './footer'
-import Header from './header'
 import { MaterialIcons } from '@expo/vector-icons'
 import { getFavoriteModality } from '../utils/preferences'
 import { API_BASE_URL, BUCKET_BASE_URL } from '../utils/config'
 import Equipe from './domain/equipe'
 import { apiFetch } from './utils/api'
+import { Tela } from './componente/layout/tela'
 
 export default function SelecaoEquipesScreen() {
   const router = useRouter()
@@ -51,10 +50,7 @@ export default function SelecaoEquipesScreen() {
   }
 
   return (
-    <Theme>
-      <YStack f={1} bg="$background" jc="space-between" pt="$6" pb="$9">
-        <Header title="Selecione a Equipe" />
-
+    <Tela title="Selecione a Equipe" subtitle="Basquete" scroll={false}>
         {loading ? (
           <YStack f={1} jc="center" ai="center">
             <Spinner size="large" color="$blue10" />
@@ -106,9 +102,6 @@ export default function SelecaoEquipesScreen() {
             ))}
           </ScrollView>
         )}
-
-        <Footer />
-      </YStack>
-    </Theme>
+    </Tela>
   )
 }

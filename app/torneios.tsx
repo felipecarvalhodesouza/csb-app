@@ -5,21 +5,17 @@ import {
   XStack,
   Text,
   View,
-  Theme,
-  useTheme,
   ScrollView,
   Spinner,
 } from 'tamagui'
-import Footer from './footer'
-import Header from './header'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { getFavoriteModality } from '../utils/preferences'
 import { API_BASE_URL } from '../utils/config'
 import Torneio from './domain/torneio'
 import { apiFetch } from './utils/api'
+import { Tela } from './componente/layout/tela'
 
 export default function TorneiosScreen() {
-  const theme = useTheme()
   const router = useRouter()
   const { mode } = useLocalSearchParams()
 
@@ -49,10 +45,7 @@ export default function TorneiosScreen() {
   }
 
   return (
-    <Theme>
-      <YStack f={1} bg="$background" jc="space-between" pb="$9" pt="$6">
-        <Header title="Torneios"/>
-
+    <Tela title="Torneios" scroll={false}>
         {loading ? (
           <YStack f={1} jc="center" ai="center">
             <Spinner size="large" color="$blue10" />
@@ -107,8 +100,6 @@ export default function TorneiosScreen() {
           </ScrollView>
           )
         )}
-        <Footer />
-      </YStack>
-    </Theme>
+    </Tela>
   )
 }

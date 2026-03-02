@@ -5,16 +5,14 @@ import {
   XStack,
   Text,
   View,
-  Theme,
   useTheme,
   ScrollView,
   Spinner,
 } from 'tamagui'
-import Footer from './footer'
-import Header from './header'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { API_BASE_URL } from '../utils/config'
+import { Tela } from './componente/layout/tela'
 
 export default function CategoriasScreen() {
   const theme = useTheme()
@@ -56,10 +54,7 @@ export default function CategoriasScreen() {
   }
 
   return (
-    <Theme>
-      <YStack f={1} bg="$background" jc="space-between" pt="$6" pb="$9">
-        <Header title={nomeTorneio} subtitle='Basquete'/>
-
+    <Tela title={nomeTorneio} subtitle='Basquete' scroll={false}>
         {loading ? (
           <YStack f={1} jc="center" ai="center">
             <Spinner size="large" color="$blue10" />
@@ -105,9 +100,6 @@ export default function CategoriasScreen() {
             ))}
           </ScrollView>
         )}
-
-        <Footer />
-      </YStack>
-    </Theme>
+    </Tela> 
   )
 }

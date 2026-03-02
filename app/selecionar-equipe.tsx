@@ -3,18 +3,15 @@ import { useLocalSearchParams, useRouter } from 'expo-router'
 import {
   YStack,
   Text,
-  Theme,
-  useTheme,
   ScrollView,
   Image,
   Button
 } from 'tamagui'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import Footer from './footer'
-import Header from './header'
 import { Dimensions } from 'react-native'
 import Equipe from './domain/equipe'
 import { API_BASE_URL, BUCKET_BASE_URL } from '../utils/config'
+import { Tela } from './componente/layout/tela'
 
 const { width: screenWidth } = Dimensions.get('window')
 const placeholder = require('../assets/team.png')
@@ -68,9 +65,7 @@ export default function SelecionarEquipe() {
   }
 
   return (
-    <Theme>
-      <YStack f={1} bg="$background" jc="space-between" pb={"$9"} pt={"$6"}>
-        <Header title="Selecione a sua equipe favorita" />
+    <Tela title="Selecione a sua equipe favorita" scroll={false}>
 
         <ScrollView
           horizontal
@@ -112,8 +107,6 @@ export default function SelecionarEquipe() {
         >
           Confirmar seleção
         </Button>
-        <Footer />
-      </YStack>
-    </Theme>
+    </Tela>
   )
 }
