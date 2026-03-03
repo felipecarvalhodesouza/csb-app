@@ -20,7 +20,7 @@ export default function EstatisticasJogo({ timeSelecionado, setTimeSelecionado, 
   function convertToEstatisticaAtleta(atleta: Atleta) {
     return {
       id: String(atleta.id),
-      nome: atleta.nome ?? 'Sem nome',
+      nome: atleta.atleta.nome ?? 'Sem nome',
       pontos: atleta.pontos ?? 0,
       rebotes: atleta.rebotes ?? 0,
       assistencias: atleta.assistencias ?? 0,
@@ -46,17 +46,16 @@ export default function EstatisticasJogo({ timeSelecionado, setTimeSelecionado, 
       </Tabs>
 
       <YStack borderWidth={1} borderColor="$gray6" br="$3" >
-      <PlayerStats atletas={timeSelecionado === 'MAN' ? atletasTitularesMandante.map((j: any) => convertToEstatisticaAtleta(j.atleta)) : atletasTitularesVisitante.map((j: any) => convertToEstatisticaAtleta(j.atleta))}
+      <PlayerStats atletas={timeSelecionado === 'MAN' ? atletasTitularesMandante.map((j: Atleta) => convertToEstatisticaAtleta(j)) :
+                                                        atletasTitularesVisitante.map((j: Atleta) => convertToEstatisticaAtleta(j))}
                    titulares={true} />
       
 
-      <PlayerStats atletas={timeSelecionado === 'MAN' ? atletasReservasMandante.map((j: any) => convertToEstatisticaAtleta(j.atleta)) : atletasReservasVisitante.map((j: any) => convertToEstatisticaAtleta(j.atleta))}
+      <PlayerStats atletas={timeSelecionado === 'MAN' ? atletasReservasMandante.map((j: Atleta) => convertToEstatisticaAtleta(j)) :
+                                                        atletasReservasVisitante.map((j: Atleta) => convertToEstatisticaAtleta(j))}
                    titulares={false} />
 
       </YStack>
-
-
-
     </>
   )
 }

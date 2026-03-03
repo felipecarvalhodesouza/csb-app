@@ -2,7 +2,6 @@ import {
   YStack,
   XStack,
   Text,
-  Image,
   ScrollView,
   Theme,
   Spinner
@@ -27,7 +26,7 @@ export default function TelaJogo() {
   const { jogoId } = useLocalSearchParams<{jogoId:string}>()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [timeSelecionado, setTimeSelecionado] = useState<'CHI' | 'DAL'>('CHI')
+  const [timeSelecionado, setTimeSelecionado] = useState<'MAN' | 'VIS'>('MAN')
   const [jogo, setJogo] = useState<Jogo>()
   const [aba, setAba] = useState<'Resumo' | 'Estatísticas' | 'Lances' | 'Líderes'>('Resumo')
 

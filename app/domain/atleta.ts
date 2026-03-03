@@ -24,4 +24,6 @@ export interface Atleta {
   tocos: number;
   faltas: number;
   faltasDesqualificantes: number;
+
+  atleta?: Atleta; // Para compatibilidade com a estrutura antiga, onde as estatísticas estavam aninhadas dentro de um objeto "atleta"
 }
