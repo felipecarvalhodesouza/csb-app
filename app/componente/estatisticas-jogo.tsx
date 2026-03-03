@@ -1,88 +1,62 @@
-import { YStack, XStack, Text, Button } from 'tamagui'
+import { YStack, XStack, Text, Button, Tabs } from 'tamagui'
+import Jogo from '../domain/jogo'
+import PlayerStats from './player-stats'
+import { Atleta } from '../domain/atleta'
 
 type EstatisticasJogoProps = {
-  timeSelecionado: 'CHI' | 'DAL'
-  setTimeSelecionado: (time: 'CHI' | 'DAL') => void
-  jogo: any
+  timeSelecionado: 'MAN' | 'VIS'
+  setTimeSelecionado: (time: 'MAN' | 'VIS') => void
+  jogo: Jogo | null
 }
 
 export default function EstatisticasJogo({ timeSelecionado, setTimeSelecionado, jogo }: EstatisticasJogoProps) {
-  const eventos = jogo?.eventos?.[timeSelecionado] ?? []
+  const atletasMandante = jogo?.atletasMandante ?? []
+  const atletasVisitante = jogo?.atletasVisitante ?? []
+  const atletasTitularesMandante = atletasMandante.filter((a: any) => a.titular)
+  const atletasTitularesVisitante = atletasVisitante.filter((a: any) => a.titular)
+  const atletasReservasMandante = atletasMandante.filter((a: any) => !a.titular)
+  const atletasReservasVisitante = atletasVisitante.filter((a: any) => !a.titular)
+
+  function convertToEstatisticaAtleta(atleta: Atleta) {
+    return {
+      id: String(atleta.id),
+      nome: atleta.nome ?? 'Sem nome',
+      pontos: atleta.pontos ?? 0,
+      rebotes: atleta.rebotes ?? 0,
+      assistencias: atleta.assistencias ?? 0,
+      faltas: atleta.faltas ?? 0,
+      roubos: atleta.roubos ?? 0,
+      tocos: atleta.tocos ?? 0,
+    }
+  }
 
   return (
     <>
-      {/* Botões para alternar time */}
-      <XStack jc="center" mb="$3" space>
-        <Button
-          size="$2"
-          variant="outlined"
-          backgroundColor={timeSelecionado === 'CHI' ? '$blue8' : undefined}
-          color={timeSelecionado === 'CHI' ? '$color' : undefined}
-          onPress={() => setTimeSelecionado('CHI')}
-        >
-          BOS
-        </Button>
-        <Button
-          size="$2"
-          variant="outlined"
-          backgroundColor={timeSelecionado === 'DAL' ? '$blue8' : undefined}
-          color={timeSelecionado === 'DAL' ? '$color' : undefined}
-          onPress={() => setTimeSelecionado('DAL')}
-        >
-          ORL
-        </Button>
-      </XStack>
+      {/* Team Tabs */}
+      <Tabs value={timeSelecionado} onValueChange={v => setTimeSelecionado(v as 'MAN' | 'VIS')} ml={"$4"} mr={"$4"}>
 
-      {/* Tabela de estatísticas */}
+        <Tabs.List width="100%" justifyContent="space-between" alignItems="center" mb="$2">
+          <Tabs.Tab value="MAN" flex={1}>
+            <Text>{String(jogo.mandante.nome)}</Text>
+          </Tabs.Tab>
+          <Tabs.Tab value="VIS" flex={1}>
+            <Text>{String(jogo.visitante.nome)}</Text>
+          </Tabs.Tab>
+        </Tabs.List>
+      </Tabs>
+
       <YStack borderWidth={1} borderColor="$gray6" br="$3" >
-        {/* Cabeçalho */}
-        <XStack bg="$gray5" p="$2">
-          <Text flex={2} fontWeight="600">Titulares</Text>
-          <Text flex={1} textAlign="center" fontWeight="600">PTS</Text>
-          <Text flex={1} textAlign="center" fontWeight="600">REB</Text>
-          <Text flex={1} textAlign="center" fontWeight="600">AST</Text>
-          <Text flex={1} textAlign="center" fontWeight="600">F</Text>
-        </XStack>
+      <PlayerStats atletas={timeSelecionado === 'MAN' ? atletasTitularesMandante.map((j: any) => convertToEstatisticaAtleta(j.atleta)) : atletasTitularesVisitante.map((j: any) => convertToEstatisticaAtleta(j.atleta))}
+                   titulares={true} />
+      
 
-        {/* Linhas Titulares */}
-        {eventos.filter((j: any) => j.titular).length === 0 && (
-          <XStack p="$2">
-            <Text flex={1} color="$gray10" textAlign="center">Sem dados de titulares</Text>
-          </XStack>
-        )}
-        {eventos.filter((j: any) => j.titular).map((jogador: any, i: number) => (
-          <XStack key={i} p="$2" bg={i % 2 === 0 ? '$background' : '$gray2'}>
-            <Text flex={2}>{jogador.nome} <Text fontSize={10} color="$gray10">{jogador.pos}</Text></Text>
-            <Text flex={1} textAlign="center">{jogador.pts}</Text>
-            <Text flex={1} textAlign="center">{jogador.reb}</Text>
-            <Text flex={1} textAlign="center">{jogador.ast}</Text>
-            <Text flex={1} textAlign="center">{jogador.fault}</Text>
-          </XStack>
-        ))}
+      <PlayerStats atletas={timeSelecionado === 'MAN' ? atletasReservasMandante.map((j: any) => convertToEstatisticaAtleta(j.atleta)) : atletasReservasVisitante.map((j: any) => convertToEstatisticaAtleta(j.atleta))}
+                   titulares={false} />
 
-        <XStack bg="$gray5" p="$2">
-          <Text flex={2} fontWeight="600">Reservas</Text>
-          <Text flex={1} textAlign="center" fontWeight="600">PTS</Text>
-          <Text flex={1} textAlign="center" fontWeight="600">REB</Text>
-          <Text flex={1} textAlign="center" fontWeight="600">AST</Text>
-          <Text flex={1} textAlign="center" fontWeight="600">F</Text>
-        </XStack>
-        {/* Linhas Reservas */}
-        {eventos.filter((j: any) => !j.titular).length === 0 && (
-          <XStack p="$2">
-            <Text flex={1} color="$gray10" textAlign="center">Sem dados de reservas</Text>
-          </XStack>
-        )}
-        {eventos.filter((j: any) => !j.titular).map((jogador: any, i: number) => (
-          <XStack key={i} p="$2" bg={i % 2 === 0 ? '$background' : '$gray2'}>
-            <Text flex={2}>{jogador.nome} <Text fontSize={10} color="$gray10">{jogador.pos}</Text></Text>
-            <Text flex={1} textAlign="center">{jogador.pts}</Text>
-            <Text flex={1} textAlign="center">{jogador.reb}</Text>
-            <Text flex={1} textAlign="center">{jogador.ast}</Text>
-            <Text flex={1} textAlign="center">{jogador.fault}</Text>
-          </XStack>
-        ))}
       </YStack>
+
+
+
     </>
   )
 }
