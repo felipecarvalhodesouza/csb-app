@@ -112,6 +112,7 @@ const router = useRouter()
                   br="$4"
                   ai="center"
                   space="$3"
+                  onPress={() => router.push(`/atletas/${atleta.id}`)}
                 >
                   <MaterialIcons name="person" size={24} color="white" />
                   <Text color="white">{atleta.nome}</Text>
