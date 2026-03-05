@@ -38,7 +38,7 @@ export default function Footer() {
       case 'equipes':
         return '/equipes'
       case 'admin':
-        return '/admin'
+        return '/admin/admin'
       case 'estatisticas':
         return '/torneios?mode=estatisticas'
       default:

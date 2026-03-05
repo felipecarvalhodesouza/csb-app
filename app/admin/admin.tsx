@@ -5,7 +5,7 @@ import {
   View,
 } from 'tamagui'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
-import { Tela } from './componente/layout/tela'
+import { Tela } from '../componente/layout/tela'
 
 const opcoesAdmin = [
   { nome: 'Gerenciar Usuários', icone: 'format-list-bulleted', rota: '/admin/gerenciar-usuarios', disable: false },
@@ -13,9 +13,7 @@ const opcoesAdmin = [
   { nome: 'Inclusão de Categoria', icone: 'medal', rota: '/admin/incluir-categoria', disable: false },
   { nome: 'Inclusão de Equipe', icone: 'account-group-outline', rota: '/admin/incluir-equipe', disable: false },
   { nome: 'Vincular Equipe no Torneio', icone: 'account-group-outline', rota: '/admin/vincular-equipe', disable: false },
-  { nome: 'Inclusão de Atleta', icone: 'account-plus-outline', rota: '/admin/incluir-atleta', disable: false },
-  { nome: 'Vincular Atleta à Categoria', icone: 'account-plus-outline', rota: '/admin/vincular-atleta', disable: false },
-  { nome: 'Transferir Atleta', icone: 'account-plus-outline', rota: '/admin/transferir-atleta', disable: true },
+  { nome: 'Atletas', icone: 'account-plus-outline', rota: '/admin/atletas/atletas-admin', disable: false },
   { nome: 'Inclusão de Técnico', icone: 'account-plus-outline', rota: '/admin/incluir-tecnico', disable: false },
   { nome: 'Vincular Técnico à Equipe', icone: 'account-plus-outline', rota: '/admin/vincular-tecnico', disable: true },
   { nome: 'Inclusão de Local', icone: 'account-plus-outline', rota: '/admin/incluir-local', disable: false },

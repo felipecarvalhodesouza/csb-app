@@ -1,18 +1,14 @@
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'expo-router'
 import { YStack, Text, Button, Separator } from 'tamagui'
-import { Picker } from '@react-native-picker/picker'
-import AsyncStorage from '@react-native-async-storage/async-storage'
-import Dialog from '../componente/dialog-error'
-import { modalidades } from '../utils/modalidades'
-import { API_BASE_URL } from '../../utils/config'
-
-import MultiSelect from 'react-native-multiple-select'
-import { apiFetch, apiPost } from '../utils/api'
-import { Tela } from '../componente/layout/tela'
-import { GenericPicker } from '../componente/GenericPicker'
-import Torneio from '../domain/torneio'
-import { MultipleSelect } from '../componente/MultipleSelect'
+import Dialog from '../../componente/dialog-error'
+import { modalidades } from '../../utils/modalidades'
+import { API_BASE_URL } from '../../../utils/config'
+import { apiFetch, apiPost } from '../../utils/api'
+import { Tela } from '../../componente/layout/tela'
+import { GenericPicker } from '../../componente/GenericPicker'
+import Torneio from '../../domain/torneio'
+import { MultipleSelect } from '../../componente/MultipleSelect'
 
 export default function VincularAtletaCategoriaScreen() {
   const router = useRouter()
