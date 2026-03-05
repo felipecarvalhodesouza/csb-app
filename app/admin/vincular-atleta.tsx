@@ -1,22 +1,24 @@
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'expo-router'
-import { YStack, Text, Button, Separator, Theme, ScrollView } from 'tamagui'
+import { YStack, Text, Button, Separator } from 'tamagui'
 import { Picker } from '@react-native-picker/picker'
-import Header from '../header'
-import Footer from '../footer'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import DialogError from '../componente/dialog-error'
+import Dialog from '../componente/dialog-error'
 import { modalidades } from '../utils/modalidades'
 import { API_BASE_URL } from '../../utils/config'
 
 import MultiSelect from 'react-native-multiple-select'
-import { apiPost } from '../utils/api'
+import { apiFetch, apiPost } from '../utils/api'
+import { Tela } from '../componente/layout/tela'
+import { GenericPicker } from '../componente/GenericPicker'
+import Torneio from '../domain/torneio'
+import { MultipleSelect } from '../componente/MultipleSelect'
 
 export default function VincularAtletaCategoriaScreen() {
   const router = useRouter()
 
   const [modalidade, setModalidade] = useState<string | null>(null)
-  const [torneios, setTorneios] = useState<any[]>([])
+  const [torneios, setTorneios] = useState<Torneio[]>([])
   const [torneioSelecionado, setTorneioSelecionado] = useState<string | null>(null)
 
   const [categorias, setCategorias] = useState<any[]>([])
@@ -41,127 +43,88 @@ export default function VincularAtletaCategoriaScreen() {
   }
 
   const loadTorneios = async (modalidadeId: string) => {
-    if (!modalidadeId) {
+    if (!modalidadeId || modalidadeId === 'Selecione uma opção') {
+      setModalidade(null)
       setTorneios([])
       setTorneioSelecionado(null)
       return
     }
     try {
-      const user = await AsyncStorage.getItem('session_user')
-      const headers = {
-        'Authorization': `Bearer ${JSON.parse(user).token}`,
-        'Content-Type': 'application/json',
-      }
-      const response = await fetch(`${API_BASE_URL}/torneios/modalidade/${modalidadeId}`, { headers })
-      const data = await response.json()
-      setTorneios(data)
+      const torneios = await apiFetch<Torneio[]>(`${API_BASE_URL}/torneios/modalidade/${modalidadeId}`)
+      setTorneios(torneios)
       setTorneioSelecionado(null)
     } catch (error) {
-      console.error('Erro ao carregar torneios:', error)
+        setError(true)
+        setMessage(error.message || 'Erro ao carregar torneios.')
+        setShowDialog(true)
     }
   }
 
   const loadCategorias = async (torneioId: string) => {
-    if (!torneioId) {
+      setCategoriaSelecionada(null)
+      setEquipeSelecionada(null)
+      setEquipesVinculadas([])
+      setAtletasDisponiveis([])
+      setAtletasVinculados([])
+      setAtletasSelecionados([])
+    
+    if (!torneioId || torneioId === 'Selecione uma opção') {
       setCategorias([])
       setCategoriaSelecionada(null)
-      setEquipeSelecionada(null)
-      setEquipesVinculadas([])
-      setAtletasDisponiveis([])
-      setAtletasVinculados([])
-      setAtletasSelecionados([])
+      setTorneioSelecionado(null)
       return
     }
+  
     try {
-      const user = await AsyncStorage.getItem('session_user')
-      const headers = {
-        'Authorization': `Bearer ${JSON.parse(user).token}`,
-        'Content-Type': 'application/json',
-      }
-      const response = await fetch(`${API_BASE_URL}/torneios/${torneioId}/categorias`, { headers })
-      const data = await response.json()
-      setCategorias(data)
-      setCategoriaSelecionada(null)
-      setEquipeSelecionada(null)
-      setEquipesVinculadas([])
-      setAtletasDisponiveis([])
-      setAtletasVinculados([])
-      setAtletasSelecionados([])
+      const categorias = await apiFetch<any[]>(`${API_BASE_URL}/torneios/${torneioId}/categorias`)
+      setCategorias(categorias)
     } catch (error) {
-      console.error('Erro ao carregar categorias:', error)
+        setError(true)
+        setMessage(error.message || 'Erro ao carregar categorias.')
+        setShowDialog(true)
     }
   }
 
   const loadEquipes = async (torneioId:string, categoriaId: string) => {
-    if (!categoriaId || !torneioId) {
+    if (!categoriaId || !torneioId || categoriaId === 'Selecione uma opção') {
+      setCategoriaSelecionada(null)
+      setEquipeSelecionada(null)
       return
     }
 
     try {
-      const user = await AsyncStorage.getItem('session_user')
-      const headers = {
-        'Authorization': `Bearer ${JSON.parse(user).token}`,
-        'Content-Type': 'application/json',
-      }
-
-      const [response] = await Promise.all([
-        fetch(`${API_BASE_URL}/torneios/${torneioId}/categorias/${categoriaId}/equipes`, { headers })
-      ])
-
-      let equipesData: any[] = []
-
-      if (response.status !== 204) {
-        if (!response.ok) throw new Error('Erro ao buscar equipes disponíveis.')
-        equipesData = await response.json()
-      }
-
-      setEquipesVinculadas(equipesData)
+      const equipes = await apiFetch<any[]>(`${API_BASE_URL}/torneios/${torneioId}/categorias/${categoriaId}/equipes`)
+      setEquipesVinculadas(equipes)
     } catch (error) {
-      console.error('Erro ao carregar equipes:', error)
+        setError(true)
+        setMessage(error.message || 'Erro ao carregar equipes .')
+        setShowDialog(true)
     }
   }
 
   const loadAtletas = async (torneioId: string, categoriaId: string, equipeId: string) => {
     
-    if (!categoriaId || !torneioId || !equipeId) {
+    if (!categoriaId || !torneioId || !equipeId || equipeId === 'Selecione uma opção') {
       setAtletasDisponiveis([])
       setAtletasVinculados([])
       setAtletasSelecionados([])
-      setEquipesVinculadas([])
       return
     }
     try {
-      const user = await AsyncStorage.getItem('session_user')
-      const headers = {
-        'Authorization': `Bearer ${JSON.parse(user).token}`,
-        'Content-Type': 'application/json',
-      }
-      // Buscar atletas disponíveis e vinculados
-      const [disponiveisRes, vinculadosRes] = await Promise.all([
-        fetch(`${API_BASE_URL}/equipes/${equipeId}/atletas`, { headers }),
-        fetch(`${API_BASE_URL}/torneios/${torneioId}/categorias/${categoriaId}/equipes/${equipeId}/atletas`, { headers }),
-      ])
 
-      let atletasDisponiveisData: any[] = []
-      let atletasVinculadosData: any[] = []
+      const atletasVinculados = await apiFetch<any[]>(`${API_BASE_URL}/torneios/${torneioId}/categorias/${categoriaId}/equipes/${equipeId}/atletas`)
+      const atletasDisponiveis = await apiFetch<any[]>(`${API_BASE_URL}/equipes/${equipeId}/atletas`)
 
-      if (disponiveisRes.status !== 204) {
-        if (!disponiveisRes.ok) throw new Error('Erro ao buscar atletas disponíveis.')
-        atletasDisponiveisData = await disponiveisRes.json()
-      }
-      if (vinculadosRes.status !== 204) {
-        if (!vinculadosRes.ok) throw new Error('Erro ao buscar atletas vinculados.')
-        atletasVinculadosData = await vinculadosRes.json()
-      }
-
-      const atletasDisponiveisFiltrados = atletasDisponiveisData.filter((atletaDisponivel: any) =>
-        !atletasVinculadosData.some((atletaVinculado: any) => atletaVinculado.id === atletaDisponivel.id)
+      const atletasDisponiveisFiltrados = atletasDisponiveis.filter((atletaDisponivel: any) =>
+        !atletasVinculados.some((atletaVinculado: any) => atletaVinculado.id === atletaDisponivel.id)
       )
       setAtletasDisponiveis(atletasDisponiveisFiltrados)
-      setAtletasVinculados(atletasVinculadosData)
+      setAtletasVinculados(atletasVinculados)
       setAtletasSelecionados([])
     } catch (error) {
-      console.error('Erro ao carregar atletas ou equipes:', error)
+        setError(true)
+        setMessage(error.message || 'Erro ao carregar atletas .')
+        setShowDialog(true)
     }
   }
 
@@ -233,133 +196,71 @@ export default function VincularAtletaCategoriaScreen() {
   const isFormValid = modalidade && torneioSelecionado && categoriaSelecionada && atletasSelecionados.length > 0
 
   return (
-    <Theme>
-      <YStack f={1} bg="$background" pt="$6" pb="$9" jc="space-between">
-        <Header title="Vincular Atleta à Categoria" />
-        <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32 }} space="$4" nestedScrollEnabled>
-        
+    <>
+    <Tela title="Vincular Atleta à Categoria">
         <YStack p="$4" space="$4">
           {/* Modalidade */}
           <YStack space="$1">
             <Text fontSize={14} color="$gray10">Modalidade</Text>
-            <YStack borderRadius="$3" borderWidth={1} borderColor="$color4" bg="$color2" overflow="hidden">
-              <Picker
-                selectedValue={modalidade}
-                onValueChange={(itemValue) => setModalidade(itemValue)}
-                style={{ 
-                  height: 50, 
-                  paddingHorizontal: 8,
-                  color: '#FFFFFF',
-                  fontSize: 20,
-                  fontWeight: '500'
-                }}
-              >
-                <Picker.Item label="Selecione uma modalidade" value={null} />
-                {modalidades
-                  .filter((m) => !m.disable)
-                  .map((m) => (
-                    <Picker.Item key={m.id} label={m.nome} value={m.id} />
-                  ))}
-              </Picker>
-            </YStack>
+            <GenericPicker
+              items={modalidades}
+              value={modalidade}
+              onChange={setModalidade}
+              getLabel={(m) => m.nome}
+              getValue={(m) => m.id}
+              filter={(m) => !m.disable}
+            />
           </YStack>
           {/* Torneio */}
           <YStack space="$1">
             <Text fontSize={14} color="$gray10">Torneio</Text>
-            <YStack borderRadius="$3" borderWidth={1} borderColor="$color4" bg="$color2" overflow="hidden">
-              <Picker
-                selectedValue={torneioSelecionado}
-                onValueChange={(itemValue) => setTorneioSelecionado(itemValue)}
-                style={{ 
-                  height: 50, 
-                  paddingHorizontal: 8,
-                  color: '#FFFFFF',
-                  fontSize: 20,
-                  fontWeight: '500'
-                }}
-                enabled={modalidade !== null}
-              >
-                <Picker.Item label="Selecione um torneio" value={null} />
-                {Array.isArray(torneios) && torneios.map((t) => (
-                  <Picker.Item key={t.id} label={t.nome} value={t.id} />
-                ))}
-              </Picker>
-            </YStack>
+            <GenericPicker
+              items={torneios}
+              value={torneioSelecionado}
+              onChange={setTorneioSelecionado}
+              getLabel={(t) => t.nome}
+              getValue={(t) => t.id}
+              enabled={modalidade !== null}
+            />
           </YStack>
+
           {/* Categoria */}
           <YStack space="$1">
             <Text fontSize={14} color="$gray10">Categoria</Text>
-            <YStack borderRadius="$3" borderWidth={1} borderColor="$color4" bg="$color2" overflow="hidden">
-              <Picker
-                selectedValue={categoriaSelecionada}
-                onValueChange={(itemValue) => setCategoriaSelecionada(itemValue)}
-                style={{ 
-                  height: 50, 
-                  paddingHorizontal: 8,
-                  color: '#FFFFFF',
-                  fontSize: 20,
-                  fontWeight: '500'
-                }}
-                enabled={torneioSelecionado !== null}
-              >
-                <Picker.Item label="Selecione uma categoria" value={null} />
-                {Array.isArray(categorias) && categorias.map((t) => (
-                  <Picker.Item key={t.id} label={t.nome} value={t.id} />
-                ))}
-              </Picker>
-            </YStack>
+            <GenericPicker
+              items={categorias}
+              value={categoriaSelecionada}
+              onChange={setCategoriaSelecionada}
+              getLabel={(c) => c.nome}
+              getValue={(c) => c.id}
+              enabled={torneioSelecionado !== null}
+            />
           </YStack>
+
           {/* Equipes */}
           <YStack space="$1">
             <Text fontSize={14} color="$gray10">Equipes</Text>
-            <YStack borderRadius="$3" borderWidth={1} borderColor="$color4" bg="$color2" overflow="hidden" >
-              <Picker
-                selectedValue={equipeSelecionada}
-                onValueChange={(itemValue) => setEquipeSelecionada(itemValue)}
-                style={{ 
-                  height: 50, 
-                  paddingHorizontal: 8,
-                  color: '#FFFFFF',
-                  fontSize: 20,
-                  fontWeight: '500'
-                }}
-                enabled={categoriaSelecionada !== null}
-              >
-                <Picker.Item label="Selecione uma equipe" value={null} />
-                {Array.isArray(equipes) && equipes.map((e) => (
-                  <Picker.Item key={e.id} label={e.nome} value={e.id} />
-                ))}
-              </Picker>
-            </YStack>
+            <GenericPicker
+              items={equipes}
+              value={equipeSelecionada}
+              onChange={setEquipeSelecionada}
+              getLabel={(e) => e.nome}
+              getValue={(e) => e.id}
+              enabled={categoriaSelecionada !== null}
+            />
           </YStack>
+
           {/* Atletas Disponíveis - MultiSelect */}
-          {equipeSelecionada && atletasDisponiveis.length > 0 && (
-            <YStack space="$1">
-              <Text fontSize={14} color="$gray10">Atletas</Text>
-              <YStack borderRadius="$3" borderWidth={1} borderColor="$color4" bg="$color2" overflow="hidden" p={8}>
-                <MultiSelect
-                  items={atletasDisponiveis.map((a) => ({ id: a.id, name: a.nome }))}
-                  uniqueKey="id"
-                  onSelectedItemsChange={setAtletasSelecionados}
-                  selectedItems={atletasSelecionados}
-                  selectText="Selecione atletas"
-                  searchInputPlaceholderText="Buscar atleta..."
-                  tagRemoveIconColor="#CCC"
-                  tagBorderColor="#CCC"
-                  tagTextColor="#333"
-                  selectedItemTextColor="#000"
-                  selectedItemIconColor="#000"
-                  itemTextColor="#000"
-                  displayKey="name"
-                  searchInputStyle={{ color: '#000' }}
-                  submitButtonColor="#000"
-                  submitButtonText="OK"
-                  styleMainWrapper={{ backgroundColor: 'transparent' }}
-                  styleDropdownMenuSubsection={{ backgroundColor: 'transparent' }}
-                />
-              </YStack>
-            </YStack>
-          )}
+          <MultipleSelect
+            label="Atletas"
+            items={atletasDisponiveis}
+            value={atletasSelecionados}
+            onChange={setAtletasSelecionados}
+            getLabel={(a) => a.nome}
+            getValue={(a) => a.id}
+            placeholder="Selecione atletas"
+          />
+          
           <Separator my="$3" />
           <Button
             backgroundColor={!isFormValid ? 'grey' : 'black'}
@@ -380,16 +281,14 @@ export default function VincularAtletaCategoriaScreen() {
               <Text key={atleta.id} color="$gray10">- {atleta.nome}</Text>
             ))}
           </YStack>
-        </YStack>
-        </ScrollView>
-        <Footer />
-        <DialogError
-          open={showDialog}
-          onClose={handleCloseDialog}
-          message={message}
-          type={error ? 'error'  : 'success'}
-        />
       </YStack>
-    </Theme>
+    </Tela>
+      <Dialog
+        open={showDialog}
+        onClose={handleCloseDialog}
+        message={message}
+        type={error ? 'error' : 'success'}
+      />
+    </>
   )
 }

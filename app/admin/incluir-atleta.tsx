@@ -1,19 +1,20 @@
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'expo-router'
-import { YStack, Text, Input, Button, Separator, Theme, useTheme, ScrollView } from 'tamagui'
-import { Picker } from '@react-native-picker/picker'
-import Header from '../header'
-import Footer from '../footer'
-import AsyncStorage from '@react-native-async-storage/async-storage'
+import { YStack, Text, Input, Button, Separator, useTheme } from 'tamagui'
 import Dialog from '../componente/dialog-error'
 import { DatePickerModal } from 'react-native-paper-dates'
 import { format } from 'date-fns'
 import { modalidades } from '../utils/modalidades'
 import { API_BASE_URL } from '../../utils/config'
-import { apiPost } from '../utils/api'
+import { apiFetch, apiPost } from '../utils/api'
+import { Tela } from '../componente/layout/tela'
+import { GenericPicker } from '../componente/GenericPicker'
+import Torneio from '../domain/torneio'
+import { GestureResponderEvent } from 'react-native'
+import { MultipleSelect } from '../componente/MultipleSelect'
+import Categoria from '../domain/categoria'
 
 export default function IncluirAtletaScreen() {
-  const theme = useTheme()
   const router = useRouter()
 
   const [nome, setNome] = useState('')
@@ -27,6 +28,9 @@ export default function IncluirAtletaScreen() {
   const [equipes, setEquipes] = useState<any[]>([])
   const [equipeSelecionada, setEquipeSelecionada] = useState<string | null>(null)
 
+  const [categorias, setCategorias] = useState<any[]>([]) 
+  const [categoriasVinculadas, setCategoriasVinculadas] = useState<any[]>([])
+
   const [showDatePicker, setShowDatePicker] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
   const [showDialog, setShowDialog] = useState(false)
@@ -36,59 +40,67 @@ export default function IncluirAtletaScreen() {
     setShowDialog(false)
     setMessage(null)
     setError(null)
+    router.back()
   }
 
   const loadTorneios = async (modalidadeId: string) => {
-    if(modalidadeId == null || "Selecione uma modalidade" == modalidadeId){
+    setEquipes([])
+    setEquipeSelecionada(null)
+    setTorneioSelecionado(null)
+
+    if (modalidadeId == null || "Selecione uma opção" == modalidadeId) {
       setTorneios([])
       setModalidade(null)
-      setTorneioSelecionado(null)
-      setEquipes([])
-      setEquipeSelecionada(null)
       return
     }
 
     try {
-      const user = await AsyncStorage.getItem('session_user')
-      const headers = {
-        'Authorization': `Bearer ${JSON.parse(user).token}`,
-        'Content-Type': 'application/json',
-      }
-
-      const response = await fetch(`${API_BASE_URL}/torneios/modalidade/${modalidadeId}`, { headers })
-      const data = await response.json()
-      setTorneios(data)
-      setTorneioSelecionado(null)
-      setEquipes([])
-      setEquipeSelecionada(null)
-    } catch (error) {
-      console.error('Erro ao carregar torneios:', error)
+      const torneios = await apiFetch<Torneio[]>(`${API_BASE_URL}/torneios/modalidade/${modalidadeId}`)
+      setTorneios(torneios)
+    } catch (error: any) {
+      setError(true)
+      setMessage(error.message || 'Erro ao carregar torneios.')
+      setShowDialog(true)
     }
   }
 
   const loadEquipes = async (torneioId: string) => {
-    if (torneioId == null|| "Selecione um torneio" == torneioId) {
+    setEquipeSelecionada(null)
+
+    if (torneioId == null || "Selecione uma opção" == torneioId) {
       setTorneioSelecionado(null)
       setEquipes([])
-      setEquipeSelecionada(null)
       return
     }
 
     try {
-      const user = await AsyncStorage.getItem('session_user')
-      const headers = {
-        'Authorization': `Bearer ${JSON.parse(user).token}`,
-        'Content-Type': 'application/json',
-      }
+      const equipes = await apiFetch<any[]>(`${API_BASE_URL}/torneios/${torneioId}/equipes`)
+      setEquipes(equipes)
 
-      const response = await fetch(`${API_BASE_URL}/torneios/${torneioId}/equipes`, { headers })
-      const data = await response.json()
-      setEquipes(data)
-      setEquipeSelecionada(null)
-    } catch (error) {
-      console.error('Erro ao carregar equipes:', error)
+    } catch (error: any) {
+      setError(true)
+      setMessage(error.message || 'Erro ao carregar equipes.')
+      setShowDialog(true)
     }
   }
+
+    const loadCategorias = async (torneioId: string, equipeId: string) => {
+  
+      if (!torneioId || equipeId === 'Selecione uma opção') {
+        setCategorias([])
+        setCategoriasVinculadas(null)
+        return
+      }
+    
+      try {
+        const categorias = await apiFetch<any[]>(`${API_BASE_URL}/torneios/${torneioId}/categorias/equipes/${equipeId}`)
+        setCategorias(categorias)
+      } catch (error) {
+          setError(true)
+          setMessage(error.message || 'Erro ao carregar categorias.')
+          setShowDialog(true)
+      }
+    }
 
   useEffect(() => {
     if (modalidade) loadTorneios(modalidade)
@@ -98,29 +110,33 @@ export default function IncluirAtletaScreen() {
     if (torneioSelecionado) loadEquipes(torneioSelecionado)
   }, [torneioSelecionado])
 
+  useEffect(() => {
+    if (torneioSelecionado && equipeSelecionada) {
+      loadCategorias(torneioSelecionado, equipeSelecionada)
+    }
+  }, [torneioSelecionado, equipeSelecionada])
+
   const handleSalvar = () => {
     const saveAtleta = async () => {
+      const categorias: Categoria[] = categoriasVinculadas.map(id => ({ id }))
       try {
         const novoAtleta = {
           nome,
           dataNascimento,
           altura: parseFloat(altura),
           peso: parseFloat(peso),
-          equipe: {
+          equipes: [{
             id: Number(equipeSelecionada)
-          }
+          }],
+          categorias: categorias
         }
 
         await apiPost(`${API_BASE_URL}/atletas`, novoAtleta)
         setMessage('Atleta criado com sucesso!')
         setShowDialog(true)
 
-        setTimeout(() => {
-          setShowDialog(false)
-          router.replace('/admin')
-        }, 3000)
       } catch (error: any) {
-        setError
+        setError(true)
         setMessage(error.message || 'Erro ao criar o atleta.')
         setShowDialog(true)
       }
@@ -132,190 +148,172 @@ export default function IncluirAtletaScreen() {
   const isFormValid =
     nome && dataNascimento && altura && peso && modalidade && torneioSelecionado && equipeSelecionada
 
+  function handleLimparForm(event: GestureResponderEvent): void {
+    setNome('')
+    setDataNascimento(null)
+    setAltura('')
+    setPeso('')
+    setModalidade("Selecione uma opção")
+    setTorneios([])
+    setTorneioSelecionado(null)
+    setEquipes([])
+    setEquipeSelecionada(null)
+    setCategorias([])
+    setCategoriasVinculadas([])
+    setShowDialog(false)
+    setMessage(null)
+    setError(null)
+  }
+
   return (
-    <Theme>
-      <YStack f={1} bg="$background" pt="$6" pb="$9" jc="space-between">
-        <Header title="Inclusão de Atleta" />
-        <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32 }} space="$4">
-          <YStack p="$4" space="$4">
-            {/* Nome */}
-            <YStack space="$1">
-              <Text fontSize={14} color="$gray10">Nome do Atleta</Text>
-              <Input
-                placeholder="Digite o nome"
-                value={nome}
-                onChangeText={setNome}
-                bg="$color2"
-                borderRadius="$3"
-                p="$3"
-              />
-            </YStack>
-
-            {/* Data de Nascimento */}
-            <YStack space="$1">
-              <Text fontSize={14} color="$gray10">Data de Nascimento</Text>
-              <Button
-                onPress={() => setShowDatePicker(true)}
-                backgroundColor="$color2"
-                color="#FFFFFF"
-              >
-                {dataNascimento ? format(dataNascimento, 'dd/MM/yyyy') : 'Selecionar Data'}
-              </Button>
-
-              <DatePickerModal
-                locale="pt-BR"
-                mode="single"
-                visible={showDatePicker}
-                date={dataNascimento || new Date()}
-                onDismiss={() => setShowDatePicker(false)}
-                onConfirm={({ date }) => {
-                  setShowDatePicker(false)
-                  setDataNascimento(date)
-                }}
-              />
-            </YStack>
-
-            {/* Altura */}
-            <YStack space="$1">
-              <Text fontSize={14} color="$gray10">Altura (cm)</Text>
-              <Input
-                placeholder="Ex: 180"
-                keyboardType="numeric"
-                value={altura}
-                onChangeText={setAltura}
-                bg="$color2"
-                borderRadius="$3"
-                p="$3"
-              />
-            </YStack>
-
-            {/* Peso */}
-            <YStack space="$1">
-              <Text fontSize={14} color="$gray10">Peso (kg)</Text>
-              <Input
-                placeholder="Ex: 75"
-                keyboardType="numeric"
-                value={peso}
-                onChangeText={setPeso}
-                bg="$color2"
-                borderRadius="$3"
-                p="$3"
-              />
-            </YStack>
-
-            {/* Modalidade */}
-            <YStack space="$1">
-              <Text fontSize={14} color="$gray10">Modalidade</Text>
-              <YStack
-                borderRadius="$3"
-                borderWidth={1}
-                borderColor="$color4"
-                bg="$color2"
-                overflow="hidden"
-              >
-                <Picker
-                  selectedValue={modalidade}
-                  onValueChange={(itemValue) => setModalidade(itemValue)}
-                  style={{
-                    height: 50,
-                    paddingHorizontal: 8,
-                    color: theme.color?.val || '#FFFFFF',
-                    fontSize: 20,
-                    fontWeight: '500'
-                  }}
-                >
-                  <Picker.Item label="Selecione uma modalidade" value={null} />
-                  {modalidades
-                    .filter((m) => !m.disable)
-                    .map((m) => (
-                      <Picker.Item key={m.id} label={m.nome} value={m.id} />
-                    ))}
-                </Picker>
-              </YStack>
-            </YStack>
-
-            {/* Torneio */}
-            <YStack space="$1">
-              <Text fontSize={14} color="$gray10">Torneio</Text>
-              <YStack
-                borderRadius="$3"
-                borderWidth={1}
-                borderColor="$color4"
-                bg="$color2"
-                overflow="hidden"
-              >
-                <Picker
-                  selectedValue={torneioSelecionado}
-                  onValueChange={(itemValue) => setTorneioSelecionado(itemValue)}
-                  style={{
-                    height: 50,
-                    paddingHorizontal: 8,
-                    color: theme.color?.val || '#FFFFFF',
-                    fontSize: 20,
-                    fontWeight: '500'
-                  }}
-                  enabled={modalidade !== null}
-                >
-                  <Picker.Item label="Selecione um torneio" value={null} />
-                  {Array.isArray(torneios) && torneios.map((t) => (
-                    <Picker.Item key={t.id} label={t.nome} value={t.id} />
-                  ))}
-                </Picker>
-              </YStack>
-            </YStack>
-
-            {/* Equipe */}
-            <YStack space="$1">
-              <Text fontSize={14} color="$gray10">Equipe</Text>
-              <YStack
-                borderRadius="$3"
-                borderWidth={1}
-                borderColor="$color4"
-                bg="$color2"
-                overflow="hidden"
-              >
-                <Picker
-                  selectedValue={equipeSelecionada}
-                  onValueChange={(itemValue) => setEquipeSelecionada(itemValue)}
-                  style={{
-                    height: 50,
-                    paddingHorizontal: 8,
-                    color: theme.color?.val || '#FFFFFF',
-                    fontSize: 20,
-                    fontWeight: '500'
-                  }}
-                  enabled={torneioSelecionado !== null}
-                >
-                  <Picker.Item label="Selecione uma equipe" value={null} />
-                  {Array.isArray(equipes) && equipes.map((e) => (
-                    <Picker.Item key={e.id} label={e.nome} value={e.id} />
-                  ))}
-                </Picker>
-              </YStack>
-            </YStack>
-
-            <Separator my="$3" />
-
-            <Button
-              backgroundColor={!isFormValid ? 'grey' : 'black'}
-              color="white"
-              w="100%"
-              onPress={handleSalvar}
-              disabled={!isFormValid}
-            >
-              Salvar Atleta
-            </Button>
+    <>
+      <Tela title="Inclusão de Atleta">
+        <YStack p="$4" space="$4">
+          {/* Nome */}
+          <YStack space="$1">
+            <Text fontSize={14} color="$gray10">Nome do Atleta</Text>
+            <Input
+              placeholder="Digite o nome"
+              value={nome}
+              onChangeText={setNome}
+              bg="$color2"
+              borderRadius="$3"
+              p="$3"
+            />
           </YStack>
-        </ScrollView>
-        <Footer />
 
-        <Dialog
-          open={showDialog}
-          onClose={handleCloseDialog}
-          message={message}
-          type={error ? 'error' : 'success'}
+          {/* Data de Nascimento */}
+          <YStack space="$1">
+            <Text fontSize={14} color="$gray10">Data de Nascimento</Text>
+            <Button
+              onPress={() => setShowDatePicker(true)}
+              backgroundColor="$color2"
+              color="#FFFFFF"
+            >
+              {dataNascimento ? format(dataNascimento, 'dd/MM/yyyy') : 'Selecionar Data'}
+            </Button>
+
+            <DatePickerModal
+              locale="pt-BR"
+              mode="single"
+              visible={showDatePicker}
+              date={dataNascimento || new Date()}
+              onDismiss={() => setShowDatePicker(false)}
+              onConfirm={({ date }) => {
+                setShowDatePicker(false)
+                setDataNascimento(date)
+              }}
+            />
+          </YStack>
+
+          {/* Altura */}
+          <YStack space="$1">
+            <Text fontSize={14} color="$gray10">Altura (cm)</Text>
+            <Input
+              placeholder="Ex: 180"
+              keyboardType="numeric"
+              value={altura}
+              onChangeText={setAltura}
+              bg="$color2"
+              borderRadius="$3"
+              p="$3"
+            />
+          </YStack>
+
+          {/* Peso */}
+          <YStack space="$1">
+            <Text fontSize={14} color="$gray10">Peso (kg)</Text>
+            <Input
+              placeholder="Ex: 75"
+              keyboardType="numeric"
+              value={peso}
+              onChangeText={setPeso}
+              bg="$color2"
+              borderRadius="$3"
+              p="$3"
+            />
+          </YStack>
+
+          {/* Modalidade */}
+          <YStack space="$1">
+            <Text fontSize={14} color="$gray10">Modalidade</Text>
+            <GenericPicker
+              items={modalidades}
+              value={modalidade}
+              onChange={setModalidade}
+              getLabel={(m) => m.nome}
+              getValue={(m) => m.id}
+              filter={(m) => !m.disable}
+            />
+          </YStack>
+
+          {/* Torneio */}
+          <YStack space="$1">
+            <Text fontSize={14} color="$gray10">Torneio</Text>
+            <GenericPicker
+              items={torneios}
+              value={torneioSelecionado}
+              onChange={setTorneioSelecionado}
+              getLabel={(t) => t.nome}
+              getValue={(t) => t.id}
+              enabled={modalidade !== null}
+            />
+          </YStack>
+
+          {/* Equipe */}
+          <YStack space="$1">
+            <Text fontSize={14} color="$gray10">Equipe</Text>
+            <GenericPicker
+              items={equipes}
+              value={equipeSelecionada}
+              onChange={setEquipeSelecionada}
+              getLabel={(e) => e.nome}
+              getValue={(e) => e.id}
+              enabled={torneioSelecionado !== null}
+            />
+          </YStack>
+
+          {/* Atletas Disponíveis - MultiSelect */}
+          <MultipleSelect
+            label="Categorias"
+            items={categorias}
+            value={categoriasVinculadas}
+            onChange={setCategoriasVinculadas}
+            getLabel={(a) => a.nome}
+            getValue={(a) => a.id}
+            placeholder="Selecione as categorias"
+          />
+
+          <Separator my="$3" />
+
+          <Button
+            backgroundColor={!isFormValid ? 'grey' : 'black'}
+            color="white"
+            w="100%"
+            onPress={handleSalvar}
+            disabled={!isFormValid}
+          >
+            Salvar Atleta
+          </Button>
+        </YStack>
+      </Tela>
+      <Dialog
+        open={showDialog}
+        onClose={handleCloseDialog}
+        message={message}
+        type={error ? 'error' : 'success'}
+        extra={!error && (
+          <Button
+            mt="$2"
+            onPress={handleLimparForm}
+            backgroundColor="black"
+            color="white"
+          >
+            Novo atleta
+          </Button>
+        )}
         />
-      </YStack>
-    </Theme>
+
+    </>
   )
 }

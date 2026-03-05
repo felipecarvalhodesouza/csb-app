@@ -1,4 +1,4 @@
-import { YStack, Text, Button, Image } from 'tamagui'
+import { YStack, Text, Button, Image, XStack } from 'tamagui'
 
 type DialogProps = {
   open: boolean
@@ -6,9 +6,10 @@ type DialogProps = {
   message: string | null
   type?: 'error' | 'success'
   title?: string
+  extra?: React.ReactNode
 }
 
-export default function Dialog({ open, onClose, message, type = 'error', title }: DialogProps) {
+export default function Dialog({ open, onClose, message, type = 'error', title, extra }: DialogProps) {
   if (!message || !open) return null
 
   const isSuccess = type === 'success'
@@ -51,14 +52,20 @@ export default function Dialog({ open, onClose, message, type = 'error', title }
         <Text textAlign="center" fontSize="$2" color="gray">
           {message}
         </Text>
-        <Button
-          mt="$2"
-          onPress={onClose}
-          backgroundColor="black"
-          color="white"
-        >
-          Fechar
-        </Button>
+
+        <XStack mt="$2" gap="$2">
+
+          {extra}
+
+          <Button
+            mt="$2"
+            onPress={onClose}
+            backgroundColor="black"
+            color="white"
+          >
+            Fechar
+          </Button>
+        </XStack>
       </YStack>
     </YStack>
   )

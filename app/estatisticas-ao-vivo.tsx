@@ -12,7 +12,7 @@ import { getEstatisticaPorAthlete } from './domain/estatistica'
 import { Atleta } from './domain/atleta'
 import { API_BASE_URL } from '../utils/config'
 import { getBrazilLocalDateTimeString } from './utils/date-formatter'
-import { Alert, Platform } from 'react-native'
+import { Platform } from 'react-native'
 import Dialog from './componente/dialog-error'
 import { set } from 'date-fns'
 
@@ -32,6 +32,7 @@ export default function EstatisticasAoVivoScreen() {
   const [actionHistory, setActionHistory] = useState<any[]>([])
   const [showDialog, setShowDialog] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
+  const [error, setError] = useState<boolean | null>(null)
 
   useEffect(() => {
     async function fetchJogo() {
@@ -50,7 +51,7 @@ export default function EstatisticasAoVivoScreen() {
             id: a.id,
             nome: a.atleta.nome ?? 'Sem nome',
             numero: a.numeroCamisaJogo ?? '',
-            equipeId: a.atleta.equipe.id,
+            equipeId: jogoData.mandante.id,
             teamId: 'mandante',
             pontos: a.pontos | 0,
             rebotes: a.rebotes | 0,
@@ -68,7 +69,7 @@ export default function EstatisticasAoVivoScreen() {
             id: a.id,
             nome: a.atleta.nome ?? 'Sem nome',
             numero: a.numeroCamisaJogo ?? '',
-            equipeId: a.atleta.equipe.id,
+            equipeId: jogoData.visitante.id,
             teamId: 'visitante',
             pontos: a.pontos | 0,
             rebotes: a.rebotes | 0,
@@ -83,8 +84,11 @@ export default function EstatisticasAoVivoScreen() {
         if(jogoData.status === 'ENCERRADO') {
           setJogoEncerrado(true)
         }
-      } catch (e) {
-        alert('Erro ao carregar dados do jogo')
+      } catch (e: any) {
+        console.log(e)
+        setError(true)
+        setMessage(e.message || 'Erro ao criar o atleta.')
+        setShowDialog(true)
       } finally {
         setLoading(false)
       }
@@ -108,6 +112,7 @@ export default function EstatisticasAoVivoScreen() {
   const handleCloseDialog = () => {
     setShowDialog(false)
     setMessage(null)
+    setError(null)
   }
 
   async function updateAthleteStats(athleteId: number, stat: keyof Atleta | string, value: number) {

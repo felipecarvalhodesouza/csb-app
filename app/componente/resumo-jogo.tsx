@@ -1,6 +1,5 @@
 import { YStack, XStack, Text } from 'tamagui'
 import Jogo from '../domain/jogo'
-import Parcial from '../domain/parcial'
 import format from '../utils/date-formatter'
 import { formatHour } from '../utils/date-formatter'
 
