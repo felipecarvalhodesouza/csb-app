@@ -60,6 +60,12 @@ export default function IncluirJogoScreen() {
   const handleCloseDialog = () => {
     setShowDialog(false)
     setMessage(null)
+
+
+    if (!error) {
+      router.back();
+    }
+
     setError(null)
   }
 
@@ -272,11 +278,6 @@ export default function IncluirJogoScreen() {
         setError(false)
         setMessage('Jogo criado com sucesso!')
         setShowDialog(true)
-
-        setTimeout(() => {
-          setShowDialog(false)
-          router.replace('/admin')
-        }, 3000)
       } else {
         const responseError = await response.json()
         setError(true)

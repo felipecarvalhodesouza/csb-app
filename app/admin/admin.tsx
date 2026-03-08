@@ -8,12 +8,13 @@ import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { Tela } from '../componente/layout/tela'
 
 const opcoesAdmin = [
+  { nome: 'Atletas', icone: 'account-plus-outline', rota: '/admin/atletas/atletas-admin', disable: false },
+  { nome: 'Estatísticos', icone: 'account-plus-outline', rota: '/admin/estatistico/estatisticos-admin', disable: false },
   { nome: 'Gerenciar Usuários', icone: 'format-list-bulleted', rota: '/admin/gerenciar-usuarios', disable: false },
   { nome: 'Inclusão de Torneio', icone: 'trophy-outline', rota: '/admin/incluir-torneio', disable: false },
   { nome: 'Inclusão de Categoria', icone: 'medal', rota: '/admin/incluir-categoria', disable: false },
   { nome: 'Inclusão de Equipe', icone: 'account-group-outline', rota: '/admin/incluir-equipe', disable: false },
   { nome: 'Vincular Equipe no Torneio', icone: 'account-group-outline', rota: '/admin/vincular-equipe', disable: false },
-  { nome: 'Atletas', icone: 'account-plus-outline', rota: '/admin/atletas/atletas-admin', disable: false },
   { nome: 'Inclusão de Técnico', icone: 'account-plus-outline', rota: '/admin/incluir-tecnico', disable: false },
   { nome: 'Vincular Técnico à Equipe', icone: 'account-plus-outline', rota: '/admin/vincular-tecnico', disable: true },
   { nome: 'Inclusão de Local', icone: 'account-plus-outline', rota: '/admin/incluir-local', disable: false },
@@ -21,7 +22,6 @@ const opcoesAdmin = [
   { nome: 'Alteração de Permissões', icone: 'shield-account-outline', rota: '/admin/alterar-permissoes', disable: true },
   { nome: 'Inclusão de Árbitro', icone: 'account-plus-outline', rota: '/admin/incluir-arbitro', disable: false },
   { nome: 'Inclusão de Mesário', icone: 'account-plus-outline', rota: '/admin/incluir-mesario', disable: false },
-  { nome: 'Inclusão de Estatístico', icone: 'account-plus-outline', rota: '/admin/incluir-estatistico', disable: false },
 ]
 
 export default function AdminScreen() {

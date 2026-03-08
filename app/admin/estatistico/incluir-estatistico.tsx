@@ -1,53 +1,75 @@
-import React, { useEffect, useState } from 'react'
-import { useRouter } from 'expo-router'
-import { YStack, Text, Input, Button, Separator, Theme, useTheme, XStack, Checkbox } from 'tamagui'
-import Header from '../header'
-import Footer from '../footer'
-import DialogError from '../componente/dialog-error'
-import { API_BASE_URL } from '../../utils/config'
-import { modalidades } from '../utils/modalidades'
-import { apiPost } from '../utils/api'
+import React, { useCallback, useEffect, useState } from 'react'
+import { useFocusEffect, useRouter } from 'expo-router'
+import { YStack, Text, Input, Button, Separator, useTheme, XStack, Checkbox } from 'tamagui'
+import Dialog from '../../componente/dialog-error'
+import { API_BASE_URL } from '../../../utils/config'
+import { modalidades } from '../../utils/modalidades'
+import { apiFetch, apiPost } from '../../utils/api'
 import { Check } from '@tamagui/lucide-icons'
+import { Tela } from '../../componente/layout/tela'
+import Usuario from '../../domain/usuario'
+import { GenericPicker } from '../../componente/GenericPicker'
 
 export default function IncluirEstatisticoScreen() {
     const theme = useTheme()
     const router = useRouter()
 
     const [nome, setNome] = useState('')
-    const [email, setEmail] = useState('')
-    const [emailValid, setEmailValid] = useState(true)
+    const [usuario, setUsuario] = useState('')
+    const [usuarios, setUsuarios] = useState<Usuario[]>([]) 
     const [modalidadesSelecionadas, setModalidadesSelecionadas] = useState<number[]>([])
 
-    const [errorMessage, setErrorMessage] = useState<string | null>(null)
-    const [showErrorDialog, setShowErrorDialog] = useState(false)
+    const [message, setMessage] = useState<string | null>(null)
+    const [showDialog, setShowDialog] = useState(false)
+    const [error, setError] = useState<boolean | null>(null)
 
     const handleCloseDialog = () => {
-        setShowErrorDialog(false)
-        setErrorMessage(null)
+        setShowDialog(false)
+        setMessage(null)
+
+        if(!error) {
+            router.back();
+        }
+
+        setError(null)
     }
+
+    const loadUsuarios = async () => {
+        try {
+            const usuarios = await apiFetch<Usuario[]>(`${API_BASE_URL}/usuarios/admin/estatisticos`)
+            setUsuarios(usuarios)
+        } catch (error: any) {
+            setError(true)
+            setMessage(error.message || 'Erro ao carregar usuários.')
+            setShowDialog(true)
+        }
+    }
+
+    useFocusEffect(
+        useCallback(() => {
+            loadUsuarios()
+        }, [])
+    )
+      
 
     const handleSalvar = async () => {
         try {
             const novoEstatistico = {
-                nome,
-                email,
+                nome: nome,
+                usuario : {
+                    id: usuario
+                },
                 modalidades: modalidadesSelecionadas.map(id => id - 1)
             }
 
             await apiPost(`${API_BASE_URL}/estatisticos`, novoEstatistico)
 
-            setErrorMessage('Estatístico cadastrado com sucesso!')
-            setShowErrorDialog(true)
-
-            setTimeout(() => {
-                setShowErrorDialog(false)
-                router.replace('/admin')
-            }, 3000)
-
+            setMessage('Estatístico cadastrado com sucesso!')
+            setShowDialog(true)
         } catch (error: any) {
-            console.error('Erro na requisição:', error)
-            setErrorMessage(error.message || 'Falha ao conectar com o servidor.')
-            setShowErrorDialog(true)
+            setMessage(error.message || 'Falha ao conectar com o servidor.')
+            setShowDialog(true)
+            setError(true)
         }
     }
 
@@ -57,20 +79,11 @@ export default function IncluirEstatisticoScreen() {
         )
     }
 
-    function validateEmail(value: string) {
-        // Simple email regex
-        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-        setEmailValid(re.test(value))
-        setEmail(value)
-    }
-
-    const isFormValid = nome && emailValid && modalidadesSelecionadas.length > 0
+    const isFormValid = nome && usuario && modalidadesSelecionadas.length > 0
 
     return (
-        <Theme>
-            <YStack f={1} bg="$background" pt="$6" pb="$9" jc="space-between">
-                <Header title="Inclusão de Estatístico" />
-
+        <>
+            <Tela title="Inclusão de Estatístico">
                 <YStack p="$4" space="$4">
                     {/* Nome */}
                     <YStack space="$1">
@@ -85,22 +98,16 @@ export default function IncluirEstatisticoScreen() {
                         />
                     </YStack>
 
-                    {/* Email */}
+                    {/* Usuário */}
                     <YStack space="$1">
-                        <Text fontSize={14} color="$gray10">Email</Text>
-                        <Input
-                            placeholder="Digite o email"
-                            keyboardType="email-address"
-                            value={email}
-                            onChangeText={validateEmail}
-                            bg="$color2"
-                            borderRadius="$3"
-                            p="$3"
-                            autoCapitalize="none"
+                    <Text fontSize={14} color="$gray10">Usuário</Text>
+                        <GenericPicker
+                        items={usuarios}
+                        value={usuario}
+                        onChange={setUsuario}
+                        getLabel={(m) => m.nome}
+                        getValue={(m) => m.id}
                         />
-                        {!emailValid && (
-                            <Text color="$red10" fontSize={14}>Email inválido</Text>
-                        )}
                     </YStack>
 
                     {/* Modalidades */}
@@ -135,15 +142,13 @@ export default function IncluirEstatisticoScreen() {
                         Salvar Estatístico
                     </Button>
                 </YStack>
-
-                <Footer />
-
-                <DialogError
-                    open={showErrorDialog}
-                    onClose={handleCloseDialog}
-                    message={errorMessage}
-                />
-            </YStack>
-        </Theme>
+            </Tela>
+            <Dialog
+            open={showDialog}
+            onClose={handleCloseDialog}
+            message={message}
+            type={error ? 'error' : 'success'}
+            />
+        </>
     )
 }
