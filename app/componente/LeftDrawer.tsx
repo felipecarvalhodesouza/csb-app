@@ -1,4 +1,4 @@
-import { YStack, Text, ListItem, Separator } from 'tamagui'
+import { YStack, Text, ListItem, Separator, XStack } from 'tamagui'
 import { Pressable, Dimensions } from 'react-native'
 import { useRouter } from 'expo-router'
 import { FaWhatsapp, FaInstagram } from 'react-icons/fa'
@@ -60,11 +60,23 @@ export default function LeftDrawer({ open, onClose }: Props) {
           Contatos
         </Text>
 
-        <YStack>
-          <FaWhatsapp size={24} color="green" />
-          <FaInstagram size={24} color="purple" style={{ marginTop: 10 }} />
-          <Mail size={24} color="white" mt={10} />
-        </YStack>
+      <YStack space="$3">
+        <XStack alignItems="center" gap="$2">
+        <FaWhatsapp size={24} color="green" />
+          <Text fontSize={12}>13 98862-9148</Text>
+        </XStack>
+
+        <XStack alignItems="center" gap="$2">
+        <FaInstagram size={24} color="purple" />
+          <Text fontSize={12}>@csb.basquete</Text>
+        </XStack>
+
+        <XStack alignItems="center" gap="$2">
+          <Mail size={24} color="white" />
+          <Text fontSize={12}>campeonatosantista@gmail.com</Text>
+        </XStack>
+      </YStack>
+
       </YStack>
 
       {/* Overlay clicável */}
