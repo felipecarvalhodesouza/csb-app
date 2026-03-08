@@ -47,6 +47,10 @@ export default function AdminModal({
       </Button>
 
       <Button m="$1" disabled={jogoEncerrado}>
+        Escalação
+      </Button>
+
+      <Button m="$1" disabled={jogoEncerrado}>
         Editar Parciais
       </Button>
 

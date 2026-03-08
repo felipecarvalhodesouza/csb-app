@@ -4,7 +4,14 @@ import format, { formatHour } from '../utils/date-formatter'
 import { Pressable } from 'react-native'
 import { BUCKET_BASE_URL } from '../../utils/config'
 
-export default function GameCard({ jogo, onPress, onLongPress, isAdmin  }: GameCardProps) {
+type GameCardProps = {
+  jogo: Jogo
+  onPress: () => void
+  onLongPress?: (jogo: Jogo) => void
+  isAdmin?: boolean
+}
+
+export default function GameCard({ jogo, onPress, onLongPress, isAdmin }: GameCardProps) {
   const { width } = useWindowDimensions()
   const isLive = jogo.streamUrl?.toLowerCase() === 'live'
   const hasScore = true ||
@@ -14,7 +21,7 @@ export default function GameCard({ jogo, onPress, onLongPress, isAdmin  }: GameC
   return (
     <Pressable
       onPress={onPress}
-      onLongPress={isAdmin ? () => onLongPress?.(jogo) : undefined}
+      onLongPress={isAdmin == true ? () => onLongPress?.(jogo) : onPress}
       delayLongPress={600}
     >
       <YStack
@@ -125,11 +132,4 @@ export default function GameCard({ jogo, onPress, onLongPress, isAdmin  }: GameC
     </YStack>
     </Pressable>
   )
-}
-
-type GameCardProps = {
-  jogo: Jogo
-  onPress: () => void
-  onLongPress?: (jogo: Jogo) => void
-  isAdmin?: boolean
 }

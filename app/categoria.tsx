@@ -5,13 +5,13 @@ import {
   Spinner,
 } from 'tamagui'
 import { useRouter } from 'expo-router'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import Jogo from './domain/jogo'
 import GameCard from './componente/game-card'
 import { apiFetch } from './utils/api'
 import { API_BASE_URL } from '../utils/config'
 import { Tela } from './componente/layout/tela'
-
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 export default function CategoriaJogosScreen() {
   const { torneioId, categoriaId, nomeCategoria, nomeTorneio } = useLocalSearchParams<{ torneioId:string, categoriaId: string, nomeCategoria:string, nomeTorneio: string}>()
@@ -20,6 +20,52 @@ export default function CategoriaJogosScreen() {
   const [jogos, setJogos] = useState<Jogo[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [isAdmin, setIsAdmin] = useState(false)
+  const [userId, setUserId] = useState<string | null>(null)
+  const [estatisticoId, setEstatisticoId] = useState<string | null>(null)
+  
+  useEffect(() => {
+    if(!userId) {
+      return;
+    }
+
+    async function carregarEstatistico() {
+      const estatistico = await apiFetch<any>(`${API_BASE_URL}/estatisticos/usuario/${userId}`);
+      setEstatisticoId(estatistico?.id || null)
+    }
+
+    carregarEstatistico();
+  }, [userId, jogos]);
+  
+  
+  useEffect(() => {
+    async function carregarUsuario() {
+      const userId = await getUserIdFromStorage();
+      setUserId(userId)
+    }
+
+    carregarUsuario();
+  }, []);
+
+  async function getUserIdFromStorage() {
+  try {
+      const token = await AsyncStorage.getItem('session_user');
+
+      if (!token) {
+        return null;
+      }
+
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      if(payload.roles && payload.roles.includes('ADMIN')) {
+        setIsAdmin(true)
+      }
+
+      return payload.userId;
+    } catch (error) {
+      console.error("Erro ao ler token:", error);
+      return null;
+    }
+  }
 
   const fetchJogos = useCallback(async (options: RequestInit = {}) => {
         try {
@@ -88,7 +134,7 @@ export default function CategoriaJogosScreen() {
                     })
                   }
                   onLongPress={() => handleLongPress(jogo)}
-                  isAdmin={true}
+                  isAdmin={isAdmin || (jogo.estatistico && jogo.estatistico.id == estatisticoId)}
                 />
               ))}
             </YStack>
@@ -107,7 +153,7 @@ export default function CategoriaJogosScreen() {
                   })
                 }
                 onLongPress={() => handleLongPress(jogo)}
-                isAdmin={true}
+                isAdmin={isAdmin || (jogo.estatistico && jogo.estatistico.id == estatisticoId)}
               />
             ))
           ) : (

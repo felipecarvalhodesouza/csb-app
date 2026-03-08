@@ -5,13 +5,14 @@ import {
   Spinner,
 } from 'tamagui'
 import { useRouter } from 'expo-router'
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import Jogo from './domain/jogo'
 import GameCard from './componente/game-card'
 import { apiFetch } from './utils/api'
 import { API_BASE_URL } from '../utils/config'
 import { useFocusEffect } from '@react-navigation/native'
 import { Tela } from './componente/layout/tela'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 export default function HomeEquipe() {
   const { equipeId, nomeEquipe, torneioId } = useLocalSearchParams<{equipeId: string, nomeEquipe: string, torneioId: string}>()
@@ -19,6 +20,53 @@ export default function HomeEquipe() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
+
+  const [isAdmin, setIsAdmin] = useState(false)
+  const [userId, setUserId] = useState<string | null>(null)
+  const [estatisticoId, setEstatisticoId] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!userId) {
+      return;
+    }
+
+    async function carregarEstatistico() {
+      const estatistico = await apiFetch<any>(`${API_BASE_URL}/estatisticos/usuario/${userId}`);
+      setEstatisticoId(estatistico?.id || null)
+    }
+
+    carregarEstatistico();
+  }, [userId, jogos]);
+
+
+  useEffect(() => {
+    async function carregarUsuario() {
+      const userId = await getUserIdFromStorage();
+      setUserId(userId)
+    }
+
+    carregarUsuario();
+  }, []);
+
+  async function getUserIdFromStorage() {
+    try {
+      const token = await AsyncStorage.getItem('session_user');
+
+      if (!token) {
+        return null;
+      }
+
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      if (payload.roles && payload.roles.includes('ADMIN')) {
+        setIsAdmin(true)
+      }
+
+      return payload.userId;
+    } catch (error) {
+      console.error("Erro ao ler token:", error);
+      return null;
+    }
+  }
   
 const fetchJogos = useCallback(async (options: RequestInit = {}) => {
   try {
@@ -100,7 +148,7 @@ useFocusEffect(
                           jogo={jogo} 
                           onPress={() =>  router.push(`/jogo?jogoId=${jogo.id}&categoriaNome=${jogo.categoria?.nome}`)} 
                           onLongPress={handleLongPress}
-                          isAdmin={true}
+                          isAdmin={isAdmin || (jogo.estatistico && jogo.estatistico.id == estatisticoId)}
                 />
               ))}
             </YStack>
@@ -117,7 +165,7 @@ useFocusEffect(
                           jogo={jogo} 
                           onPress={() =>  router.push(`/jogo?jogoId=${jogo.id}&categoriaNome=${jogo.categoria?.nome}`)} 
                           onLongPress={handleLongPress}
-                          isAdmin={true}
+                          isAdmin={isAdmin || (jogo.estatistico && jogo.estatistico.id == estatisticoId)}
                 />
               ))}
             </YStack>
