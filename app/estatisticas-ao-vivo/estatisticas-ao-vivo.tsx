@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import { YStack, XStack, Text, Button, Theme, Tabs } from 'tamagui'
-import { Flag, Undo, ChevronLeft, FileArchive } from '@tamagui/lucide-icons'
-import Header from '../header'
-import Footer from '../footer'
+import { YStack, Text, Button } from 'tamagui'
+import { ChevronLeft } from '@tamagui/lucide-icons'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { apiFetch, apiPost, apiDelete } from '../utils/api'
 import Jogo from '../domain/jogo'
@@ -16,7 +14,6 @@ import { Platform } from 'react-native'
 import Dialog from '../componente/dialog-error'
 import CoachCard from '../componente/jogo/CoachCard'
 import { Tela } from '../componente/layout/tela'
-import Modal from '../componente/Modal'
 import SubstitutionModal from '../componente/jogo/SubstitutionModal'
 import GameHeader from '../componente/jogo/GameHeader'
 import AdminModal from '../componente/jogo/AdminModal'
@@ -188,6 +185,10 @@ export default function EstatisticasAoVivoScreen() {
       })
       setQuarto(q => q + 1)
       setModalAdministracao(false)
+  }
+
+  async function onAuditoriaEventos() {
+    router.push("/auditoria-eventos/" + jogoId);
   }
 
     async function encerrarJogo() {
@@ -371,6 +372,7 @@ export default function EstatisticasAoVivoScreen() {
           placarVisitante={placarVisitante}
           onNextQuarter={nextQuarter}
           onEncerrarJogo={encerrarJogo}
+          onAuditoriaEventos={onAuditoriaEventos}
         />
     </Tela>
 

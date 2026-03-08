@@ -10,6 +10,7 @@ type Props = {
   placarVisitante: number
   onNextQuarter: () => void
   onEncerrarJogo: () => void
+  onAuditoriaEventos: () => void
 }
 
 export default function AdminModal({
@@ -20,7 +21,8 @@ export default function AdminModal({
   placarMandante,
   placarVisitante,
   onNextQuarter,
-  onEncerrarJogo
+  onEncerrarJogo,
+  onAuditoriaEventos
 }: Props) {
 
   if (!open) return null
@@ -48,7 +50,7 @@ export default function AdminModal({
         Editar Parciais
       </Button>
 
-      <Button m="$1" disabled={jogoEncerrado}>
+      <Button m="$1" disabled={jogoEncerrado} onPress={onAuditoriaEventos}>
         Auditoria de Eventos
       </Button>
 
