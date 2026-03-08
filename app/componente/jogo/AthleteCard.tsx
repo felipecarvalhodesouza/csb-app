@@ -1,7 +1,8 @@
 import React , { useState, useEffect } from 'react'
 import { ScrollView, Card, YStack, XStack, Text, Button, Separator } from 'tamagui'
 import { Plus, Repeat } from '@tamagui/lucide-icons'
-import { Atleta } from '../domain/atleta'
+import { Atleta } from '../../domain/atleta'
+import FaltaModal from './FaltaModal' 
 
 
 type AthleteCardsProps = {
@@ -45,11 +46,18 @@ export default function AthleteCards({
     setModalFalta({ atletaId: null })
   }
 
-  const handleFalta = (tipo: 'normal' | 'tecnica' | 'antidesportiva') => {
+  const handleFalta = (tipo: 'pessoal' | 'pessoal1' | 'pessoal2' | 'pessoal3' | 'tecnica' | 'desqualificante' |
+                             'antidesportiva1' | 'antidesportiva2' | 'antidesportiva3') => {
     if (modalFalta.atletaId == null) return
-    if (tipo === 'normal') updateAthleteStats(modalFalta.atletaId, 'faltas', 1)
+    if (tipo === 'pessoal') updateAthleteStats(modalFalta.atletaId, 'faltas', 1)
+    if (tipo === 'pessoal1') updateAthleteStats(modalFalta.atletaId, 'faltas1', 1)
+    if (tipo === 'pessoal2') updateAthleteStats(modalFalta.atletaId, 'faltas2', 1)
+    if (tipo === 'pessoal3') updateAthleteStats(modalFalta.atletaId, 'faltas3', 1)
     if (tipo === 'tecnica') updateAthleteStats(modalFalta.atletaId, 'ft', 1)
-    if (tipo === 'antidesportiva') updateAthleteStats(modalFalta.atletaId, 'fad', 1)
+    if (tipo === 'desqualificante') updateAthleteStats(modalFalta.atletaId, 'fd', 1)
+    if (tipo === 'antidesportiva1') updateAthleteStats(modalFalta.atletaId, 'fad1', 1)
+    if (tipo === 'antidesportiva2') updateAthleteStats(modalFalta.atletaId, 'fad2', 1)
+    if (tipo === 'antidesportiva3') updateAthleteStats(modalFalta.atletaId, 'fad3', 1)
     handleCloseFaltaModal()
   }
 
@@ -132,39 +140,11 @@ export default function AthleteCards({
         ))}
     </ScrollView>
 
-      {/* Modal de faltas */}
-      {modalFalta.atletaId !== null && (
-        <YStack
-          position="absolute"
-          top={0}
-          left={0}
-          width="100%"
-          height="100%"
-          bg="rgba(0,0,0,0.6)"
-          zIndex={200}
-          jc="center"
-          ai="center"
-        >
-          <YStack
-            bg="$background"
-            p="$4"
-            borderRadius={12}
-            width={260}
-            elevation={4}
-            zIndex={201}
-            ai="center"
-            gap="$3"
-          >
-            <Text fontWeight="700" fontSize={18} mb="$2" ta="center">
-              Tipo de falta
-            </Text>
-            <Button width="100%" onPress={() => handleFalta('normal')}>Normal</Button>
-            <Button width="100%" onPress={() => handleFalta('tecnica')}>Técnica</Button>
-            <Button width="100%" onPress={() => handleFalta('antidesportiva')}>Antidesportiva</Button>
-            <Button mt="$3" variant="outlined" onPress={handleCloseFaltaModal}>Cancelar</Button>
-          </YStack>
-        </YStack>
-      )}
+      <FaltaModal
+        visible={modalFalta.atletaId !== null}
+        onSelect={handleFalta}
+        onClose={handleCloseFaltaModal}
+      />
     </>
   )
 }

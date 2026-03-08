@@ -9,8 +9,9 @@ import Footer from './footer'
 import Header from './header'
 import { Check } from '@tamagui/lucide-icons'
 import { useRouter } from 'expo-router'
-import AsyncStorage from '@react-native-async-storage/async-storage'
+
 import { API_BASE_URL } from '../utils/config'
+import { Tela } from './componente/layout/tela'
 
 type GameEditScreenProps = {
   onIniciar: (jogoEditado: Jogo) => void
@@ -287,10 +288,7 @@ export default function GameEditScreen({
   }
 
   return (
-    <Theme>
-      <YStack f={1} bg="$background" jc="space-between" pb="$9" pt="$6">
-        <Header title='Seleção de Atletas' />
-        <ScrollView>
+    <Tela title='Seleção de Atletas'>
           <YStack p="$4" space="$4">
             <Tabs
               value={tab}
@@ -337,9 +335,6 @@ export default function GameEditScreen({
               Iniciar Jogo
             </Button>
           </YStack>
-        </ScrollView>
-        <Footer />
-      </YStack>
-    </Theme>
+    </Tela>
   )
 }

@@ -1,20 +1,26 @@
 import React, { useEffect, useState } from 'react'
 import { YStack, XStack, Text, Button, Theme, Tabs } from 'tamagui'
 import { Flag, Undo, ChevronLeft, FileArchive } from '@tamagui/lucide-icons'
-import Header from './header'
-import Footer from './footer'
+import Header from '../header'
+import Footer from '../footer'
 import { useLocalSearchParams, useRouter } from 'expo-router'
-import { apiFetch, apiPost, apiDelete } from './utils/api'
-import Jogo from './domain/jogo'
-import AthleteCards from './componente/player-card-game'
-import Evento from './domain/evento'
-import { getEstatisticaPorAthlete } from './domain/estatistica'
-import { Atleta } from './domain/atleta'
-import { API_BASE_URL } from '../utils/config'
-import { getBrazilLocalDateTimeString } from './utils/date-formatter'
+import { apiFetch, apiPost, apiDelete } from '../utils/api'
+import Jogo from '../domain/jogo'
+import AthleteCards from '../componente/jogo/AthleteCard'
+import Evento from '../domain/evento'
+import { EstatisticaTipo, getEstatisticaPorAthlete } from '../domain/estatistica'
+import { Atleta } from '../domain/atleta'
+import { API_BASE_URL } from '../../utils/config'
+import { getBrazilLocalDateTimeString } from '../utils/date-formatter'
 import { Platform } from 'react-native'
-import Dialog from './componente/dialog-error'
-import { set } from 'date-fns'
+import Dialog from '../componente/dialog-error'
+import CoachCard from '../componente/jogo/CoachCard'
+import { Tela } from '../componente/layout/tela'
+import Modal from '../componente/Modal'
+import SubstitutionModal from '../componente/jogo/SubstitutionModal'
+import GameHeader from '../componente/jogo/GameHeader'
+import AdminModal from '../componente/jogo/AdminModal'
+import TeamTabs from '../componente/jogo/TeamTabs'
 
 export default function EstatisticasAoVivoScreen() {
   const { jogoId } = useLocalSearchParams()
@@ -99,12 +105,12 @@ export default function EstatisticasAoVivoScreen() {
   const placarMandante = mandante.reduce((sum, a) => sum + a.pontos, 0)
   const placarVisitante = visitante.reduce((sum, a) => sum + a.pontos, 0)
 
-  function handleFaults(atleta: Atleta, faltasDesqualificante: boolean){
-    if(faltasDesqualificante) {
+  function handleFaults(atleta: Atleta, faltaDesqualificante: boolean, faltaTecnicaOuAntidesportiva: boolean) {
+    if(faltaTecnicaOuAntidesportiva) {
       atleta.faltasDesqualificantes = (atleta.faltasDesqualificantes || 0) + 1;
     }
 
-    if(atleta.faltas >= 5 || atleta.faltasDesqualificantes >= 2){
+    if(atleta.faltas >= 5 || atleta.faltasDesqualificantes >= 2 || faltaDesqualificante) {
       atleta.expulso = true;
     }
   }
@@ -117,8 +123,10 @@ export default function EstatisticasAoVivoScreen() {
 
   async function updateAthleteStats(athleteId: number, stat: keyof Atleta | string, value: number) {
 
-    const faltasDesqualificante = (stat == 'ft' || stat == 'fad');
-    const statAuxiliar =  faltasDesqualificante ? 'faltas' : stat;
+    const faltaDesqualificante = stat === 'fd';
+    const faltaTecnicaOuAntidesportiva = (stat == 'ft'  || stat == 'fad1' || stat == 'fad2' || stat == 'fad3');
+    const falta = faltaDesqualificante || faltaTecnicaOuAntidesportiva || stat === 'faltas1' || stat === 'faltas2' || stat === 'faltas3';
+    const statAuxiliar =  falta ? 'faltas' : stat;
 
     (activeTeam === 'mandante' ? setMandante : setVisitante)(athletes =>
       athletes.map(a => {
@@ -126,7 +134,7 @@ export default function EstatisticasAoVivoScreen() {
           const updatedAthlete = { 
             ...a, [statAuxiliar]: Math.max(0, Number(a[statAuxiliar]) + value)
           }
-          handleFaults(updatedAthlete, faltasDesqualificante)
+          handleFaults(updatedAthlete, faltaDesqualificante, faltaTecnicaOuAntidesportiva)
           return updatedAthlete
         }
         return a
@@ -277,6 +285,19 @@ export default function EstatisticasAoVivoScreen() {
     setAthleteToSubstitute(null)
   }
 
+  function handleCoachEvent(tipo: EstatisticaTipo | "LL" | "2PTS" | "3PTS", equipeId: number){
+      handleEvent({
+        tipo,
+        responsavelId: undefined,
+        jogoId: jogo.id,
+        timestamp: getBrazilLocalDateTimeString(),
+        equipeId: equipeId,
+        periodo: quarto,
+        equipe: undefined,
+        descricao: ''
+      })
+    }
+
     async function handleEvent(event: Evento) {
       try {
         await apiPost(`${API_BASE_URL}/jogos/${jogo.id}/eventos`, event)
@@ -294,167 +315,72 @@ export default function EstatisticasAoVivoScreen() {
   }
 
   return (
-    <Theme>
-      <YStack f={1} bg="$background" jc="space-between" pb="$9" pt="$6">
-        <Header
-          title={jogo.mandante.nome + ' vs ' + jogo.visitante.nome}
+    <>
+    <Tela title={jogo.mandante.nome + ' vs ' + jogo.visitante.nome}
           subtitle={`${placarMandante} - ${placarVisitante}`} 
           button={<Button icon={ChevronLeft} chromeless onPress={() => router.back()} />}
+          scroll={false}>
+
+      <GameHeader
+        jogoEncerrado={jogoEncerrado}
+        quarto={quarto}
+        actionHistoryLength={actionHistory.length}
+        onUndo={undoLastAction}
+        onAdministrar={() => setModalAdministracao(true)}
+        onGerarSumula={handleGerarSumula}
+      />
+
+        <TeamTabs
+          activeTeam={activeTeam}
+          onChange={setActiveTeam}
+          mandanteName={jogo.mandante.nome}
+          visitanteName={jogo.visitante.nome}
         />
 
-        {jogoEncerrado && (
-          <XStack jc="center" ai="center" px="$4" py="$2" bg="$backgroundStrong" borderRadius={8} mb="$2">
-            <YStack
-              px="$4"
-              py="$2"
-              bg="$red2"
-              borderRadius={20}
-              mb="$2"
-              ai="center"
-              jc="center"
-              alignSelf="center"
-              elevation={3}
-              borderWidth={2}
-              borderColor="$red6"
-              maxWidth={200}
-            >
-              <Text
-                fontWeight="700"
-                fontSize={16}
-                color="$red10"
-                letterSpacing={1}
-                textAlign="center"
-              >
-                🏁 Jogo Encerrado
-              </Text>
-            </YStack>
-            <Button m="$1" icon={FileArchive} onPress={handleGerarSumula} disabled={!jogoEncerrado} chromeless>
-              Gerar Súmula
-            </Button>
-          </XStack>
-        )}
-
-
-
-        {!jogoEncerrado &&
-          <XStack jc="space-between" ai="center" px="$4" py="$2" bg="$backgroundStrong" borderRadius={8} mb="$2">
-          <YStack>
-            <Text fontSize={14} color="$gray10">Período</Text>
-            <Text fontWeight="700" fontSize={18} textAlign="center">{quarto > 4 ? 'OT ' + (quarto - 4) : quarto}</Text>
-          </YStack>
-          <Button icon={Undo} chromeless onPress={undoLastAction} disabled={actionHistory.length === 0}>Desfazer</Button>
-          <Button icon={Flag} onPress={() => setModalAdministracao(true)} disabled={jogoEncerrado} >Administrar</Button>
-        </XStack>
-       }
-
-        {/* Team Tabs */}
-        <Tabs value={activeTeam} onValueChange={v => setActiveTeam(v as 'mandante' | 'visitante') } ml={"$4"} mr={"$4"}>
-            
-        <Tabs.List width="100%" justifyContent="space-between" alignItems="center" mb="$2">
-            <Tabs.Tab value="mandante" flex={1}>
-              <Text>{String(jogo.mandante.nome)}</Text>
-            </Tabs.Tab>
-            <Tabs.Tab value="visitante" flex={1}>
-              <Text>{String(jogo.visitante.nome)}</Text>
-            </Tabs.Tab>
-        </Tabs.List>
-        </Tabs>
-
-        {/* Players Cards */}
-
-          { activeTeam === 'mandante' && (
-            <AthleteCards
-              athletes={mandante}
-              addPoints={addPoints}
-              updateAthleteStats={updateAthleteStats}
-              handleSubstituicao={handleSubstituicao}
-              jogoEncerrado={jogoEncerrado}
-            />
-          )}
-          { activeTeam === 'visitante' && (
-            <AthleteCards
-              athletes={visitante}
-              addPoints={addPoints}
-              updateAthleteStats={updateAthleteStats}
-              handleSubstituicao={handleSubstituicao}
-              jogoEncerrado={jogoEncerrado}
-            />
-          )}
-
-
-        {modalSubstituicao && athleteToSubstitute && (
-            <YStack
-              position="absolute"
-              top={0}
-              left={0}
-              width="100%"
-              height="100%"
-              bg="rgba(0,0,0,0.8)"
-              zIndex={100}
-              jc="center"
-            >
-            <YStack p="$4" zIndex={101}>
-              <Text fontWeight="700" fontSize={18} mb="$2" ta='center'>
-                Substituir <Text fontWeight="700">{athleteToSubstitute.nome}</Text>
-              </Text>
-              {(athleteToSubstitute.teamId == 'mandante' ? mandante : visitante)
-                .filter(a => !a.emQuadra && !a.expulso)
-                .map(reserva => (
-                  <Button
-                    key={reserva.id}
-                    mb="$2"
-                    onPress={() => substituirAtleta(reserva)}
-                    disabled={jogoEncerrado}
-                  >
-                    {reserva.nome} <Text color="$gray10">#{reserva.numero}</Text>
-                  </Button>
-                ))}
-              <Button mt="$4" onPress={() => setModalSubstituicao(false)}>
-                Fechar
-              </Button>
-            </YStack>
-          </YStack>
-        )}
-
-        {modalAdministracao && (
-            <YStack
-              position="absolute"
-              top={0}
-              left={0}
-              width="100%"
-              height="100%"
-              bg="rgba(0,0,0,0.8)"
-              zIndex={100}
-              jc="center"
-            >
-            <YStack p="$6" zIndex={101}>
-                <Button m="$1" onPress={nextQuarter} disabled={jogoEncerrado} chromeless> {quarto >=  4 ? 'Prorrogação' : 'Próximo Período'}</Button>
-                <Button m="$1" onPress={encerrarJogo} disabled={quarto < 4 || jogoEncerrado || placarMandante === placarVisitante} >
-                  Encerrar Partida
-                </Button>
-                <Button m="$1" disabled={jogoEncerrado} >
-                  Editar Parciais
-                </Button>
-                <Button m="$1" disabled={jogoEncerrado} >
-                  Auditoria de Eventos
-                </Button>
-              <Button mt="$1" onPress={() => setModalAdministracao(false)}>
-                Fechar
-              </Button>
-            </YStack>
-          </YStack>
-        )}
-
-        <Footer />
-
-        <Dialog
-          open={showDialog}
-          onClose={handleCloseDialog}
-          message={message}
-          type={'error'}
+        <AthleteCards
+          athletes={activeTeam === 'mandante' ? mandante : visitante}
+          addPoints={addPoints}
+          updateAthleteStats={updateAthleteStats}
+          handleSubstituicao={handleSubstituicao}
+          jogoEncerrado={jogoEncerrado}
         />
-      </YStack>
-    </Theme>
+
+        <SubstitutionModal
+          open={modalSubstituicao}
+          athleteToSubstitute={athleteToSubstitute}
+          mandante={mandante}
+          visitante={visitante}
+          jogoEncerrado={jogoEncerrado}
+          onClose={() => setModalSubstituicao(false)}
+          onSubstitute={substituirAtleta}
+        />
+
+        <CoachCard
+          nome={activeTeam === 'mandante' ? jogo.tecnicoMandante?.nome || 'Técnico' : jogo.tecnicoVisitante?.nome || 'Técnico'}
+          equipeId={activeTeam === 'mandante' ? jogo.mandante.id : jogo.visitante.id}
+          jogoEncerrado={jogoEncerrado}
+          registrarEvento={handleCoachEvent}
+        />
+
+        <AdminModal
+          open={modalAdministracao}
+          onClose={() => setModalAdministracao(false)}
+          jogoEncerrado={jogoEncerrado}
+          quarto={quarto}
+          placarMandante={placarMandante}
+          placarVisitante={placarVisitante}
+          onNextQuarter={nextQuarter}
+          onEncerrarJogo={encerrarJogo}
+        />
+    </Tela>
+
+      <Dialog
+        open={showDialog}
+        onClose={handleCloseDialog}
+        message={message}
+        type={'error'}
+      />
+    </>
   )
 }
 

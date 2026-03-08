@@ -19,6 +19,8 @@ export default interface Jogo {
     periodo: string;
     status: string;
     atletasMandante: Atleta[];
+    tecnicoMandante: any;
+    tecnicoVisitante: any;
     atletasVisitante: Atleta[];
     arbitroPrincipal: any;
     arbitroAuxiliar: any;

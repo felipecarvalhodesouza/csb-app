@@ -48,7 +48,7 @@ export default function CategoriaJogosScreen() {
       if(jogo.status == 'PREVISTO'){
         router.push(`/selecao-atletas-partida?jogoId=${jogo.id}&torneioId=${torneioId}`)
       } else {
-        router.push(`/estatisticas-ao-vivo?jogoId=${jogo.id}`)
+        router.push(`estatisticas-ao-vivo/estatisticas-ao-vivo?jogoId=${jogo.id}`)
       }
   }
 

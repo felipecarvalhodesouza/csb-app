@@ -20,6 +20,7 @@ import { useEffect } from 'react'
 import { API_BASE_URL } from '../utils/config'
 import LanceALance from './componente/lance-a-lance'
 import { TeamScore } from './componente/team-score'
+import { Tela } from './componente/layout/tela'
 
 export default function TelaJogo() {
 
@@ -55,12 +56,7 @@ export default function TelaJogo() {
   }
 
   return (
-    <Theme>
-      <YStack f={1} bg="$background" jc="space-between" pb={"$9"} pt={"$6"}>
-      <Header
-          title={jogo.mandante.nome + ' vs ' + jogo.visitante.nome}
-      />
-      <ScrollView bg="$background" pr="$4" pl="$4">
+    <Tela title={jogo.mandante.nome + ' vs ' + jogo.visitante.nome}>
       <XStack jc="space-between" ai="center" m="$3">
         <TeamScore
           team={jogo.mandante}
@@ -72,12 +68,16 @@ export default function TelaJogo() {
           <Text fontSize={16} fontWeight="700" color="$gray10">
               {jogo.status === 'EM_ANDAMENTO' ? 'Em andamento' : jogo.status === 'ENCERRADO' ? 'Jogo encerrado' : 'Jogo não iniciado'}
           </Text>
-          <Text fontSize={16} fontWeight="700" color="$gray10">
-              Período
-          </Text>
-          <Text fontSize={14} color="$gray10">
-            {jogo.periodo || 'Não iniciado'}
-          </Text>
+          {jogo.status !== 'ENCERRADO' && (
+          <>
+            <Text fontSize={16} fontWeight="700" color="$gray10">
+                Período
+            </Text>
+            <Text fontSize={14} color="$gray10">
+              {(jogo.periodo && (Number(jogo.periodo) + 1 > 4 ? 'OT ' + (Number(jogo.periodo) - 4) : jogo.periodo + 1)) || 'Não iniciado'}
+            </Text>
+          </>
+          )}
         </YStack>
 
         <TeamScore
@@ -145,10 +145,6 @@ export default function TelaJogo() {
             <Text fontSize={16} color="$gray10">Líderes do jogo (adicione conteúdo aqui)</Text>
           </YStack>
         )}
-        
-      </ScrollView>
-      <Footer/>
-    </YStack>
-    </Theme>
+    </Tela>
   )
 }
