@@ -21,6 +21,7 @@ export default function IncluirAtletaScreen() {
   const [dataNascimento, setDataNascimento] = useState<Date | null>(null)
   const [altura, setAltura] = useState('')
   const [peso, setPeso] = useState('')
+  const [numeroCamisa, setNumeroCamisa] = useState('')
 
   const [modalidade, setModalidade] = useState<string | null>(null)
   const [torneios, setTorneios] = useState<any[]>([])
@@ -116,6 +117,23 @@ export default function IncluirAtletaScreen() {
     }
   }, [torneioSelecionado, equipeSelecionada])
 
+  const handleNumeroCamisa = (text: string) => {
+    // Remove qualquer coisa que não seja número
+    const onlyNumbers = text.replace(/[^0-9]/g, "")
+
+    // Limita entre 1 e 99
+    let value = parseInt(onlyNumbers, 10)
+    if (isNaN(value)) {
+      setNumeroCamisa("")
+      return
+    }
+
+    if (value < 1) value = 1
+    if (value > 99) value = 99
+
+    setNumeroCamisa(value.toString())
+  }
+
   const handleSalvar = () => {
     const saveAtleta = async () => {
       const categorias: Categoria[] = categoriasVinculadas.map(id => ({ id }))
@@ -128,7 +146,8 @@ export default function IncluirAtletaScreen() {
           equipes: [{
             id: Number(equipeSelecionada)
           }],
-          categorias: categorias
+          categorias: categorias,
+          numeroCamisa: numeroCamisa ? parseInt(numeroCamisa) : null
         }
 
         await apiPost(`${API_BASE_URL}/atletas`, novoAtleta)
@@ -160,6 +179,7 @@ export default function IncluirAtletaScreen() {
     setEquipeSelecionada(null)
     setCategorias([])
     setCategoriasVinculadas([])
+    setNumeroCamisa('')
     setShowDialog(false)
     setMessage(null)
     setError(null)
@@ -179,6 +199,18 @@ export default function IncluirAtletaScreen() {
               bg="$color2"
               borderRadius="$3"
               p="$3"
+            />
+          </YStack>
+
+          {/* Número da Camisa */}
+          <YStack space="$1">
+            <Text fontSize={14} color="$gray10">Número da Camisa</Text>
+            <Input
+              value={numeroCamisa}
+              onChangeText={handleNumeroCamisa}
+              keyboardType="numeric" // mostra teclado numérico no mobile
+              placeholder="1-99"
+              textAlign="center"
             />
           </YStack>
 

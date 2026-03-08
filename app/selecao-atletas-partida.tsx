@@ -90,7 +90,7 @@ function EquipeSelecao({
             <Input
               width={50}
               placeholder="Nº"
-              value={atleta.numero || ''}
+              value={atleta.numeroCamisa || atleta.numero || ''}
               keyboardType="numeric"
               onChangeText={num => onSetNumero(atleta.id, num)}
               disabled={!atleta.convocado}

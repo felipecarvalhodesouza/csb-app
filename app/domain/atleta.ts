@@ -4,6 +4,7 @@ export interface Atleta {
   id: number;
   nome: string;
   numero: number;
+  numeroCamisa: number;
   dataNascimento: Date;
   altura: number;
   peso: number;
