@@ -1,11 +1,11 @@
 import {
-  YStack,
-  XStack,
-  Text,
-  ScrollView,
-  Card,
-  Separator,
-  Theme
+    YStack,
+    XStack,
+    Text,
+    ScrollView,
+    Card,
+    Separator,
+    Theme
 } from 'tamagui'
 import { Pencil } from '@tamagui/lucide-icons'
 import { router } from 'expo-router'
@@ -17,13 +17,14 @@ import Footer from '../footer'
 import Dialog from '../componente/dialog-error'
 import Usuario from '../domain/usuario'
 import { useFocusEffect } from '@react-navigation/native'
+import { Tela } from '../componente/layout/tela'
 
 
 export default function GerenciarUsuarios() {
-  const [usuarios, setUsuarios] = useState<Usuario[]>([])
-  const [error, setError] = useState<boolean | null>(null)
-  const [message, setMessage] = useState<string | null>(null)
-  const [showDialog, setShowDialog] = useState(false)
+    const [usuarios, setUsuarios] = useState<Usuario[]>([])
+    const [error, setError] = useState<boolean | null>(null)
+    const [message, setMessage] = useState<string | null>(null)
+    const [showDialog, setShowDialog] = useState(false)
 
 
     const handleCloseDialog = () => {
@@ -43,78 +44,73 @@ export default function GerenciarUsuarios() {
         }
     }
 
-  useFocusEffect(
-    useCallback(() => {
-      loadUsuarios()
-    }, [])
-  )
-  
-  
+    useFocusEffect(
+        useCallback(() => {
+            loadUsuarios()
+        }, [])
+    )
+
+
     const agrupados = usuarios.reduce((acc, user) => {
-    if (!acc[user.role]) acc[user.role] = []
-    acc[user.role].push(user)
-    return acc
-  }, {} as Record<string, Usuario[]>)
+        if (!acc[user.role]) acc[user.role] = []
+        acc[user.role].push(user)
+        return acc
+    }, {} as Record<string, Usuario[]>)
 
-  return (
-      <Theme>
-          <YStack f={1} bg="$background" jc="space-between" pb={"$9"} pt={"$6"}>
-              <Header title="Gestão de Usuários" />
+    return (
+        <>
+            <Tela title="Gestão de Usuários">
+                <YStack space="$4" padding="$4">
+                    {Object.entries(agrupados).map(([role, lista]) => (
+                        <YStack key={role} space="$2">
+                            <Text
+                                fontSize="$6"
+                                fontWeight="bold"
+                                color="$color"
+                            >
+                                {role}
+                            </Text>
 
-              <ScrollView>
-                  <YStack space="$4" padding="$4">
-                      {Object.entries(agrupados).map(([role, lista]) => (
-                          <YStack key={role} space="$2">
-                              <Text
-                                  fontSize="$6"
-                                  fontWeight="bold"
-                                  color="$color"
-                              >
-                                  {role}
-                              </Text>
+                            <Separator />
 
-                              <Separator />
+                            {lista.map((user) => (
+                                <Card
+                                    key={user.id}
+                                    bordered
+                                    elevate
+                                    backgroundColor="$backgroundStrong"
+                                    padding="$3"
+                                >
+                                    <XStack justifyContent="space-between" alignItems="center">
+                                        <YStack>
+                                            <Text fontWeight="600">{user.nome}</Text>
+                                            <Text color="$gray10" fontSize="$3">
+                                                {user.email}
+                                            </Text>
+                                        </YStack>
 
-                              {lista.map((user) => (
-                                  <Card
-                                      key={user.id}
-                                      bordered
-                                      elevate
-                                      backgroundColor="$backgroundStrong"
-                                      padding="$3"
-                                  >
-                                      <XStack justifyContent="space-between" alignItems="center">
-                                          <YStack>
-                                              <Text fontWeight="600">{user.nome}</Text>
-                                              <Text color="$gray10" fontSize="$3">
-                                                  {user.email}
-                                              </Text>
-                                          </YStack>
-
-                                          <Pencil
-                                              size={20}
-                                              onPress={() =>
-                                               router.push({
+                                        <Pencil
+                                            size={20}
+                                            onPress={() =>
+                                                router.push({
                                                     pathname: '/admin/editar-permissoes',
                                                     params: { id: user.id }
                                                 })
-                                              }
-                                          />
-                                      </XStack>
-                                  </Card>
-                              ))}
-                          </YStack>
-                      ))}
-                  </YStack>
-              </ScrollView>
-            <Footer />
+                                            }
+                                        />
+                                    </XStack>
+                                </Card>
+                            ))}
+                        </YStack>
+                    ))}
+                </YStack>
+            </Tela>
             <Dialog
                 open={showDialog}
                 onClose={handleCloseDialog}
                 message={message}
                 type={error ? 'error' : 'success'}
             />
-          </YStack>
-      </Theme>
-  )
+        </>
+    )
 }

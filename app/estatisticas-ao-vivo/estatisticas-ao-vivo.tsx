@@ -191,6 +191,10 @@ export default function EstatisticasAoVivoScreen() {
     router.push("/auditoria-eventos/" + jogoId);
   }
 
+    async function onEditarParciais() {
+    router.push("/telas/editar-parciais/" + jogoId);
+  }
+
     async function encerrarJogo() {
     if (quarto >= 4 && placarMandante !== placarVisitante){
         setJogoEncerrado(true);
@@ -373,6 +377,7 @@ export default function EstatisticasAoVivoScreen() {
           onNextQuarter={nextQuarter}
           onEncerrarJogo={encerrarJogo}
           onAuditoriaEventos={onAuditoriaEventos}
+          onEditarParciais={onEditarParciais}
         />
     </Tela>
 

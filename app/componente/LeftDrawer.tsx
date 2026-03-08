@@ -49,10 +49,13 @@ export default function LeftDrawer({ open, onClose }: Props) {
           }}
         />
 
-        <ListItem title="Torcidômetro" onPress={onClose} />
+        {/*
+          <ListItem title="Torcidômetro" onPress={onClose} />
         <ListItem title="Hall da Fama" onPress={onClose} />
         <ListItem title="Jogadores" onPress={onClose} />
         <ListItem title="Transmissões" onPress={onClose} />
+        */}
+
 
         <Separator />
 

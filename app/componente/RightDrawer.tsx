@@ -48,7 +48,9 @@ export default function RightDrawer({ open, onClose, onLogout }: Props) {
           Minha Conta
         </Text>
 
-        <ListItem title="Configurações" onPress={onClose} />
+        {/*
+                <ListItem title="Configurações" onPress={onClose} />
+        */}
 
         <Button theme="red" onPress={onLogout}>
           Sair

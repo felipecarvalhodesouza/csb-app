@@ -11,6 +11,7 @@ type Props = {
   onNextQuarter: () => void
   onEncerrarJogo: () => void
   onAuditoriaEventos: () => void
+  onEditarParciais: () => void
 }
 
 export default function AdminModal({
@@ -22,7 +23,8 @@ export default function AdminModal({
   placarVisitante,
   onNextQuarter,
   onEncerrarJogo,
-  onAuditoriaEventos
+  onAuditoriaEventos,
+  onEditarParciais
 }: Props) {
 
   if (!open) return null
@@ -50,7 +52,7 @@ export default function AdminModal({
         Escalação
       </Button>
 
-      <Button m="$1" disabled={jogoEncerrado}>
+      <Button m="$1" disabled={jogoEncerrado} onPress={onEditarParciais}>
         Editar Parciais
       </Button>
 

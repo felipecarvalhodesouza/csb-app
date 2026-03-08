@@ -162,12 +162,12 @@ export default function LoginScreen() {
           Entrar
         </Button>
 
-        {/* Links */}
+        {/* Links 
         <TouchableOpacity onPress={() => router.push('/esqueci-senha')}>
           <Text mt="$2" fontSize="$2" textAlign="center" color="$blue10">
             Esqueceu a senha?
           </Text>
-        </TouchableOpacity>
+        </TouchableOpacity>*/}
 
         <TouchableOpacity onPress={() => router.push('/cadastro')}>
           <Text mt="$1" fontSize="$2" textAlign="center">
@@ -176,11 +176,11 @@ export default function LoginScreen() {
           </Text>
         </TouchableOpacity>
 
-        {/* Google */}
+        {/* Google 
         <Separator my="$4" w="100%" />
         <Button icon={<GoogleIcon />} variant="outlined" w="100%" borderWidth={1}>
           Entrar com Google
-        </Button>
+        </Button>*/}
       </YStack>
     </Theme>
   )

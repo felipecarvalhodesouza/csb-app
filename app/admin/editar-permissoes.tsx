@@ -15,6 +15,7 @@ import Dialog from '../componente/dialog-error'
 import { GenericPicker } from '../componente/GenericPicker'
 import { router } from 'expo-router'
 import Usuario from '../domain/usuario'
+import { Tela } from '../componente/layout/tela'
 
 
 export default function EditarPermissoes() {
@@ -77,9 +78,8 @@ export default function EditarPermissoes() {
     }
 
     return (
-        <Theme>
-            <YStack f={1} bg="$background" jc="space-between" pb={"$9"} pt={"$6"}>
-                <Header title="Alteração de Permissões" />
+        <>
+            <Tela title="Alteração de Permissões" scroll={false}>
                 <YStack flex={1} padding="$4" space="$4">
                     <Text fontSize="$6" fontWeight="bold">
                         Alterar Permissões do Usuário
@@ -110,14 +110,13 @@ export default function EditarPermissoes() {
                         Salvar Alteração
                     </Button>
                 </YStack>
-                <Footer />
-                <Dialog
-                    open={showDialog}
-                    onClose={handleCloseDialog}
-                    message={message}
-                    type={error ? 'error' : 'success'}
-                />
-            </YStack>
-        </Theme>
+            </Tela>
+            <Dialog
+                open={showDialog}
+                onClose={handleCloseDialog}
+                message={message}
+                type={error ? 'error' : 'success'}
+            />
+        </>
     )
 }
