@@ -176,8 +176,7 @@ export default function EditarEquipeScreen() {
 
   return (
     <>
-      <Tela title="Editar Equipe"
-            scroll={false}>
+      <Tela title="Editar Equipe" scroll={true}>
 
           <YStack p="$4" space="$4">
             { equipe?.imagemPath && (
