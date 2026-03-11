@@ -3,6 +3,7 @@ import {
   YStack,
   Text,
   Spinner,
+  Button,
 } from 'tamagui'
 import { useRouter } from 'expo-router'
 import { useCallback, useEffect, useState } from 'react'
@@ -117,6 +118,20 @@ export default function CategoriaJogosScreen() {
 
   return (
     <Tela title={nomeTorneio} subtitle={nomeCategoria}>
+          
+          {isAdmin && (
+            <>
+              <Button onPress={() => router.push(`telas/criar-fase/CriarFase?torneioId=${torneioId}&categoriaId=${categoriaId}`)}>
+                Criar Fase
+              </Button>
+
+              <Button onPress={() => router.push(`telas/fases/Fases?torneioId=${torneioId}&categoriaId=${categoriaId}`)}>
+                Fases
+              </Button>
+              </>
+          )}
+
+          
           {/* Ao Vivo */}
           {jogosAoVivo.length > 0 && (
             <YStack mb="$4" space>
