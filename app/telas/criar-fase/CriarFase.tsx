@@ -7,12 +7,14 @@ import { apiPost } from "../../utils/api";
 import { GenericPicker } from "../../componente/GenericPicker";
 import { useLocalSearchParams } from "expo-router";
 import { Check } from '@tamagui/lucide-icons'
-
+import { useRouter } from 'expo-router'
+import { set } from "date-fns";
 
 type TipoFase = "CLASSIFICACAO" | "PLAYOFF";
 type TipoSerie = "PRINCIPAL" | "OURO" | "PRATA" | "BRONZE";
 
 export default function CriarFase() {
+    const router = useRouter()
     const { torneioId, categoriaId } = useLocalSearchParams<{ torneioId: string; categoriaId: string }>();
     const [tipoFase, setTipoFase] = useState<TipoFase>("CLASSIFICACAO");
     const [serie, setSerie] = useState<TipoSerie>("PRINCIPAL");
@@ -57,6 +59,9 @@ export default function CriarFase() {
     const handleCloseDialog = () => {
         setShowDialog(false)
         setMessage(null)
+        if(!error){
+            router.back()
+        }
         setError(null)
     }
 

@@ -48,6 +48,13 @@ export default function LeftDrawer({ open, onClose }: Props) {
             router.push('/modalidades')
           }}
         />
+        <ListItem
+          title="Fases"
+          onPress={() => {
+            onClose()
+            router.push('/torneios?mode=fases')
+          }}
+        />
 
         {/*
           <ListItem title="Torcidômetro" onPress={onClose} />

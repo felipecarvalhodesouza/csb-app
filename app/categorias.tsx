@@ -48,6 +48,8 @@ export default function CategoriasScreen() {
   const handleSelecionarCategoria = (torneioId: number, categoriaId: number, nomeCategoria: string) => {
     if (mode === 'estatisticas') {
       router.push(`/estatisticas?torneioId=${torneioId}&categoriaId=${categoriaId}&nomeCategoria=${nomeCategoria}&nomeTorneio=${nomeTorneio}`)
+    } else if (mode === 'fases') {
+      router.push(`/telas/fases/Fases?torneioId=${torneioId}&categoriaId=${categoriaId}&nomeCategoria=${nomeCategoria}&nomeTorneio=${nomeTorneio}`)
     } else {
       router.push(`/categoria?torneioId=${torneioId}&categoriaId=${categoriaId}&nomeCategoria=${nomeCategoria}&nomeTorneio=${nomeTorneio}`)
     }
