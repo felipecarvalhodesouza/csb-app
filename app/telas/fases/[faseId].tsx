@@ -32,7 +32,7 @@ export default function FaseConsultaScreen() {
   }, [faseId, torneioId, categoriaId]);
 
   return (
-    <Tela title={fase?.nome || 'Fase'} scroll={false}>
+    <Tela title={fase?.nome || 'Fase'}>
       {loading ? (
         <YStack f={1} jc="center" ai="center">
           <Spinner size="large" color="$gray10" />
