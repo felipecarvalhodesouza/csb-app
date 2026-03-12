@@ -1,4 +1,5 @@
 import { useFocusEffect, useLocalSearchParams } from 'expo-router'
+import { Tabs, XStack, ScrollView } from 'tamagui'
 import {
   YStack,
   Text,
@@ -15,6 +16,14 @@ import { Tela } from './componente/layout/tela'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
 export default function CategoriaJogosScreen() {
+      const COL = {
+        pos: { flexBasis: 0, flexGrow: 1, flexShrink: 1 },
+        name: { flexBasis: 0, flexGrow: 2, flexShrink: 1 },
+        stat: { flexBasis: 0, flexGrow: 1, flexShrink: 1 }
+      }
+    const [tab, setTab] = useState<'jogos' | 'classificacao'>('jogos');
+    const [classificacao, setClassificacao] = useState<any[]>([]);
+    const [loadingClassificacao, setLoadingClassificacao] = useState(false);
   const { torneioId, categoriaId, nomeCategoria, nomeTorneio } = useLocalSearchParams<{ torneioId:string, categoriaId: string, nomeCategoria:string, nomeTorneio: string}>()
   const router = useRouter()
 
@@ -83,10 +92,20 @@ export default function CategoriaJogosScreen() {
   useFocusEffect(
     useCallback(() => {
       if (categoriaId && torneioId) {
-        fetchJogos()
+        fetchJogos();
       }
     }, [fetchJogos])
   )
+
+  useEffect(() => {
+    if (tab === 'classificacao' && categoriaId && torneioId) {
+      setLoadingClassificacao(true);
+      apiFetch<any[]>(`${API_BASE_URL}/torneios/${torneioId}/categorias/${categoriaId}/fases/classificacao`)
+        .then(data => setClassificacao(data))
+        .catch(() => setClassificacao([]))
+        .finally(() => setLoadingClassificacao(false));
+    }
+  }, [tab, categoriaId, torneioId]);
 
   const jogosAoVivo = jogos.filter((jogo) => jogo.transmissao?.toLowerCase() === 'live')
   const jogosNormais = jogos.filter((jogo) => jogo.transmissao?.toLowerCase() !== 'live')
@@ -118,33 +137,33 @@ export default function CategoriaJogosScreen() {
 
   return (
     <Tela title={nomeTorneio} subtitle={nomeCategoria}>
-                    
-          {/* Ao Vivo */}
-          {jogosAoVivo.length > 0 && (
-            <YStack mb="$4" space>
-              <Text fontSize={16} fontWeight="600" color="$red10">
-                AO VIVO
-              </Text>
-              {jogosAoVivo.map((jogo) => (
-                <GameCard
-                  key={jogo.id}
-                  jogo={jogo}
-                  onPress={() =>
-                    router.push({
-                      pathname: '/splash-patrocinador',
-                      params: { next: `/jogo?jogoId=${jogo.id}` },
-                    })
-                  }
-                  onLongPress={() => handleLongPress(jogo)}
-                  isAdmin={isAdmin || (jogo.estatistico && jogo.estatistico.id == estatisticoId)}
-                />
-              ))}
-            </YStack>
-          )}
+      <Tabs
+        value={tab}
+        onValueChange={v => setTab(v as 'jogos' | 'classificacao')}
+        ml="$4"
+        mr="$4"
+      >
+        <Tabs.List
+          width="100%"
+          justifyContent="space-between"
+          alignItems="center"
+          mb="$2"
+        >
+          <Tabs.Tab value="jogos" flex={1}>
+            <Text>Jogos</Text>
+          </Tabs.Tab>
+          <Tabs.Tab value="classificacao" flex={1}>
+            <Text>Classificação</Text>
+          </Tabs.Tab>
+        </Tabs.List>
+      </Tabs>
 
-          {/* Demais jogos */}
-          {jogosNormais.length > 0 ? (
-            jogosNormais.map((jogo) => (
+      {tab === 'jogos' && jogosAoVivo.length > 0 && (
+          <YStack mb="$4" space>
+            <Text fontSize={16} fontWeight="600" color="$red10">
+              AO VIVO
+            </Text>
+            {jogosAoVivo.map((jogo) => (
               <GameCard
                 key={jogo.id}
                 jogo={jogo}
@@ -157,14 +176,74 @@ export default function CategoriaJogosScreen() {
                 onLongPress={() => handleLongPress(jogo)}
                 isAdmin={isAdmin || (jogo.estatistico && jogo.estatistico.id == estatisticoId)}
               />
-            ))
-          ) : (
-            <YStack jc="center" ai="center" mt="$6">
-              <Text fontSize="$4" color="$gray10">
-                Categoria sem jogos vinculados.
-              </Text>
+            ))}
+          </YStack>
+        )}
+
+        {tab === 'jogos' && jogosNormais.length > 0 ? (
+          jogosNormais.map((jogo) => (
+            <GameCard
+              key={jogo.id}
+              jogo={jogo}
+              onPress={() =>
+                router.push({
+                  pathname: '/splash-patrocinador',
+                  params: { next: `/jogo?jogoId=${jogo.id}` },
+                })
+              }
+              onLongPress={() => handleLongPress(jogo)}
+              isAdmin={isAdmin || (jogo.estatistico && jogo.estatistico.id == estatisticoId)}
+            />
+          ))
+        ) : (tab === 'jogos' && jogosNormais.length === 0 ? (
+          <YStack jc="center" ai="center" mt="$6">
+            <Text fontSize="$4" color="$gray10">
+              Categoria sem jogos vinculados.
+            </Text>
+          </YStack>
+        ) : null)}
+
+      {tab === 'classificacao' && (
+        <YStack space="$4" mt="$4">
+          {loadingClassificacao ? (
+            <YStack f={1} jc="center" ai="center">
+              <Spinner size="large" />
             </YStack>
+          ) : (
+            <ScrollView>
+              {classificacao.length === 0 ? (
+                <Text color="$gray10">Nenhuma classificação disponível.</Text>
+              ) : (
+                classificacao.map((grupo, idx) => (
+                  <YStack key={idx} mb="$4">
+                    <Text fontSize={16} fontWeight="700" color="$gray12" mb="$2">{grupo.chave}</Text>
+                    <XStack bg="$gray5" p="$2">
+                      <Text {...COL.pos} textAlign="center" fontWeight="600">POS</Text>
+                      <Text {...COL.name} fontWeight="600">Equipe</Text>
+                      <Text {...COL.stat} textAlign="center" fontWeight="600">JGS</Text>
+                      <Text {...COL.stat} textAlign="center" fontWeight="600">VIT</Text>
+                      <Text {...COL.stat} textAlign="center" fontWeight="600">DER</Text>
+                    </XStack>
+                    {grupo.classificacao.map((item, i) => (
+                      <XStack
+                        key={i}
+                        p="$2"
+                        bg={i % 2 === 0 ? '$background' : '$gray2'}
+                      >
+                        <Text {...COL.pos} textAlign="center">{item.posicao}</Text>
+                        <Text {...COL.name} numberOfLines={1} ellipsizeMode="tail">{item.equipe}</Text>
+                        <Text {...COL.stat} textAlign="center">{item.jogos}</Text>
+                        <Text {...COL.stat} textAlign="center">{item.vitorias}</Text>
+                        <Text {...COL.stat} textAlign="center">{item.derrotas}</Text>
+                      </XStack>
+                    ))}
+                  </YStack>
+                ))
+              )}
+            </ScrollView>
           )}
+        </YStack>
+      )}
   </Tela>
   )
 }
