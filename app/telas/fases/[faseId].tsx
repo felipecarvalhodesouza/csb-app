@@ -38,13 +38,10 @@ export default function FaseConsultaScreen() {
           <Spinner size="large" color="$gray10" />
         </YStack>
       ) : (
-        <YStack space="$4" p="$4">
-          <View bg="$gray2" br="$8" p="$4" ai="center" mb="$4" shadowColor="#000" shadowOffset={{ width: 0, height: 2 }} shadowOpacity={0.10} shadowRadius={6} elevation={4}>
-            <Text fontSize={22} fontWeight="700" color="$gray12" letterSpacing={1}>
-              {fase?.nome}
-            </Text>
-            <Text fontSize={16} color="$gray10" mt="$2" fontWeight="500">
-              {fase?.tipo} • Série {fase?.serie}
+        <>
+          <View bg="$gray2" br="$8" p="$3" ai="center" mb="$4" shadowColor="#000" shadowOffset={{ width: 0, height: 2 }} shadowOpacity={0.10} shadowRadius={6} elevation={4}>
+            <Text fontSize={16} color="$gray10" fontWeight="500">
+              Série {fase?.serie}
             </Text>
           </View>
           <YStack space="$3" bg="$gray1" br="$8" p="$4">
@@ -59,7 +56,6 @@ export default function FaseConsultaScreen() {
             {/* Exibe as chaves e equipes */}
             {fase?.chaves && fase.chaves.length > 0 && (
               <YStack space="$4" mt="$6">
-                <Text fontSize={17} fontWeight="700" color="$gray12" mb="$2">Chaves</Text>
                 {fase.chaves.map(chave => (
                   <View key={chave.id} bg="$gray2" br="$6" p="$3" mb="$2">
                     <Text fontSize={16} fontWeight="700" color="$gray12" mb="$2">{chave.nome}</Text>
@@ -101,7 +97,7 @@ export default function FaseConsultaScreen() {
               <Text color={gerarJogosMsg.includes('sucesso') ? '$green10' : '$red10'} mt="$2">{gerarJogosMsg}</Text>
             )}
           </YStack>
-        </YStack>
+        </>
       )}
           <FloatingActionButton
               actions={[{

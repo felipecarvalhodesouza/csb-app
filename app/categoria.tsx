@@ -214,28 +214,33 @@ export default function CategoriaJogosScreen() {
               {classificacao.length === 0 ? (
                 <Text color="$gray10">Nenhuma classificação disponível.</Text>
               ) : (
-                classificacao.map((grupo, idx) => (
-                  <YStack key={idx} mb="$4">
-                    <Text fontSize={16} fontWeight="700" color="$gray12" mb="$2">{grupo.chave}</Text>
-                    <XStack bg="$gray5" p="$2">
-                      <Text {...COL.pos} textAlign="center" fontWeight="600">POS</Text>
-                      <Text {...COL.name} fontWeight="600">Equipe</Text>
-                      <Text {...COL.stat} textAlign="center" fontWeight="600">JGS</Text>
-                      <Text {...COL.stat} textAlign="center" fontWeight="600">VIT</Text>
-                      <Text {...COL.stat} textAlign="center" fontWeight="600">DER</Text>
-                    </XStack>
-                    {grupo.classificacao.map((item, i) => (
-                      <XStack
-                        key={i}
-                        p="$2"
-                        bg={i % 2 === 0 ? '$background' : '$gray2'}
-                      >
-                        <Text {...COL.pos} textAlign="center">{item.posicao}</Text>
-                        <Text {...COL.name} numberOfLines={1} ellipsizeMode="tail">{item.equipe}</Text>
-                        <Text {...COL.stat} textAlign="center">{item.jogos}</Text>
-                        <Text {...COL.stat} textAlign="center">{item.vitorias}</Text>
-                        <Text {...COL.stat} textAlign="center">{item.derrotas}</Text>
-                      </XStack>
+                classificacao.map((fase, idxFase) => (
+                  <YStack key={idxFase} mb="$6">
+                    <Text fontSize={18} fontWeight="700" color="$gray12" mb="$2">{fase.nomeFase}</Text>
+                    {fase.classificacaoChaves.map((chave, idxChave) => (
+                      <YStack key={idxChave} mb="$4">
+                        <Text fontSize={16} fontWeight="700" color="$gray12" mb="$2">{chave.chave}</Text>
+                        <XStack bg="$gray5" p="$2">
+                          <Text {...COL.pos} textAlign="center" fontWeight="600">POS</Text>
+                          <Text {...COL.name} fontWeight="600">Equipe</Text>
+                          <Text {...COL.stat} textAlign="center" fontWeight="600">JGS</Text>
+                          <Text {...COL.stat} textAlign="center" fontWeight="600">VIT</Text>
+                          <Text {...COL.stat} textAlign="center" fontWeight="600">DER</Text>
+                        </XStack>
+                        {chave.classificacao.map((item, i) => (
+                          <XStack
+                            key={i}
+                            p="$2"
+                            bg={i % 2 === 0 ? '$background' : '$gray2'}
+                          >
+                            <Text {...COL.pos} textAlign="center">{item.posicao}</Text>
+                            <Text {...COL.name} numberOfLines={1} ellipsizeMode="tail">{item.equipe}</Text>
+                            <Text {...COL.stat} textAlign="center">{item.jogos}</Text>
+                            <Text {...COL.stat} textAlign="center">{item.vitorias}</Text>
+                            <Text {...COL.stat} textAlign="center">{item.derrotas}</Text>
+                          </XStack>
+                        ))}
+                      </YStack>
                     ))}
                   </YStack>
                 ))
