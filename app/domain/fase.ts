@@ -8,4 +8,5 @@ export default interface Fase {
     melhorDe?: any | null;
     ordem?: any | null;
     status?: any | null;
+    chaves?: any[] | null;
 }
