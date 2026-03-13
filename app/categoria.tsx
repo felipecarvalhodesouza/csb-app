@@ -219,7 +219,9 @@ export default function CategoriaJogosScreen() {
                     <Text fontSize={18} fontWeight="700" color="$gray12" mb="$2">{fase.nomeFase}</Text>
                     {fase.classificacaoChaves.map((chave, idxChave) => (
                       <YStack key={idxChave} mb="$4">
-                        <Text fontSize={16} fontWeight="700" color="$gray12" mb="$2">{chave.chave}</Text>
+                        {fase.classificacaoChaves.length > 1 && (
+                          <Text fontSize={16} fontWeight="700" color="$gray12" mb="$2">{chave.chave}</Text>
+                        )}
                         <XStack bg="$gray5" p="$2">
                           <Text {...COL.pos} textAlign="center" fontWeight="600">POS</Text>
                           <Text {...COL.name} fontWeight="600">Equipe</Text>

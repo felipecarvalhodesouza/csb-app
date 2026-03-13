@@ -10,19 +10,16 @@ import { Check } from '@tamagui/lucide-icons'
 import { useRouter } from 'expo-router'
 import { set } from "date-fns";
 
-type TipoFase = "CLASSIFICACAO" | "PLAYOFF";
-type TipoSerie = "PRINCIPAL" | "OURO" | "PRATA" | "BRONZE";
+type TipoFase = "CLASSIFICACAO" | "PONTOS_CORRIDOS";
 
 export default function CriarFase() {
     const router = useRouter()
     const { torneioId, categoriaId } = useLocalSearchParams<{ torneioId: string; categoriaId: string }>();
     const [tipoFase, setTipoFase] = useState<TipoFase>("CLASSIFICACAO");
-    const [serie, setSerie] = useState<TipoSerie>("PRINCIPAL");
     const [numeroClassificados, setNumeroClassificados] = useState("8");
     const [idaVolta, setIdaVolta] = useState(true);
-    const [numeroChaves, setNumeroChaves] = useState("2");
+    const [numeroChaves, setNumeroChaves] = useState("1");
     const [ordem, setOrdem] = useState("1");
-    const [melhorDe, setMelhorDe] = useState(null);
 
     const [message, setMessage] = useState<string | null>(null)
     const [showDialog, setShowDialog] = useState(false)
@@ -30,30 +27,12 @@ export default function CriarFase() {
 
     const tiposFaseOptions = [
         { value: "CLASSIFICACAO", nome: "Classificação" },
-        { value: "PLAYOFF", nome: "Playoff" },
-    ];
-
-    const serieOptions = [
-        { value: "PRINCIPAL", nome: "Principal" },
-        { value: "OURO", nome: "Ouro" },
-        { value: "PRATA", nome: "Prata" },
-        { value: "BRONZE", nome: "Bronze" },
+        { value: "PONTOS_CORRIDOS", nome: "Pontos Corridos" },
     ];
 
     const numeroChavesOptions = [
         { value: "1", nome: "1" },
         { value: "2", nome: "2" }
-    ];
-
-    if(tipoFase === "PLAYOFF") {
-        numeroChavesOptions.push({ value: "4", nome: "4" })
-        numeroChavesOptions.push({ value: "8", nome: "8" })
-    }
-
-    const melhorDeOptions = [
-        { value: "1", nome: "Melhor de 1" },
-        { value: "3", nome: "Melhor de 3" },
-        { value: "5", nome: "Melhor de 5" },
     ];
 
     const handleCloseDialog = () => {
@@ -68,12 +47,10 @@ export default function CriarFase() {
     const handleSubmit = async () => {
         const configuracaoEstruturaDTO = {
             tipoFase,
-            serie,
             numeroClassificados: parseInt(numeroClassificados),
             idaVolta,
             numeroChaves: parseInt(numeroChaves),
             ordem: parseInt(ordem),
-            melhorDe: parseInt(melhorDe),
         };
 
         try {
@@ -104,27 +81,18 @@ export default function CriarFase() {
                         />
                     </YStack>
 
-                    {/* Série */}
-                    <YStack space="$1">
-                        <Text fontSize={14} color="$gray10">Série</Text>
-                        <GenericPicker
-                            items={(serieOptions)}
-                            value={serie}
-                            onChange={setSerie}
-                            getLabel={(s) => s.nome}
-                            getValue={(s) => s.value}
-                        />
-                    </YStack>
 
                     {/* Número de classificados */}
-                    <XStack ai="center" space="$2">
-                        <Text width={120}>Número de classificados:</Text>
-                        <Input
-                            value={numeroClassificados}
-                            onChangeText={setNumeroClassificados}
-                            keyboardType="numeric"
-                        />
-                    </XStack>
+                    {tipoFase === "CLASSIFICACAO" && (
+                        <XStack ai="center" space="$2">
+                            <Text width={120}>Número de classificados:</Text>
+                            <Input
+                                value={numeroClassificados}
+                                onChangeText={setNumeroClassificados}
+                                keyboardType="numeric"
+                            />
+                        </XStack>
+                    )}
 
                     {/* Turno ou ida e volta */}
                     <YStack space="$2" mt="$3">
@@ -143,7 +111,7 @@ export default function CriarFase() {
                     </YStack>
 
                     {/* Número de chaves */}
-                    <YStack space="$1">
+                    {tipoFase === "CLASSIFICACAO" && (<YStack space="$1">
                         <Text fontSize={14} color="$gray10">Número de chaves</Text>
                         <GenericPicker
                             items={(numeroChavesOptions)}
@@ -152,27 +120,13 @@ export default function CriarFase() {
                             getLabel={(n) => n.nome}
                             getValue={(n) => n.value}
                         />
-                    </YStack>
+                    </YStack>)}
 
                     {/* Ordem da fase */}
                     <XStack ai="center" space="$2">
                         <Text width={120}>Ordem:</Text>
                         <Input value={ordem} onChangeText={setOrdem} keyboardType="numeric" />
                     </XStack>
-
-                    {/* Melhor de (somente para playoffs) */}
-                    {tipoFase === "PLAYOFF" && (
-                    <YStack space="$1">
-                        <Text fontSize={14} color="$gray10">Melhor de:</Text>
-                        <GenericPicker
-                            items={(melhorDeOptions)}
-                            value={melhorDe}
-                            onChange={setMelhorDe}
-                            getLabel={(n) => n.nome}
-                            getValue={(n) => n.value}
-                        />
-                    </YStack>
-                    )}
 
                     {/* Botão enviar */}
                     <Button onPress={handleSubmit}>Criar Fase</Button>

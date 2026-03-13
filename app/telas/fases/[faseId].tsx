@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { YStack, Text, Spinner, View, Button } from 'tamagui';
 import { API_BASE_URL } from '../../../utils/config';
 import { Tela } from '../../componente/layout/tela';
@@ -16,7 +16,7 @@ export default function FaseConsultaScreen() {
   const [fase, setFase] = useState<Fase | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const fetchFase = useCallback(async () => {
     async function fetchFase() {
       setLoading(true);
       try {
@@ -31,8 +31,14 @@ export default function FaseConsultaScreen() {
     if (faseId && torneioId && categoriaId) fetchFase();
   }, [faseId, torneioId, categoriaId]);
 
+  useFocusEffect(
+    useCallback(() => {
+      fetchFase()
+    }, [fetchFase])
+  )
+
   return (
-    <Tela title={fase?.nome || 'Fase'}>
+    <Tela title={`Gerenciar Fase`}>
       {loading ? (
         <YStack f={1} jc="center" ai="center">
           <Spinner size="large" color="$gray10" />
@@ -41,17 +47,18 @@ export default function FaseConsultaScreen() {
         <>
           <View bg="$gray2" br="$8" p="$3" ai="center" mb="$4" shadowColor="#000" shadowOffset={{ width: 0, height: 2 }} shadowOpacity={0.10} shadowRadius={6} elevation={4}>
             <Text fontSize={16} color="$gray10" fontWeight="500">
-              Série {fase?.serie}
+              Série {fase?.nome}
             </Text>
           </View>
           <YStack space="$3" bg="$gray1" br="$8" p="$4">
-            <Text fontSize={15} color="$gray12" fontWeight="600">Número de classificados: <Text color="$gray10">{fase?.numeroClassificados}</Text></Text>
-            <Text fontSize={15} color="$gray12" fontWeight="600">Ida e volta: <Text color={fase?.idaVolta ? '$gray10' : '$gray6'}>{fase?.idaVolta ? 'Sim' : 'Não'}</Text></Text>
-            <Text fontSize={15} color="$gray12" fontWeight="600">Número de chaves: <Text color="$gray10">{fase?.numeroChaves}</Text></Text>
-            <Text fontSize={15} color="$gray12" fontWeight="600">Ordem: <Text color="$gray10">{fase?.ordem}</Text></Text>
-            {fase?.melhorDe && (
-              <Text fontSize={15} color="$gray12" fontWeight="600">Melhor de: <Text color="$gray10">{fase.melhorDe}</Text></Text>
+            {fase?.tipoFase === 'CLASSIFICACAO' && (
+              <Text fontSize={15} color="$gray12" fontWeight="600">Número de classificados: <Text color="$gray10">{fase?.numeroClassificados}</Text></Text>
             )}
+            <Text fontSize={15} color="$gray12" fontWeight="600">Ida e volta: <Text color={fase?.idaVolta ? '$gray10' : '$gray6'}>{fase?.idaVolta ? 'Sim' : 'Não'}</Text></Text>
+            {fase?.tipoFase === 'CLASSIFICACAO' && (
+              <Text fontSize={15} color="$gray12" fontWeight="600">Número de chaves: <Text color="$gray10">{fase?.chaves?.length}</Text></Text>
+            )} 
+            <Text fontSize={15} color="$gray12" fontWeight="600">Ordem: <Text color="$gray10">{fase?.ordem}</Text></Text>
             
             {/* Exibe as chaves e equipes */}
             {fase?.chaves && fase.chaves.length > 0 && (
