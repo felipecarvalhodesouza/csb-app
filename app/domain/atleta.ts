@@ -26,5 +26,6 @@ export interface Atleta {
   faltas: number;
   faltasDesqualificantes: number;
 
+  persistido?: boolean; // Indica se o atleta já estava escalado antes, usado para modo atrasado
   atleta?: Atleta; // Para compatibilidade com a estrutura antiga, onde as estatísticas estavam aninhadas dentro de um objeto "atleta"
 }

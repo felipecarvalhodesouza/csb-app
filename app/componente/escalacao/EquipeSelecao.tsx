@@ -13,6 +13,7 @@ export type EquipeSelecaoProps = {
   maxTitulares: number
   maxJogadores: number
   equipeNome: string
+  modo?: string // novo
 }
 
 export function EquipeSelecao({
@@ -23,6 +24,7 @@ export function EquipeSelecao({
   onSetTodosConvocados,
   maxTitulares,
   maxJogadores,
+  modo // novo
 }: EquipeSelecaoProps) {
   const titularesSelecionados = atletas.filter(a => a.titular).length
   const jogadoresSelecionados = atletas.filter(a => a.convocado).length
@@ -34,6 +36,7 @@ export function EquipeSelecao({
         <EquipeSelecaoHeader
           todosConvocados={todosConvocados}
           onToggleTodosConvocados={() => onSetTodosConvocados(!todosConvocados)}
+          modo={modo}
         />
         {atletas.map(atleta => (
           <AtletaRow
@@ -46,6 +49,7 @@ export function EquipeSelecao({
             onToggleTitular={onToggleTitular}
             onToggleConvocado={onToggleConvocado}
             onSetNumero={onSetNumero}
+            modo={modo}
           />
         ))}
         {atletas.length === 0 && (

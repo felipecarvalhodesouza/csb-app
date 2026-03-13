@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { YStack, Separator, Spinner } from 'tamagui'
+import { YStack, Separator, Spinner, Button } from 'tamagui'
 import Jogo from './domain/jogo'
 import { Atleta } from './domain/atleta'
 import { apiFetch, apiPut } from './utils/api'
@@ -18,7 +18,8 @@ type GameEditScreenProps = {
 export default function GameEditScreen({
   onIniciar
 }: GameEditScreenProps) {
-  const { jogoId, torneioId } = useLocalSearchParams()
+  const { jogoId, torneioId, modo } = useLocalSearchParams<{ jogoId: string, torneioId: string, modo?: string }>()
+  const isModoAtrasado = modo === 'adicionar_atrasado'
   const [jogo, setJogo] = useState<Jogo | null>(null)
   const [loading, setLoading] = useState(true)
   const { mandante, setMandante,
@@ -35,6 +36,13 @@ export default function GameEditScreen({
       try {
         const jogoData = await apiFetch<Jogo>(`${API_BASE_URL}/jogos/${jogoId}`)
         setJogo(jogoData)
+
+        if(isModoAtrasado) {
+          // Preenche os atletas já convocados/titulares para modo atrasado
+          setMandante(jogoData.atletasMandante || [])
+          setVisitante(jogoData.atletasVisitante || [])
+        }
+
       } finally {
         setLoading(false)
       }
@@ -53,6 +61,18 @@ export default function GameEditScreen({
         ])
         setMandante(mandanteAtletas)
         setVisitante(visitanteAtletas)
+
+        if(isModoAtrasado) {
+          // Sincroniza o estado dos atletas com os já convocados/titulares do jogo
+          setMandante(prev => prev.map(a => {
+            const escalado = jogo.atletasMandante.find(am => am.atleta.id === a.id)
+            return escalado ? { ...a, convocado: true, titular: escalado.titular, numeroCamisaJogo: escalado.numero, persistido: true } : a
+          }))
+          setVisitante(prev => prev.map(a => {
+            const escalado = jogo.atletasVisitante.find(av => av.atleta.id === a.id)
+            return escalado ? { ...a, convocado: true, titular: escalado.titular, numeroCamisaJogo: escalado.numero, persistido: true } : a
+          }))
+        }
       } finally {
         setLoading(false)
       }
@@ -83,6 +103,40 @@ export default function GameEditScreen({
 
       // Sucesso: navega para a tela de estatísticas ao vivo
       router.replace(`estatisticas-ao-vivo/estatisticas-ao-vivo?jogoId=${jogo.id}`)
+    } catch (e) {
+      alert('Erro ao iniciar o jogo')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function handleIncluirJogadores() {
+    if (!jogo) return
+    setLoading(true)
+    try {
+
+
+      const atletasMandante = mandante.filter(a => a.convocado && !a.persistido).map(a => ({
+        atletaId: a.id,
+        titular: false,
+        numero: a.numero,
+      }))
+
+      const atletasVisitante = visitante.filter(a => a.convocado && !a.persistido).map(a => ({
+        atletaId: a.id,
+        titular: false,
+        numero: a.numero,
+      }))
+
+      var inclusaoAtletasEscaladosPayload: any = {
+        jogoId: jogo.id,
+        atletasMandante: atletasMandante,
+        atletasVisitante: atletasVisitante,
+      }
+
+      await apiPut(`${API_BASE_URL}/jogos/${jogo.id}/jogadores`, inclusaoAtletasEscaladosPayload)
+
+      router.back() 
     } catch (e) {
       alert('Erro ao iniciar o jogo')
     } finally {
@@ -138,10 +192,17 @@ export default function GameEditScreen({
             maxTitulares={5}
             maxJogadores={12}
             equipeNome={tab === 'mandante' ? jogo.mandante.nome : jogo.visitante.nome}
+            modo={modo}
           />
         )}
         <Separator />
-        <IniciarJogoButton onPress={handleIniciar} disabled={isButtonDisabled()} />
+        {!isModoAtrasado ? (
+          <IniciarJogoButton onPress={handleIniciar} disabled={isButtonDisabled()} />
+        ) : (
+          <Button theme="active" onPress={handleIncluirJogadores}>
+            Incluir Jogadores
+          </Button>
+        )}
       </YStack>
     </Tela>
   )

@@ -5,9 +5,11 @@ import { Check } from '@tamagui/lucide-icons'
 interface EquipeSelecaoHeaderProps {
   todosConvocados: boolean
   onToggleTodosConvocados: () => void
+  modo?: string // novo
 }
 
-export function EquipeSelecaoHeader({ todosConvocados, onToggleTodosConvocados }: EquipeSelecaoHeaderProps) {
+export function EquipeSelecaoHeader({ todosConvocados, onToggleTodosConvocados, modo }: EquipeSelecaoHeaderProps) {
+  const isModoAtrasado = modo === 'adicionar_atrasado';
   return (
     <>
       <XStack justifyContent="space-between" mb="$2" px="$2" ai="center" jc="space-between" py="$1" borderRadius={8}>
@@ -19,6 +21,7 @@ export function EquipeSelecaoHeader({ todosConvocados, onToggleTodosConvocados }
           onCheckedChange={onToggleTodosConvocados}
           backgroundColor="$backgroundStrong"
           borderColor="$gray8"
+          disabled={isModoAtrasado}
         >
           <Checkbox.Indicator>
             <Check size={12} />

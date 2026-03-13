@@ -20,6 +20,10 @@ import AdminModal from '../componente/jogo/AdminModal'
 import TeamTabs from '../componente/jogo/TeamTabs'
 
 export default function EstatisticasAoVivoScreen() {
+    // Função para reabrir tela de escalação em modo atrasado
+    function handleEscalacaoAtrasado() {
+      router.push(`/selecao-atletas-partida?jogoId=${jogoId}&modo=adicionar_atrasado`)
+    }
   const { jogoId } = useLocalSearchParams()
   const router = useRouter()
   const [jogo, setJogo] = useState<Jogo | null>(null)
@@ -378,6 +382,7 @@ export default function EstatisticasAoVivoScreen() {
           onEncerrarJogo={encerrarJogo}
           onAuditoriaEventos={onAuditoriaEventos}
           onEditarParciais={onEditarParciais}
+          onEscalacao={handleEscalacaoAtrasado}
         />
     </Tela>
 
