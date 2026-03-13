@@ -6,10 +6,11 @@ import {
   Theme,
   Spinner
 } from 'tamagui'
+import FloatingActionButton from './componente/FloatingActionButton'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { useRouter } from 'expo-router'
 import { useState } from 'react'
 import YoutubePlayer from 'react-native-youtube-iframe'
-import Footer from './footer'
-import Header from './header'
 import { Pressable } from 'react-native'
 import { useLocalSearchParams } from 'expo-router'
 import { apiFetch } from './utils/api'
@@ -25,6 +26,7 @@ import { Tela } from './componente/layout/tela'
 export default function TelaJogo() {
 
   const { jogoId } = useLocalSearchParams<{jogoId:string}>()
+  const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [timeSelecionado, setTimeSelecionado] = useState<'MAN' | 'VIS'>('MAN')
@@ -57,6 +59,8 @@ export default function TelaJogo() {
 
   return (
     <Tela title={jogo.mandante.nome + ' vs ' + jogo.visitante.nome}>
+      {/* Botão flutuante de edição, apenas para ADM */}
+
       <XStack jc="space-between" ai="center" m="$3">
         <TeamScore
           team={jogo.mandante}
@@ -145,6 +149,16 @@ export default function TelaJogo() {
             <Text fontSize={16} color="$gray10">Líderes do jogo (adicione conteúdo aqui)</Text>
           </YStack>
         )}
+
+      <FloatingActionButton
+        actions={[{
+          icon: <MaterialCommunityIcons name="pencil" size={28} color="$gray12" />,
+          label: 'Editar Jogo',
+          onPress: () => router.push(`/admin/editar-jogo?jogoId=${jogoId}`)
+        }]}
+        adminOnly={true}
+        position={{ bottom: 30, right: 24 }}
+      />
     </Tela>
   )
 }
