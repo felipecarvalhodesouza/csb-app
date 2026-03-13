@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { YStack, Text, Button } from 'tamagui'
 import { ChevronLeft } from '@tamagui/lucide-icons'
-import { useLocalSearchParams, useRouter } from 'expo-router'
+import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router'
 import { apiFetch, apiPost, apiDelete } from '../utils/api'
 import Jogo from '../domain/jogo'
 import AthleteCards from '../componente/jogo/AthleteCard'
@@ -41,8 +41,8 @@ export default function EstatisticasAoVivoScreen() {
   const [message, setMessage] = useState<string | null>(null)
   const [error, setError] = useState<boolean | null>(null)
 
-  useEffect(() => {
-    async function fetchJogo() {
+  const fetchJogo = useCallback(() => {
+    async function fetchJogoData() {
       setLoading(true)
       try {
         const jogoData = await apiFetch<any>(`${API_BASE_URL}/jogos/${jogoId}`)
@@ -100,8 +100,14 @@ export default function EstatisticasAoVivoScreen() {
         setLoading(false)
       }
     }
-    fetchJogo()
+    fetchJogoData()
   }, [jogoId])
+  
+  useFocusEffect(
+    useCallback(() => {
+      fetchJogo()
+    }, [fetchJogo])
+  )
 
   const placarMandante = mandante.reduce((sum, a) => sum + a.pontos, 0)
   const placarVisitante = visitante.reduce((sum, a) => sum + a.pontos, 0)
