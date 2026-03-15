@@ -53,7 +53,7 @@ export function AtletaRow({
       <Input
         width={50}
         placeholder="Nº"
-        value={atleta.numeroCamisa || atleta.numero || ''}
+        value={atleta.numeroCamisa || ''}
         keyboardType="numeric"
         onChangeText={num => onSetNumero(atleta.id, num)}
         backgroundColor="$backgroundStrong"
