@@ -56,7 +56,7 @@ export function AtletaRow({
         value={atleta.numeroCamisa || atleta.numero || ''}
         keyboardType="numeric"
         onChangeText={num => onSetNumero(atleta.id, num)}
-        disabled={!atleta.convocado || disableAll}
+        disabled={!atleta.convocado || atletaPersistido} 
         backgroundColor="$backgroundStrong"
         color="$white"
         borderColor="$gray8"

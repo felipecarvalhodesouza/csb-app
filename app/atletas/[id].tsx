@@ -26,8 +26,6 @@ export default function AthleteProfileScreen() {
 
   return (
     <Tela title="Detalhes do Atleta">
-      <YStack space="$4" p="$4">
-
         <AthleteHeader
           nome="Rafael Frias da Costa"
           equipe="Flamengo"
@@ -72,8 +70,6 @@ export default function AthleteProfileScreen() {
             }
           ]}
         />
-
-      </YStack>
     </Tela>
   )
 }
