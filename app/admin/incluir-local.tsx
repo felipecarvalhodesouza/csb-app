@@ -6,6 +6,7 @@ import Dialog from '../componente/dialog-error'
 import { useRouter } from 'expo-router'
 import { API_BASE_URL } from '../../utils/config'
 import { apiPost } from '../utils/api'
+import { Tela } from '../componente/layout/tela'
 
 export default function IncluirLocalScreen() {
   const theme = useTheme()
@@ -28,7 +29,7 @@ export default function IncluirLocalScreen() {
     setShowDialog(false)
     setMessage(null)
 
-    if(!error){
+    if (!error) {
       router.back();
     }
 
@@ -66,93 +67,89 @@ export default function IncluirLocalScreen() {
       return
     }
 
-    try{
+    try {
       const local = { nome, cep, logradouro, numero, complemento, bairro, cidade, estado }
       await apiPost(`${API_BASE_URL}/locais`, local)
       setMessage('Local salvo com sucesso!')
       setShowDialog(true)
     } catch (error: any) {
-        const responseError = error as { message: string }
-        setError(true)
-        setMessage(responseError.message || 'Erro ao criar o local.')
-        setShowDialog(true)
-      }
+      const responseError = error as { message: string }
+      setError(true)
+      setMessage(responseError.message || 'Erro ao criar o local.')
+      setShowDialog(true)
+    }
   }
 
   const isFormValid = !!nome && !!cep && !!logradouro && !!numero && !!bairro && !!cidade && !!estado
 
   return (
-    <Theme>
-      <YStack f={1} bg="$background" pt="$6" pb="$9" jc="space-between">
-        <Header title="Incluir Local" />
-        <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32 }} space="$4">
-          <YStack p="$4" space="$4">
-            <YStack space="$1">
-              <Label>Nome do Local</Label>
-              <Input value={nome} onChangeText={setNome} placeholder="Ginásio Municipal" />
-            </YStack>
+    <>
+      <Tela title="Incluir Local" >
 
-            <YStack space="$1">
-              <Label>CEP</Label>
-              <Input
-                value={cep}
-                onChangeText={setCep}
-                onBlur={buscarEndereco}
-                placeholder="00000-000"
-                keyboardType="numeric"
-              />
-            </YStack>
+        <YStack space="$1">
+          <Label>Nome do Local</Label>
+          <Input value={nome} onChangeText={setNome} placeholder="Ginásio Municipal" />
+        </YStack>
 
-            <YStack space="$1">
-              <Label>Logradouro</Label>
-              <Input value={logradouro} onChangeText={setLogradouro} placeholder="Rua / Avenida" />
-            </YStack>
+        <YStack space="$1">
+          <Label>CEP</Label>
+          <Input
+            value={cep}
+            onChangeText={setCep}
+            onBlur={buscarEndereco}
+            placeholder="00000-000"
+            keyboardType="numeric"
+          />
+        </YStack>
 
-            <YStack space="$1">
-              <Label>Número</Label>
-              <Input value={numero} onChangeText={setNumero} placeholder="123" keyboardType="numeric" />
-            </YStack>
+        <YStack space="$1">
+          <Label>Logradouro</Label>
+          <Input value={logradouro} onChangeText={setLogradouro} placeholder="Rua / Avenida" />
+        </YStack>
 
-            <YStack space="$1">
-              <Label>Complemento</Label>
-              <Input value={complemento} onChangeText={setComplemento} placeholder="Apartamento, bloco..." />
-            </YStack>
+        <YStack space="$1">
+          <Label>Número</Label>
+          <Input value={numero} onChangeText={setNumero} placeholder="123" keyboardType="numeric" />
+        </YStack>
 
-            <YStack space="$1">
-              <Label>Bairro</Label>
-              <Input value={bairro} onChangeText={setBairro} placeholder="Centro, Bairro X..." />
-            </YStack>
+        <YStack space="$1">
+          <Label>Complemento</Label>
+          <Input value={complemento} onChangeText={setComplemento} placeholder="Apartamento, bloco..." />
+        </YStack>
 
-            <YStack space="$1">
-              <Label>Cidade</Label>
-              <Input value={cidade} onChangeText={setCidade} placeholder="São Paulo" />
-            </YStack>
+        <YStack space="$1">
+          <Label>Bairro</Label>
+          <Input value={bairro} onChangeText={setBairro} placeholder="Centro, Bairro X..." />
+        </YStack>
 
-            <YStack space="$1">
-              <Label>Estado</Label>
-              <Input value={estado} onChangeText={setEstado} placeholder="SP" maxLength={2} />
-            </YStack>
+        <YStack space="$1">
+          <Label>Cidade</Label>
+          <Input value={cidade} onChangeText={setCidade} placeholder="São Paulo" />
+        </YStack>
 
-            <Separator my="$3" />
+        <YStack space="$1">
+          <Label>Estado</Label>
+          <Input value={estado} onChangeText={setEstado} placeholder="SP" maxLength={2} />
+        </YStack>
 
-            <Button
-              backgroundColor={!isFormValid ? 'grey' : 'black'}
-              color="white"
-              onPress={handleSalvar}
-              disabled={!isFormValid}
-            >
-              Salvar Local
-            </Button>
-          </YStack>
-        </ScrollView>
-        <Dialog 
-          open={showDialog} 
-          onClose={handleCloseDialog} 
-          message={message} 
-          type={error ? 'error' : 'success'}
-        />
-        <Footer />
-      </YStack>
-    </Theme>
+        <Separator my="$3" />
+
+        <Button
+          backgroundColor={!isFormValid ? 'grey' : 'black'}
+          color="white"
+          onPress={handleSalvar}
+          disabled={!isFormValid}
+        >
+          Salvar Local
+        </Button>
+
+      </Tela>
+      <Dialog
+        open={showDialog}
+        onClose={handleCloseDialog}
+        message={message}
+        type={error ? 'error' : 'success'}
+      />
+    </>
   )
 }

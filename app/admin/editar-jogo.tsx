@@ -178,14 +178,12 @@ export default function EditarJogoScreen() {
 
     useEffect(() => {
         if(jogo){
-            console.log('Carregando técnicos para equipe mandante:', jogo.mandante?.id)
             loadTecnicos(jogo.mandante?.id, true) 
         }
         }, [jogo])
 
     useEffect(() => {
         if(jogo){
-            console.log('Carregando técnicos para equipe visitante:', jogo.visitante?.id)
             loadTecnicos(jogo.visitante?.id, false) 
         }
     }, [jogo])
