@@ -55,7 +55,10 @@ export function AtletaRow({
         placeholder="Nº"
         value={atleta.numeroCamisa || ''}
         keyboardType="numeric"
-        onChangeText={num => onSetNumero(atleta.id, num)}
+        onChangeText={num => {
+          const onlyNumbers = num.replace(/[^0-9]/g, '');
+          onSetNumero(atleta.id, onlyNumbers);
+        }}
         backgroundColor="$backgroundStrong"
         color="$white"
         borderColor="$gray8"
