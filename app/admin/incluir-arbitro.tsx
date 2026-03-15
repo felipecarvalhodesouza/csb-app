@@ -1,53 +1,50 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { useRouter } from 'expo-router'
-import { YStack, Text, Input, Button, Separator, Theme, useTheme, XStack, Checkbox } from 'tamagui'
-import Header from '../header'
-import Footer from '../footer'
-import DialogError from '../componente/dialog-error'
+import { YStack, Text, Input, Button, Separator, XStack, Checkbox } from 'tamagui'
 import { API_BASE_URL } from '../../utils/config'
 import { modalidades } from '../utils/modalidades'
 import { apiPost } from '../utils/api'
 import { Check } from '@tamagui/lucide-icons'
+import { Tela } from '../componente/layout/tela'
+import Dialog from '../componente/dialog-error'
 
 export default function IncluirArbitroScreen() {
-    const theme = useTheme()
     const router = useRouter()
 
     const [nome, setNome] = useState('')
-    const [email, setEmail] = useState('')
-    const [emailValid, setEmailValid] = useState(true)
     const [modalidadesSelecionadas, setModalidadesSelecionadas] = useState<number[]>([])
 
-    const [errorMessage, setErrorMessage] = useState<string | null>(null)
-    const [showErrorDialog, setShowErrorDialog] = useState(false)
+    const [message, setMessage] = useState<string | null>(null)
+    const [showDialog, setShowDialog] = useState(false)
+    const [error, setError] = useState<boolean | null>(null)
 
     const handleCloseDialog = () => {
-        setShowErrorDialog(false)
-        setErrorMessage(null)
+        setShowDialog(false)
+        setMessage(null)
+
+        if (!error) {
+            router.back()
+        }
+
+        setError(null)
     }
 
     const handleSalvar = async () => {
         try {
             const novoArbitro = {
                 nome,
-                email,
                 modalidades: modalidadesSelecionadas.map(id => id - 1)
             }
 
             await apiPost(`${API_BASE_URL}/arbitros`, novoArbitro)
 
-            setErrorMessage('Árbitro cadastrado com sucesso!')
-            setShowErrorDialog(true)
-
-            setTimeout(() => {
-                setShowErrorDialog(false)
-                router.replace('/admin')
-            }, 3000)
+            setMessage('Árbitro cadastrado com sucesso!')
+            setShowDialog(true)
 
         } catch (error: any) {
-            console.error('Erro na requisição:', error)
-            setErrorMessage(error.message || 'Falha ao conectar com o servidor.')
-            setShowErrorDialog(true)
+            setMessage(error.message || 'Falha ao conectar com o servidor.')
+            setError(true)
+            setShowDialog(true)
         }
     }
 
@@ -57,19 +54,11 @@ export default function IncluirArbitroScreen() {
         )
     }
 
-    function validateEmail(value: string) {
-        // Simple email regex
-        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-        setEmailValid(re.test(value))
-        setEmail(value)
-    }
-
-    const isFormValid = nome && emailValid && modalidadesSelecionadas.length > 0
+    const isFormValid = nome && modalidadesSelecionadas.length > 0
 
     return (
-        <Theme>
-            <YStack f={1} bg="$background" pt="$6" pb="$9" jc="space-between">
-                <Header title="Inclusão de Árbitro" />
+        <>
+            <Tela title="Inclusão de Árbitro" >
 
                 <YStack p="$4" space="$4">
                     {/* Nome */}
@@ -83,24 +72,6 @@ export default function IncluirArbitroScreen() {
                             borderRadius="$3"
                             p="$3"
                         />
-                    </YStack>
-
-                    {/* Email */}
-                    <YStack space="$1">
-                        <Text fontSize={14} color="$gray10">Email</Text>
-                        <Input
-                            placeholder="Digite o email"
-                            keyboardType="email-address"
-                            value={email}
-                            onChangeText={validateEmail}
-                            bg="$color2"
-                            borderRadius="$3"
-                            p="$3"
-                            autoCapitalize="none"
-                        />
-                        {!emailValid && (
-                            <Text color="$red10" fontSize={14}>Email inválido</Text>
-                        )}
                     </YStack>
 
                     {/* Modalidades */}
@@ -135,15 +106,13 @@ export default function IncluirArbitroScreen() {
                         Salvar Árbitro
                     </Button>
                 </YStack>
-
-                <Footer />
-
-                <DialogError
-                    open={showErrorDialog}
-                    onClose={handleCloseDialog}
-                    message={errorMessage}
-                />
-            </YStack>
-        </Theme>
+            </Tela>
+            <Dialog
+                open={showDialog}
+                onClose={handleCloseDialog}
+                message={message}
+                type={error ? "error" : "success"}
+            />
+        </>
     )
 }

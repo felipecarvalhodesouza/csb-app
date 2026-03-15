@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useRouter, useLocalSearchParams } from 'expo-router'
 import {
     YStack, Text, Button, Input,
+    Label,
 } from 'tamagui'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { format } from 'date-fns'
@@ -11,6 +12,7 @@ import { GenericPicker } from '../componente/GenericPicker'
 import Dialog from '../componente/dialog-error'
 import { Tela } from '../componente/layout/tela'
 import { getFavoriteModality } from '../../utils/preferences'
+import { DatePickerModal, id, TimePickerModal } from 'react-native-paper-dates'
 
 export default function EditarJogoScreen() {
 
@@ -51,6 +53,8 @@ export default function EditarJogoScreen() {
     const [showDialog, setShowDialog] = useState(false)
     const [message, setMessage] = useState<string | null>(null)
     const [error, setError] = useState<boolean | null>(null)
+
+    const [erroLink, setErroLink] = useState<string | null>(null)
 
     const handleCloseDialog = () => {
         setShowDialog(false)
@@ -201,6 +205,14 @@ export default function EditarJogoScreen() {
 
     const handleSalvar = async () => {
 
+
+        if (!isValidYoutubeUrl(youtubeLink)) {
+            setError(true)
+            setMessage('Link inválido.')
+            setShowDialog(true)
+            return
+        }
+
         try {
 
             const user = await AsyncStorage.getItem('session_user')
@@ -221,26 +233,26 @@ export default function EditarJogoScreen() {
             const dataHoraString = format(data, "yyyy-MM-dd'T'HH:mm:ss")
 
             const jogoAtualizado: any = {
-
+                id: jogo.id,
                 data: dataHoraString,
-                tecnicoMandante: tecnicoMandante ? { id: Number(tecnicoMandante) } : null,
-                tecnicoVisitante: tecnicoVisitante ? { id: Number(tecnicoVisitante) } : null,
+                tecnicoMandante: tecnicoMandante != null  && tecnicoMandante !== "Selecione uma opção" ? { id: Number(tecnicoMandante) } : null,
+                tecnicoVisitante: tecnicoVisitante != null && tecnicoVisitante !== "Selecione uma opção" ? { id: Number(tecnicoVisitante) } : null,
+                
+                arbitroPrincipal: arbitroSelecionado != null && arbitroSelecionado !== "Selecione uma opção" ? { id: Number(arbitroSelecionado) } : null,
+                arbitroAuxiliar: arbitroAuxiliar != null && arbitroAuxiliar !== "Selecione uma opção" ? { id: Number(arbitroAuxiliar) } : null,
 
-                arbitroPrincipal: arbitroSelecionado ? { id: Number(arbitroSelecionado) } : null,
-                arbitroAuxiliar: arbitroAuxiliar ? { id: Number(arbitroAuxiliar) } : null,
-
-                estatistico: estatisticoSelecionado ? { id: Number(estatisticoSelecionado) } : null,
-                mesario: mesarioSelecionado ? { id: Number(mesarioSelecionado) } : null,
+                estatistico: estatisticoSelecionado != null && estatisticoSelecionado !== "Selecione uma opção" ? { id: Number(estatisticoSelecionado) } : null,
+                mesario: mesarioSelecionado != null && mesarioSelecionado !== "Selecione uma opção" ? { id: Number(mesarioSelecionado) } : null,
 
                 streamUrl: youtubeLink || null
 
             }
 
-            if (localSelecionado) {
+            if (localSelecionado != null && localSelecionado !== "Selecione uma opção") {
                 jogoAtualizado.local = { id: Number(localSelecionado) }
             }
 
-            const response = await fetch(`${API_BASE_URL}/jogos/${jogoId}`, {
+            const response = await fetch(`${API_BASE_URL}/jogos`, {
                 method: 'PUT',
                 headers,
                 body: JSON.stringify(jogoAtualizado)
@@ -330,6 +342,115 @@ export default function EditarJogoScreen() {
                     />
                 </YStack>
 
+                {/* Local */}
+                <YStack space="$1">
+                    <Text>Local (opcional)</Text>
+                    <GenericPicker
+                        items={locais}
+                        value={localSelecionado}
+                        onChange={setLocalSelecionado}
+                        getLabel={(l) => l.nome}
+                        getValue={(l) => l.id}
+                        enabled={true}
+                    />
+                </YStack>
+
+
+                {/* Árbitro Principal */}
+                <YStack space="$1">
+                    <Text>Árbitro Principal</Text>
+                    <GenericPicker
+                        items={arbitros}
+                        value={arbitroSelecionado}
+                        onChange={setArbitroSelecionado}
+                        getLabel={(a) => a.nome}
+                        getValue={(a) => a.id}
+                        enabled={true}
+                    />
+                </YStack>
+
+                {/* Árbitro Auxiliar */}
+                <YStack space="$1">
+                    <Text>Árbitro Auxiliar</Text>
+                    <GenericPicker
+                        items={arbitros}
+                        value={arbitroAuxiliar}
+                        onChange={setArbitroAuxiliar}
+                        getLabel={(a) => a.nome}
+                        getValue={(a) => a.id}
+                        enabled={true}
+                    />
+                </YStack>
+
+                {/* Mesário */}
+                <YStack space="$1">
+                    <Text>Mesário</Text>
+                    <GenericPicker
+                        items={mesarios}
+                        value={mesarioSelecionado}
+                        onChange={setMesarioSelecionado}
+                        getLabel={(m) => m.nome}
+                        getValue={(m) => m.id}
+                        enabled={true}
+                    />
+                </YStack>
+
+                {/* Estatístico */}
+                <YStack space="$1">
+                    <Text>Estatístico</Text>
+                    <GenericPicker
+                        items={estatisticos}
+                        value={estatisticoSelecionado}
+                        onChange={setEstatisticoSelecionado}
+                        getLabel={(e) => e.nome}
+                        getValue={(e) => e.id}
+                        enabled={true}
+                    />
+                </YStack>
+
+            <YStack space="$1">
+              <Text>Data do Jogo</Text>
+              <Button onPress={() => setShowDatePicker(true)}>{dataJogo ? format(dataJogo, 'dd/MM/yyyy') : 'Selecionar Data'}</Button>
+              <DatePickerModal
+                locale="pt-BR"
+                mode="single"
+                visible={showDatePicker}
+                date={dataJogo || new Date()}
+                onDismiss={() => setShowDatePicker(false)}
+                onConfirm={({ date }) => {
+                  setShowDatePicker(false)
+                  setDataJogo(date)
+                }}
+              />
+            </YStack>
+
+            <YStack space="$1">
+              <Text>Hora do Jogo</Text>
+              <Button onPress={() => setShowTimePicker(true)}>{horaJogo ? format(horaJogo, 'HH:mm') : 'Selecionar Hora'}</Button>
+              <TimePickerModal
+                visible={showTimePicker}
+                onDismiss={() => setShowTimePicker(false)}
+                onConfirm={({ hours, minutes }) => {
+                  setShowTimePicker(false)
+                  setHoraJogo(new Date(0, 0, 0, hours, minutes))
+                }}
+                hours={horaJogo?.getHours() || 12}
+                minutes={horaJogo?.getMinutes() || 0}
+              />
+            </YStack>
+
+            <YStack space="$1">
+              <Label>Link do YouTube (opcional)</Label>
+              <Input
+                placeholder="https://youtube.com/..."
+                value={youtubeLink}
+                onChangeText={setYoutubeLink}
+                autoCapitalize="none"
+                keyboardType="url"
+              />
+              {erroLink && <Text color="red">{erroLink}</Text>}
+            </YStack>
+
                 <Button
                     backgroundColor="black"
                     color="white"
@@ -349,4 +470,14 @@ export default function EditarJogoScreen() {
 
         </Tela>
     )
+}
+
+function isValidYoutubeUrl(url: string): boolean {
+  if (!url) return true
+  try {
+    const parsed = new URL(url)
+    return parsed.hostname.includes('youtube.com') || parsed.hostname.includes('youtu.be')
+  } catch {
+    return false
+  }
 }

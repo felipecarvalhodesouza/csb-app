@@ -27,6 +27,11 @@ export default function IncluirLocalScreen() {
   const handleCloseDialog = () => {
     setShowDialog(false)
     setMessage(null)
+
+    if(!error){
+      router.back();
+    }
+
     setError(null)
   }
 
@@ -63,12 +68,9 @@ export default function IncluirLocalScreen() {
 
     try{
       const local = { nome, cep, logradouro, numero, complemento, bairro, cidade, estado }
-      const response  = await apiPost(`${API_BASE_URL}/locais`, local)
+      await apiPost(`${API_BASE_URL}/locais`, local)
       setMessage('Local salvo com sucesso!')
       setShowDialog(true)
-      setTimeout(() => {
-        router.replace('/admin')
-      }, 2000)
     } catch (error: any) {
         const responseError = error as { message: string }
         setError(true)

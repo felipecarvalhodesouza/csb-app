@@ -8,8 +8,8 @@ import {
 } from 'tamagui'
 import FloatingActionButton from './componente/FloatingActionButton'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
-import { useRouter } from 'expo-router'
-import { useState } from 'react'
+import { useFocusEffect, useRouter } from 'expo-router'
+import { useCallback, useState } from 'react'
 import YoutubePlayer from 'react-native-youtube-iframe'
 import { Pressable } from 'react-native'
 import { useLocalSearchParams } from 'expo-router'
@@ -33,10 +33,12 @@ export default function TelaJogo() {
   const [jogo, setJogo] = useState<Jogo>()
   const [aba, setAba] = useState<'Resumo' | 'Estatísticas' | 'Lances' | 'Líderes'>('Resumo')
 
-    useEffect(() => {
-      const fetchJogos = async (options: RequestInit = {}) => {
+
+
+  const fetchJogos = useCallback(async () => {
+    async function fetchJogos() {
         try {
-          const data = await apiFetch<Jogo>(`${API_BASE_URL}/jogos/${jogoId}`, options)
+          const data = await apiFetch<Jogo>(`${API_BASE_URL}/jogos/${jogoId}`)
           setJogo(data)
         } catch (error) {
           console.error('Error fetching jogos:', error)
@@ -48,6 +50,12 @@ export default function TelaJogo() {
   
       fetchJogos()
     }, [])
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchJogos()
+    }, [fetchJogos])
+  )
 
   if (loading) {
     return (
