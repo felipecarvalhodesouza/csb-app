@@ -174,7 +174,6 @@ export default function GameEditScreen({
 
   return (
     <Tela title='Seleção de Atletas'>
-      <YStack p="$4" space="$4">
         <EquipeTabs
           tab={tab}
           setTab={setTab}
@@ -203,7 +202,6 @@ export default function GameEditScreen({
             Incluir Jogadores
           </Button>
         )}
-      </YStack>
     </Tela>
   )
 }
