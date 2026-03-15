@@ -61,7 +61,7 @@ export default function CoachCard({
           <XStack ai="center" space="$2">
             <User size={18} />
             <Text fontWeight="700">
-              {nome.length > 20 ? nome.slice(0, 20) + '...' : nome}
+              {nome.length > 15 ? nome.slice(0, 15).trim() + '...' : nome}
             </Text>
           </XStack>
 

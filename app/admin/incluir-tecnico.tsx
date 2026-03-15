@@ -9,6 +9,7 @@ import { modalidades } from '../utils/modalidades'
 import { API_BASE_URL } from '../../utils/config'
 import { apiFetch, apiPost } from '../utils/api'
 import { GenericPicker } from '../componente/GenericPicker'
+import { Tela } from '../componente/layout/tela'
 
 export default function IncluirTecnicoScreen() {
   const theme = useTheme()
@@ -27,11 +28,16 @@ export default function IncluirTecnicoScreen() {
   const handleCloseDialog = () => {
     setShowDialog(false)
     setMessage(null)
+
+    if (!error) {
+      router.back();
+    }
+
     setError(null)
   }
 
   const loadEquipes = async (modalidadeId: string) => {
-    if (modalidadeId == null|| "Selecione uma modalidade" == modalidadeId) {
+    if (modalidadeId == null || "Selecione uma modalidade" == modalidadeId) {
       setEquipes([])
       setEquipeSelecionada(null)
       return
@@ -42,14 +48,14 @@ export default function IncluirTecnicoScreen() {
       setEquipes(data)
       setEquipeSelecionada(null)
     } catch (error: any) {
-        setError(true)
-        setMessage(error.message || 'Erro ao carregar equipes.')
-        setShowDialog(true)
+      setError(true)
+      setMessage(error.message || 'Erro ao carregar equipes.')
+      setShowDialog(true)
     }
   }
 
   useEffect(() => {
-    if (modalidade){
+    if (modalidade) {
       loadEquipes(modalidade)
     }
   }, [modalidade])
@@ -67,11 +73,6 @@ export default function IncluirTecnicoScreen() {
         await apiPost(`${API_BASE_URL}/tecnicos`, novoTecnico)
         setMessage('Técnico criado com sucesso!')
         setShowDialog(true)
-
-        setTimeout(() => {
-          setShowDialog(false)
-          router.replace('/admin')
-        }, 3000)
       } catch (error: any) {
         setError(true)
         setMessage(error.message || 'Erro ao criar o técnico.')
@@ -86,74 +87,67 @@ export default function IncluirTecnicoScreen() {
     nome && modalidade && equipeSelecionada
 
   return (
-    <Theme>
-      <YStack f={1} bg="$background" pt="$6" pb="$9" jc="space-between">
-        <Header title="Inclusão de Técnico" />
-        <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32 }} space="$4">
-          <YStack p="$4" space="$4">
-            {/* Nome */}
-            <YStack space="$1">
-              <Text fontSize={14} color="$gray10">Nome do Técnico</Text>
-              <Input
-                placeholder="Digite o nome"
-                value={nome}
-                onChangeText={setNome}
-                bg="$color2"
-                borderRadius="$3"
-                p="$3"
-              />
-            </YStack>
+    <>
+      <Tela title="Inclusão de Técnico" >
+        {/* Nome */}
+        <YStack space="$1">
+          <Text fontSize={14} color="$gray10">Nome do Técnico</Text>
+          <Input
+            placeholder="Digite o nome"
+            value={nome}
+            onChangeText={setNome}
+            bg="$color2"
+            borderRadius="$3"
+            p="$3"
+          />
+        </YStack>
 
-            {/* Modalidade */}
-            <YStack space="$1">
-              <Text fontSize={14} color="$gray10">Modalidade</Text>
-                <GenericPicker
-                  items={modalidades}
-                  value={modalidade}
-                  onChange={setModalidade}
-                  getLabel={(m) => m.nome}
-                  getValue={(m) => m.id}
-                  filter={(m) => !m.disable}
-                />
-            </YStack>
+        {/* Modalidade */}
+        <YStack space="$1">
+          <Text fontSize={14} color="$gray10">Modalidade</Text>
+          <GenericPicker
+            items={modalidades}
+            value={modalidade}
+            onChange={setModalidade}
+            getLabel={(m) => m.nome}
+            getValue={(m) => m.id}
+            filter={(m) => !m.disable}
+          />
+        </YStack>
 
 
-            {/* Equipe */}
-            <YStack space="$1">
-              <Text fontSize={14} color="$gray10">Equipe</Text>
-              <GenericPicker
-                items={equipes}
-                value={equipeSelecionada}
-                onChange={setEquipeSelecionada}
-                getLabel={(e) => e.nome}
-                getValue={(e) => e.id}
-                filter={(e) => !e.disable}
-                enabled={modalidade !== null}
-              />
-            </YStack>
+        {/* Equipe */}
+        <YStack space="$1">
+          <Text fontSize={14} color="$gray10">Equipe</Text>
+          <GenericPicker
+            items={equipes}
+            value={equipeSelecionada}
+            onChange={setEquipeSelecionada}
+            getLabel={(e) => e.nome}
+            getValue={(e) => e.id}
+            filter={(e) => !e.disable}
+            enabled={modalidade !== null}
+          />
+        </YStack>
 
-            <Separator my="$3" />
+        <Separator my="$3" />
 
-            <Button
-              backgroundColor={!isFormValid ? 'grey' : 'black'}
-              color="white"
-              w="100%"
-              onPress={handleSalvar}
-              disabled={!isFormValid}
-            >
-              Salvar Técnico
-            </Button>
-          </YStack>
-        </ScrollView>
-        <Footer />
-
-        <Dialog
-          open={showDialog}
-          onClose={handleCloseDialog}
-          message={message}
-          type={error ? 'error' : 'success'}
-        />
-      </YStack>
-    </Theme>
+        <Button
+          backgroundColor={!isFormValid ? 'grey' : 'black'}
+          color="white"
+          w="100%"
+          onPress={handleSalvar}
+          disabled={!isFormValid}
+        >
+          Salvar Técnico
+        </Button>
+      </Tela>
+      <Dialog
+        open={showDialog}
+        onClose={handleCloseDialog}
+        message={message}
+        type={error ? 'error' : 'success'}
+      />
+    </>
   )
 }
