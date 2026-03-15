@@ -311,6 +311,10 @@ export default function EstatisticasAoVivoScreen() {
         equipe: undefined,
         descricao: ''
       })
+
+      if(tipo === 'TEMPO') {
+        fetchJogo()
+      }
     }
 
     async function handleEvent(event: Evento) {
@@ -375,6 +379,8 @@ export default function EstatisticasAoVivoScreen() {
           equipeId={activeTeam === 'mandante' ? jogo.mandante.id : jogo.visitante.id}
           jogoEncerrado={jogoEncerrado}
           registrarEvento={handleCoachEvent}
+          eventos={jogo.eventos}
+          periodoAtual={quarto}
         />
 
         <AdminModal

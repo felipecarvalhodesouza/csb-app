@@ -20,6 +20,7 @@ export type EstatisticaTipo =
     | "INICIO_JOGO"
     | "C1" // Falta técnica do técnico
     | "B1" // Falta técnica do banco;
+    | "TEMPO"
 
 export function getEstatisticaPorAthlete(stat: string): EstatisticaTipo {
     switch (stat.toLowerCase()) {
@@ -65,6 +66,9 @@ export function getEstatisticaPorAthlete(stat: string): EstatisticaTipo {
             return "FIM_JOGO";
         case "inicio_jogo":
             return "INICIO_JOGO";
+        case "tempo":
+            return "TEMPO";
+
         default:
             throw new Error(`EstatisticaTipo desconhecido para o stat: ${stat}`);
     }
