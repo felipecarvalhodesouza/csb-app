@@ -86,16 +86,16 @@ export default function GameEditScreen({
     try {
 
       var jogoEditado: any = {
-        jogoId: jogo.id,
+        jogoId: Number(jogo.id),
         atletasMandante: mandante.filter(a => a.convocado).map(a => ({
           atletaId: a.id,
           titular: !!a.titular,
-          numero: a.numero,
+          numero: a.numeroCamisa,
         })),
         atletasVisitante: visitante.filter(a => a.convocado).map(a => ({
           atletaId: a.id,
           titular: !!a.titular,
-          numero: a.numero,
+          numero: a.numeroCamisa,
         })),
       }
 

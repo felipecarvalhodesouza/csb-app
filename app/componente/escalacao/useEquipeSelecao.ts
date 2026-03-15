@@ -26,13 +26,12 @@ export function useEquipeSelecao() {
   }
 
   function setNumero(equipe: 'mandante' | 'visitante', atletaId: number, numero: string) {
-    const setter = equipe === 'mandante' ? setMandante : setVisitante
-    const lista = equipe === 'mandante' ? mandante : visitante
-    setter(
-      lista.map(a =>
-        a.id === atletaId ? { ...a, numero } : a
-      )
-    )
+    const setter = equipe === 'mandante' ? setMandante : setVisitante;
+    const lista = equipe === 'mandante' ? mandante : visitante;
+    const resultado = lista.map(a =>
+      a.id === atletaId ? { ...a, numeroCamisa: numero, numeroCamisaJogo: numero } : a
+    );
+    setter(resultado);
   }
 
   function setTodosConvocados(equipe: 'mandante' | 'visitante', valor: boolean) {
