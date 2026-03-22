@@ -12,7 +12,9 @@ interface AtletaRowProps {
   onToggleTitular: (id: number) => void
   onToggleConvocado: (id: number) => void
   onSetNumero: (id: number, numero: string) => void
+  onToggleCapitao: (id: number) => void
   modo?: string // novo
+  capitaoSelecionado?: Atleta // novo - atleta que é capitão
 }
 
 export function AtletaRow({
@@ -23,8 +25,10 @@ export function AtletaRow({
   maxJogadores,
   onToggleTitular,
   onToggleConvocado,
+  onToggleCapitao,
   onSetNumero,
-  modo // novo
+  modo, // novo
+  capitaoSelecionado // novo
 }: AtletaRowProps) {
   // Regra: se modo atrasado e atleta já está na partida, desabilita tudo
   const isModoAtrasado = modo === 'adicionar_atrasado';
@@ -35,6 +39,9 @@ export function AtletaRow({
 
   // Para o botão de convocado: só desabilita se persistido, senão permite desmarcar
   const disableConvocado = atletaPersistido || (!atleta.convocado && jogadoresSelecionados >= maxJogadores);
+
+  // Capitão: desabilita se persistido, ou se outro atleta é capitão (e este não é), ou se não está convocado
+  const disableCapitao = atletaPersistido || (capitaoSelecionado && capitaoSelecionado.id !== atleta.id) || !atleta.convocado;
 
   return (
     <XStack
@@ -77,7 +84,18 @@ export function AtletaRow({
           <Check />
         </Checkbox.Indicator>
       </Checkbox>
-      <Checkbox
+      <Checkbox ai='center'
+        checked={!!atleta.capitao}
+        onCheckedChange={() => onToggleCapitao(atleta.id)}
+        disabled={disableCapitao}
+        backgroundColor="$backgroundStrong"
+        borderColor="$gray8"
+      >
+        <Checkbox.Indicator>
+          <Check />
+        </Checkbox.Indicator>
+      </Checkbox>
+      <Checkbox ai='center'
         checked={!!atleta.convocado}
         onCheckedChange={() => onToggleConvocado(atleta.id)}
         disabled={disableConvocado}

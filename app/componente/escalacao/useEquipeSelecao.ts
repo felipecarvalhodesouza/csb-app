@@ -15,9 +15,44 @@ export function useEquipeSelecao() {
     )
   }
 
+  function toggleCapitao(equipe: 'mandante' | 'visitante', atletaId: number) {
+    const setter = equipe === 'mandante' ? setMandante : setVisitante
+    const lista = equipe === 'mandante' ? mandante : visitante
+    const atletaSelecionado = lista.find(a => a.id === atletaId)
+    
+    // Se o atleta já é capitão, só permite deselecionar se houver outro capitão
+    if (atletaSelecionado?.capitao) {
+      setter(
+        lista.map(a =>
+          a.id === atletaId ? { ...a, capitao: false } : a
+        )
+      )
+      return
+    }
+    
+    // Se o atleta não é capitão, remove o capitão anterior e define este como novo capitão
+    setter(
+      lista.map(a =>
+        a.id === atletaId ? { ...a, capitao: true } : { ...a, capitao: false }
+      )
+    )
+  }
+
   function toggleConvocado(equipe: 'mandante' | 'visitante', atletaId: number) {
     const setter = equipe === 'mandante' ? setMandante : setVisitante
     const lista = equipe === 'mandante' ? mandante : visitante
+    const atletaSelecionado = lista.find(a => a.id === atletaId)
+    
+    // Se o atleta está sendo desconvocado e é capitão, remove o status de capitão
+    if (atletaSelecionado?.convocado && atletaSelecionado?.capitao) {
+      setter(
+        lista.map(a =>
+          a.id === atletaId ? { ...a, convocado: false, capitao: false, titular: false } : a
+        )
+      )
+      return
+    }
+    
     setter(
       lista.map(a =>
         a.id === atletaId ? { ...a, convocado: !a.convocado } : a
@@ -68,6 +103,7 @@ export function useEquipeSelecao() {
     visitante,
     setVisitante,
     toggleTitular,
+    toggleCapitao,
     toggleConvocado,
     setNumero,
     setTodosConvocados,

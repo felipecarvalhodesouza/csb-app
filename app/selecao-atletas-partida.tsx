@@ -24,7 +24,7 @@ export default function GameEditScreen({
   const [loading, setLoading] = useState(true)
   const { mandante, setMandante,
           visitante, setVisitante,
-          toggleTitular, toggleConvocado,
+          toggleTitular, toggleConvocado, toggleCapitao,
           setNumero, setTodosConvocados
         } = useEquipeSelecao()
   const [tab, setTab] = useState<'mandante' | 'visitante'>('mandante')
@@ -66,11 +66,11 @@ export default function GameEditScreen({
           // Sincroniza o estado dos atletas com os já convocados/titulares do jogo
           setMandante(prev => prev.map(a => {
             const escalado = jogo.atletasMandante.find(am => am.atleta.id === a.id)
-            return escalado ? { ...a, convocado: true, titular: escalado.titular, numeroCamisaJogo: escalado.numero, persistido: true } : a
+            return escalado ? { ...a, convocado: true, titular: escalado.titular, numeroCamisaJogo: escalado.numero, persistido: true, capitao: escalado.capitao } : a
           }))
           setVisitante(prev => prev.map(a => {
             const escalado = jogo.atletasVisitante.find(av => av.atleta.id === a.id)
-            return escalado ? { ...a, convocado: true, titular: escalado.titular, numeroCamisaJogo: escalado.numero, persistido: true } : a
+            return escalado ? { ...a, convocado: true, titular: escalado.titular, numeroCamisaJogo: escalado.numero, persistido: true, capitao: escalado.capitao } : a
           }))
         }
       } finally {
@@ -91,11 +91,13 @@ export default function GameEditScreen({
           atletaId: a.id,
           titular: !!a.titular,
           numero: a.numeroCamisa,
+          capitao: !!a.capitao
         })),
         atletasVisitante: visitante.filter(a => a.convocado).map(a => ({
           atletaId: a.id,
           titular: !!a.titular,
           numero: a.numeroCamisa,
+          capitao: !!a.capitao
         })),
       }
 
@@ -119,13 +121,13 @@ export default function GameEditScreen({
       const atletasMandante = mandante.filter(a => a.convocado && !a.persistido).map(a => ({
         atletaId: a.id,
         titular: false,
-        numero: a.numero,
+        numero: a.numeroCamisaJogo,
       }))
 
       const atletasVisitante = visitante.filter(a => a.convocado && !a.persistido).map(a => ({
         atletaId: a.id,
         titular: false,
-        numero: a.numero,
+        numero: a.numeroCamisaJogo,
       }))
 
       var inclusaoAtletasEscaladosPayload: any = {
@@ -155,12 +157,18 @@ export default function GameEditScreen({
       return numeros.some((num, idx, arr) => arr.indexOf(num) !== idx)
     }
 
+    // Verifica se cada time têm um capitão
+    const mandanteTemCapitao = mandante.some(a => a.capitao)
+    const visitanteTemCapitao = visitante.some(a => a.capitao)
+
     return (
       loading ||
       mandanteTitulares !== 5 ||
       visitanteTitulares !== 5 ||
       hasNumeroRepetido(mandante) ||
-      hasNumeroRepetido(visitante)
+      hasNumeroRepetido(visitante) ||
+      !mandanteTemCapitao ||
+      !visitanteTemCapitao
     )
   }
 
@@ -185,6 +193,7 @@ export default function GameEditScreen({
           <EquipeSelecao
             atletas={tab === 'mandante' ? mandante : visitante}
             onToggleTitular={id => toggleTitular(tab, id)}
+            onToggleCapitao={id => toggleCapitao(tab,id)}
             onToggleConvocado={id => toggleConvocado(tab, id)}
             onSetNumero={(id, num) => setNumero(tab, id, num)}
             onSetTodosConvocados={valor => setTodosConvocados(tab, valor)}

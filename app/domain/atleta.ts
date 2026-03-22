@@ -15,6 +15,7 @@ export interface Atleta {
   teamId: 'mandante' | 'visitante'
   numeroCamisaJogo: number;
   titular: boolean;
+  capitao: boolean;
   convocado: boolean;
   emQuadra: boolean;
   expulso?: boolean;

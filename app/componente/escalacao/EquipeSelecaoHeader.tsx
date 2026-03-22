@@ -15,7 +15,7 @@ export function EquipeSelecaoHeader({ todosConvocados, onToggleTodosConvocados, 
       <XStack justifyContent="space-between" mb="$2" px="$2" ai="center" jc="space-between" py="$1" borderRadius={8}>
         <Text width={150} fontWeight="700"></Text>
         <Text width={50} fontWeight="700" style={{ textAlign: 'center' }}></Text>
-        <Text width={15} fontWeight="700"></Text>
+        <Text width={15} fontWeight="700" style={{ textAlign: 'center' }}></Text>
         <Checkbox
           checked={todosConvocados}
           onCheckedChange={onToggleTodosConvocados}
@@ -32,7 +32,8 @@ export function EquipeSelecaoHeader({ todosConvocados, onToggleTodosConvocados, 
         <Text width={150} fontWeight="700">Nome</Text>
         <Text width={50} fontWeight="700" style={{ textAlign: 'center' }}>Nº</Text>
         <Text width={15} fontWeight="700">T</Text>
-        <Text width={15} fontWeight="700" fontSize={12}>E</Text>
+        <Text width={15} fontWeight="700">C</Text>
+        <Text width={15} fontWeight="700">E</Text>
       </XStack>
     </>
   )
