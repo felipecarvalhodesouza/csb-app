@@ -1,4 +1,5 @@
 import { YStack, XStack, Text, Image, useWindowDimensions, Separator } from 'tamagui'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
 import Jogo from '../domain/jogo'
 import format, { formatHour } from '../utils/date-formatter'
 import { Pressable } from 'react-native'
@@ -126,7 +127,11 @@ export default function GameCard({ jogo, onPress, onLongPress, isAdmin }: GameCa
       {/* Transmissão abaixo */}
       {jogo.streamUrl && (
         <Text fontSize={11} color="$gray9" ta="center" mt="$2">
-          {jogo.streamUrl}
+          Assista no{' '}
+          <XStack ai="center" jc="center" space="$1" style={{ display: 'inline-flex' }}>
+            <MaterialCommunityIcons name="youtube" size={12} color="#FF0000" />
+            <Text color="$red10" fontWeight="700">YouTube</Text>
+          </XStack>
         </Text>
       )}
     </YStack>
