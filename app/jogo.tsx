@@ -23,6 +23,38 @@ import LanceALance from './componente/lance-a-lance'
 import { TeamScore } from './componente/team-score'
 import { Tela } from './componente/layout/tela'
 
+function extractYouTubeVideoId(videoUrl: string | null | undefined): string | null {
+  if (!videoUrl) return null
+
+  // Se já for apenas ID
+  const idOnly = videoUrl.trim()
+  if (/^[a-zA-Z0-9_-]{11}$/.test(idOnly)) {
+    return idOnly
+  }
+
+  try {
+    const u = new URL(videoUrl)
+
+    if ((u.hostname.includes('youtube.com') || u.hostname.includes('www.youtube.com')) && u.searchParams.get('v')) {
+      return u.searchParams.get('v')
+    }
+
+    if (u.hostname.includes('youtu.be')) {
+      return u.pathname.slice(1)
+    }
+
+    if (u.pathname.includes('/embed/')) {
+      return u.pathname.split('/embed/')[1]
+    }
+  } catch {
+
+    const fallback = videoUrl.match(/(?:v=|youtu\.be\/|embed\/)([a-zA-Z0-9_-]{11})/)
+    if (fallback) return fallback[1]
+  }
+
+  return null
+}
+
 export default function TelaJogo() {
 
   const { jogoId } = useLocalSearchParams<{jogoId:string}>()
@@ -33,34 +65,36 @@ export default function TelaJogo() {
   const [jogo, setJogo] = useState<Jogo>()
   const [aba, setAba] = useState<'Resumo' | 'Estatísticas' | 'Lances' | 'Líderes'>('Resumo')
 
-
-
-  const fetchJogos = useCallback(async () => {
-    async function fetchJogos() {
-        try {
-          const data = await apiFetch<Jogo>(`${API_BASE_URL}/jogos/${jogoId}`)
-          setJogo(data)
-        } catch (error) {
-          console.error('Error fetching jogos:', error)
-          setError((error as Error).message)
-        } finally {
-          setLoading(false)
-        }
-      }
-  
-      fetchJogos()
-    }, [])
+  const fetchJogo = useCallback(async () => {
+    try {
+      const data = await apiFetch<Jogo>(`${API_BASE_URL}/jogos/${jogoId}`)
+      setJogo(data)
+    } catch (error) {
+      console.error('Error fetching jogo:', error)
+      setError((error as Error).message)
+    } finally {
+      setLoading(false)
+    }
+  }, [jogoId])
 
   useFocusEffect(
     useCallback(() => {
-      fetchJogos()
-    }, [fetchJogos])
+      fetchJogo()
+    }, [fetchJogo])
   )
 
   if (loading) {
     return (
       <YStack f={1} jc="center" ai="center">
         <Spinner size="large" />
+      </YStack>
+    )
+  }
+
+  if (!jogo) {
+    return (
+      <YStack f={1} jc="center" ai="center">
+        <Text>Jogo não encontrado.</Text>
       </YStack>
     )
   }
@@ -102,7 +136,11 @@ export default function TelaJogo() {
         {/* YouTube ao vivo */}
         {jogo.streamUrl && (
           <YStack mb="$4">
-            <YoutubePlayer height={200} play={false} videoId={jogo.streamUrl} />
+            {extractYouTubeVideoId(jogo.streamUrl) ? (
+              <YoutubePlayer height={200} play={true} videoId={extractYouTubeVideoId(jogo.streamUrl)!} />
+            ) : (
+              <Text color="$red10" fontSize={12} mt="$1">URL do stream inválida</Text>
+            )}
             { jogo.status === 'EM_ANDAMENTO' && (
               <Text color="$red10" fontSize={12} mt="$1">Ao vivo</Text>
             )}
