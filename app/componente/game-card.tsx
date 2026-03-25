@@ -10,11 +10,12 @@ type GameCardProps = {
   onPress: () => void
   onLongPress?: (jogo: Jogo) => void
   isAdmin?: boolean
+  categoria?: string
 }
 
-export default function GameCard({ jogo, onPress, onLongPress, isAdmin }: GameCardProps) {
+export default function GameCard({ jogo, onPress, onLongPress, isAdmin, categoria }: GameCardProps) {
   const { width } = useWindowDimensions()
-  const isLive = jogo.streamUrl?.toLowerCase() === 'live'
+  const isLive = jogo.status === '2'
   const hasScore = true ||
     jogo?.placarMandante !== undefined &&
     jogo?.placarVisitante !== undefined
@@ -71,6 +72,11 @@ export default function GameCard({ jogo, onPress, onLongPress, isAdmin }: GameCa
 
         {/* Centro - Informações */}
         <YStack flex={1} ai="center" space="$2">
+          { categoria && (
+            <Text fontSize={12} color="$gray10" ta="center">
+              {categoria}
+            </Text>
+          )}
           <Text fontSize={12} color="$gray10" ta="center">
             📍 {jogo.local &&  jogo.local.nome || 'Local não definido'}
           </Text>

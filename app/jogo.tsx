@@ -39,6 +39,12 @@ function extractYouTubeVideoId(videoUrl: string | null | undefined): string | nu
       return u.searchParams.get('v')
     }
 
+    // Verificar para lives do YouTube
+    if ((u.hostname.includes('youtube.com') || u.hostname.includes('www.youtube.com')) && u.pathname.includes('/live/')) {
+      const liveMatch = u.pathname.match(/\/live\/([a-zA-Z0-9_-]{11})/)
+      if (liveMatch) return liveMatch[1]
+    }
+
     if (u.hostname.includes('youtu.be')) {
       return u.pathname.slice(1)
     }
@@ -48,7 +54,7 @@ function extractYouTubeVideoId(videoUrl: string | null | undefined): string | nu
     }
   } catch {
 
-    const fallback = videoUrl.match(/(?:v=|youtu\.be\/|embed\/)([a-zA-Z0-9_-]{11})/)
+    const fallback = videoUrl.match(/(?:v=|youtu\.be\/|embed\/|\/live\/)([a-zA-Z0-9_-]{11})/)
     if (fallback) return fallback[1]
   }
 

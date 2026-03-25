@@ -28,6 +28,10 @@ export function formatHour(dateStr: string): string {
   const hours = String(date.getHours()).padStart(2, '0')
   const minutes = String(date.getMinutes()).padStart(2, '0')
 
+  if(hours === '00' && minutes === '00') {
+    return ''
+  }
+
   return `${hours}h${minutes}`
 }
 
