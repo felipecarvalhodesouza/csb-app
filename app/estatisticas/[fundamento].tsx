@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useLocalSearchParams } from 'expo-router'
-import { YStack, Text, ScrollView, Spinner } from 'tamagui'
+import { YStack, Text, ScrollView, Spinner, XStack } from 'tamagui'
 import { apiFetch } from '../utils/api'
 import { API_BASE_URL } from '../../utils/config'
 import { Tela } from '../componente/layout/tela'
@@ -60,17 +60,39 @@ export default function EstatisticaFundamentoScreen() {
           Nenhum dado encontrado para {titulo}.
         </Text>
       ) : (
-        <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32 }}>
-          <YStack space="$2">
+          <YStack
+            bg="$backgroundStrong"
+            borderRadius={12}
+            p="$4"
+            mb="$3"
+          >
             {dados.map((item, index) => (
-              <YStack key={`${item.posicao}-${item.nome}`} p="$3" bg="$backgroundStrong" br="$8">
-                <Text fontWeight="700">{item.posicao}. {item.nome}</Text>
-                <Text fontSize={12} color="$gray9">{item.equipe}</Text>
-                <Text fontWeight="800" fontSize={18}>{item.total}</Text>
-              </YStack>
+              <XStack
+                key={`${item.posicao}-${item.nome}`}
+                jc="space-between"
+                ai="center"
+                py="$2"
+                borderBottomWidth={index !== dados.length - 1 ? 1 : 0}
+                borderColor="$borderColor"
+              >
+                <XStack ai="center" gap="$2" flex={1}>
+                  <Text fontWeight="700" color="$gray10">
+                    {item.posicao}.
+                  </Text>
+                  <YStack flex={1}>
+                    <Text fontWeight="600" ellipsizeMode="tail" numberOfLines={1}>{item.nome}</Text>
+                    <Text fontSize={12} color="$gray9" ellipsizeMode="tail" numberOfLines={1}>
+                      {item.equipe}
+                    </Text>
+                  </YStack>
+                </XStack>
+
+                <Text fontWeight="800" fontSize={16}>
+                  {item.valor}
+                </Text>
+              </XStack>
             ))}
           </YStack>
-        </ScrollView>
       )}
     </Tela>
   )

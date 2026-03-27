@@ -2,7 +2,7 @@ export interface EstatisticaItem {
   posicao: number
   nome: string
   equipe: string
-  total: number
+  valor: number
 }
 
 export const ESTATISTICA_TIPOS = {

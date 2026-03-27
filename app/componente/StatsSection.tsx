@@ -52,20 +52,20 @@ export default function StatsSection({ titulo, dados, onVerTodos }: Props) {
           borderBottomWidth={index !== dados.length - 1 ? 1 : 0}
           borderColor="$borderColor"
         >
-          <XStack ai="center" gap="$2">
+          <XStack ai="center" gap="$2" flex={1}>
             <Text fontWeight="700" color="$gray10">
               {item.posicao}.
             </Text>
-            <YStack>
-              <Text fontWeight="600">{item.nome}</Text>
-              <Text fontSize={12} color="$gray9">
+            <YStack flex={1}>
+              <Text fontWeight="600" ellipsizeMode="tail" numberOfLines={1}>{item.nome}</Text>
+              <Text fontSize={12} color="$gray9" ellipsizeMode="tail" numberOfLines={1}>
                 {item.equipe}
               </Text>
             </YStack>
           </XStack>
 
           <Text fontWeight="800" fontSize={16}>
-            {item.total}
+            {item.valor ?? 0}
           </Text>
         </XStack>
       ))}
