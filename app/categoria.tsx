@@ -140,8 +140,6 @@ export default function CategoriaJogosScreen() {
       <Tabs
         value={tab}
         onValueChange={v => setTab(v as 'jogos' | 'classificacao')}
-        ml="$4"
-        mr="$4"
       >
         <Tabs.List
           width="100%"
@@ -149,11 +147,11 @@ export default function CategoriaJogosScreen() {
           alignItems="center"
           mb="$2"
         >
-          <Tabs.Tab value="jogos" flex={1}>
-            <Text>Jogos</Text>
+          <Tabs.Tab value="jogos" flex={1} width="50%" jc="center">
+            <Text textAlign="center">Jogos</Text>
           </Tabs.Tab>
-          <Tabs.Tab value="classificacao" flex={1}>
-            <Text>Classificação</Text>
+          <Tabs.Tab value="classificacao" flex={1} width="50%" jc="center">
+            <Text textAlign="center">Classificação</Text>
           </Tabs.Tab>
         </Tabs.List>
       </Tabs>
@@ -216,7 +214,7 @@ export default function CategoriaJogosScreen() {
               ) : (
                 classificacao.map((fase, idxFase) => (
                   <YStack key={idxFase} mb="$6">
-                    <Text fontSize={18} fontWeight="700" color="$gray12" mb="$2">{fase.nomeFase}</Text>
+                    <Text fontSize={18} fontWeight="700" color="$gray12" mb="$2" textAlign='center'>{fase.nomeFase}</Text>
                     {fase.classificacaoChaves.map((chave, idxChave) => (
                       <YStack key={idxChave} mb="$4">
                         {fase.classificacaoChaves.length > 1 && (

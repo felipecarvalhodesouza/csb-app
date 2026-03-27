@@ -10,7 +10,7 @@ import { API_BASE_URL } from '../utils/config'
 import StatsSection from './componente/StatsSection'
 import Header from './header'
 import Footer from './footer'
-import { useLocalSearchParams } from 'expo-router'
+import { useLocalSearchParams, useRouter } from 'expo-router'
 import { Tela } from './componente/layout/tela'
 
 import type { EstatisticasResponse, EstatisticaGrupo } from './types/estatisticas'
@@ -42,15 +42,29 @@ export default function EstatisticasScreen() {
     LANCE_LIVRE: 'LL',
   }
 
+  const router = useRouter()
+
   return (
     <Tela title={nomeTorneio} subtitle={nomeCategoria} paddingHorizontal={0}>
         <YStack p="$4" gap="$4">
           {data.map((grupo: EstatisticaGrupo) => (
             <StatsSection
               key={grupo.tipo}
+              tipo={grupo.tipo}
               titulo={grupo.titulo}
               dados={grupo.itens}
               unidade={unidadePorTipo[grupo.tipo] || ''}
+              onVerTodos={() => {
+                router.push({
+                  pathname: '/estatisticas/[fundamento]',
+                  params: {
+                    fundamento: grupo.tipo,
+                    torneioId,
+                    categoriaId,
+                    titulo: grupo.titulo,
+                  },
+                })
+              }}
             />
           ))}
         </YStack>

@@ -89,7 +89,7 @@ export default function VincularEquipesScreen() {
                 </YStack>
             ) : (
 
-                <YStack f={1} bg="$background" pt="$6" pb="$3" jc="space-between">
+                <YStack f={1} bg="$background" p="$1" jc="space-between">
                     <Text fontSize={16} fontWeight="700" color="$gray12" mb="$2">Equipes disponíveis</Text>
                     {equipes.map(equipe => (
                         <Card key={equipe.id} bg="$gray2" br="$6" p="$3"  fd="column" mb="$2">
@@ -111,8 +111,7 @@ export default function VincularEquipesScreen() {
             <Button
                 onPress={handleSubmit}
                 disabled={submitting}
-                bg="$gray12"
-                color="white"
+                backgroundColor="black"
                 fontWeight="700"
             >
                 Vincular Equipes

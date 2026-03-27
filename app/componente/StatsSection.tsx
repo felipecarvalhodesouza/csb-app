@@ -4,21 +4,18 @@ import {
   XStack,
   Text
 } from 'tamagui'
-
-type EstatisticaItem = {
-  atletaId: number
-  nome: string
-  equipe: string
-  valor: number
-}
+import { MaterialCommunityIcons } from '@expo/vector-icons'
+import type { EstatisticaItem } from '../types/estatisticas'
 
 type Props = {
   titulo: string
+  tipo: string
   dados: EstatisticaItem[]
   unidade?: string
+  onVerTodos?: () => void
 }
 
-export default function StatsSection({ titulo, dados}: Props) {
+export default function StatsSection({ titulo, dados, onVerTodos }: Props) {
   return (
     <YStack
       bg="$backgroundStrong"
@@ -26,9 +23,19 @@ export default function StatsSection({ titulo, dados}: Props) {
       p="$4"
       mb="$3"
     >
-      <Text fontSize={16} fontWeight="700" mb="$2">
-        {titulo}
-      </Text>
+      <XStack jc="space-between" ai="center" mb="$2">
+        <Text fontSize={16} fontWeight="700">
+          {titulo}
+        </Text>
+        {onVerTodos && dados.length == 5 && (
+          <XStack ai="center" gap="$1" onPress={onVerTodos}>
+            <Text fontSize={12} color="$gray12" fontWeight="600">
+              Ver mais
+            </Text>
+            <MaterialCommunityIcons name="chevron-right" size={16} color="$gray12" />
+          </XStack>
+        )}
+      </XStack>
 
       {dados.length === 0 && (
         <Text color="$gray9" fontStyle="italic">
@@ -38,7 +45,7 @@ export default function StatsSection({ titulo, dados}: Props) {
 
       {dados.length > 0 && dados.map((item, index) => (
         <XStack
-          key={item.atletaId}
+          key={`${item.posicao}-${item.nome}`}
           jc="space-between"
           ai="center"
           py="$2"
@@ -47,7 +54,7 @@ export default function StatsSection({ titulo, dados}: Props) {
         >
           <XStack ai="center" gap="$2">
             <Text fontWeight="700" color="$gray10">
-              {index + 1}.
+              {item.posicao}.
             </Text>
             <YStack>
               <Text fontWeight="600">{item.nome}</Text>
@@ -58,10 +65,11 @@ export default function StatsSection({ titulo, dados}: Props) {
           </XStack>
 
           <Text fontWeight="800" fontSize={16}>
-            {item.valor}
+            {item.total}
           </Text>
         </XStack>
       ))}
+
     </YStack>
   )
 }

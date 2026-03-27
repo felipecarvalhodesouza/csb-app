@@ -95,11 +95,12 @@ export default function FaseScreen() {
                                     <MaterialCommunityIcons name="account-group" size={24} color="white" />
                                 </View>
 
-                                <YStack>
-                                    <Text fontSize={16} color="white">{fase.nome}</Text>
+                                <YStack flex={1}>
+                                    <Text fontSize={16} color="white" numberOfLines={1} ellipsizeMode="tail">
+                                        {fase.nome}
+                                    </Text>
                                 </YStack>
 
-                                <View f={1} />
                                 <MaterialCommunityIcons name="chevron-right" size={24} color="#ccc" />
                             </XStack>
                         ))}
