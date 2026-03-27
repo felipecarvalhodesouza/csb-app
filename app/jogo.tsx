@@ -126,7 +126,7 @@ export default function TelaJogo() {
                 Período
             </Text>
             <Text fontSize={14} color="$gray10">
-              {(jogo.periodo && (Number(jogo.periodo) + 1 > 4 ? 'OT ' + (Number(jogo.periodo) - 4) : jogo.periodo + 1)) || 'Não iniciado'}
+              {(jogo.periodo && (Number(jogo.periodo) > 4 ? 'OT ' + (Number(jogo.periodo) - 4) : jogo.periodo)) || 'Não iniciado'}
             </Text>
           </>
           )}
