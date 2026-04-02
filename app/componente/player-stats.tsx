@@ -42,8 +42,8 @@ export default function PlayerStats({
           <Text {...COL.stat} textAlign="center" fontWeight="600">REB</Text>
           <Text {...COL.stat} textAlign="center" fontWeight="600">AST</Text>
           <Text {...COL.stat} textAlign="center" fontWeight="600">F</Text>
-          <Text {...COL.stat} textAlign="center" fontWeight="600">ROB</Text>
-          <Text {...COL.stat} textAlign="center" fontWeight="600">TOC</Text>
+          <Text {...COL.stat} textAlign="center" fontWeight="600">STL</Text>
+          <Text {...COL.stat} textAlign="center" fontWeight="600">BLK</Text>
         </XStack>
 
         {/* LINHAS */}
