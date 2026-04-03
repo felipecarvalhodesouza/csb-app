@@ -9,6 +9,10 @@ type EstatisticaAtleta = {
   faltas: number;
   roubos: number;
   tocos: number;
+  tresPontos: number;
+  doisPontos: number;
+  lancesLivres: number;
+  eficiencia: number;
 };
 
 const COL = {
@@ -40,10 +44,14 @@ export default function PlayerStats({
 
           <Text {...COL.stat} textAlign="center" fontWeight="600">PTS</Text>
           <Text {...COL.stat} textAlign="center" fontWeight="600">REB</Text>
-          <Text {...COL.stat} textAlign="center" fontWeight="600">AST</Text>
+          <Text {...COL.stat} textAlign="center" fontWeight="600">ASS</Text>
           <Text {...COL.stat} textAlign="center" fontWeight="600">F</Text>
+          <Text {...COL.stat} textAlign="center" fontWeight="600">3PT</Text>
+          <Text {...COL.stat} textAlign="center" fontWeight="600">2PT</Text>
+          <Text {...COL.stat} textAlign="center" fontWeight="600">LL</Text>
           <Text {...COL.stat} textAlign="center" fontWeight="600">STL</Text>
           <Text {...COL.stat} textAlign="center" fontWeight="600">BLK</Text>
+          <Text {...COL.stat} textAlign="center" fontWeight="600">EFI</Text>
         </XStack>
 
         {/* LINHAS */}
@@ -74,10 +82,22 @@ export default function PlayerStats({
               {jogador.faltas}
             </Text>
             <Text {...COL.stat} textAlign="center">
+              {jogador.tresPontos}
+            </Text>
+            <Text {...COL.stat} textAlign="center">
+              {jogador.doisPontos}
+            </Text>
+            <Text {...COL.stat} textAlign="center">
+              {jogador.lancesLivres}
+            </Text>
+            <Text {...COL.stat} textAlign="center">
               {jogador.roubos ?? 0}
             </Text>
             <Text {...COL.stat} textAlign="center">
               {jogador.tocos ?? 0}
+            </Text>
+            <Text {...COL.stat} textAlign="center">
+              {jogador.eficiencia ?? 0}
             </Text>
           </XStack>
         ))}

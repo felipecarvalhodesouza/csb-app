@@ -17,16 +17,20 @@ export default function EstatisticasJogo({ timeSelecionado, setTimeSelecionado, 
   const atletasReservasMandante = atletasMandante.filter((a: any) => !a.titular)
   const atletasReservasVisitante = atletasVisitante.filter((a: any) => !a.titular)
 
-  function convertToEstatisticaAtleta(atleta: Atleta) {
+  function convertToEstatisticaAtleta(atleta: Atleta, jogo: Jogo | null) {
     return {
       id: String(atleta.id),
-      nome: atleta.atleta.nome ?? 'Sem nome',
+      nome: atleta.atleta?.nome ?? 'Sem nome',
       pontos: atleta.pontos ?? 0,
+      tresPontos: jogo?.eventos?.filter(e => e.stat === 'pontos' && e.pontos === 3 && e.responsavel?.id === atleta.id).length ?? 0,
+      doisPontos: jogo?.eventos?.filter(e => e.stat === 'pontos' && e.pontos === 2 && e.responsavel?.id === atleta.id).length ?? 0,
+      lancesLivres: jogo?.eventos?.filter(e => e.stat === 'pontos' && e.pontos === 1 && e.responsavel?.id === atleta.id).length ?? 0,
       rebotes: atleta.rebotes ?? 0,
       assistencias: atleta.assistencias ?? 0,
       faltas: atleta.faltas ?? 0,
       roubos: atleta.roubos ?? 0,
       tocos: atleta.tocos ?? 0,
+      eficiencia: (atleta.pontos || 0) + (atleta.rebotes || 0) + (atleta.assistencias || 0) + (atleta.roubos || 0) + (atleta.tocos || 0)
     }
   }
 
@@ -46,13 +50,13 @@ export default function EstatisticasJogo({ timeSelecionado, setTimeSelecionado, 
       </Tabs>
 
       <YStack borderWidth={1} borderColor="$gray6" br="$3" >
-      <PlayerStats atletas={timeSelecionado === 'MAN' ? atletasTitularesMandante.map((j: Atleta) => convertToEstatisticaAtleta(j)) :
-                                                        atletasTitularesVisitante.map((j: Atleta) => convertToEstatisticaAtleta(j))}
+      <PlayerStats atletas={timeSelecionado === 'MAN' ? atletasTitularesMandante.map((j: Atleta) => convertToEstatisticaAtleta(j, jogo)) :
+                                                        atletasTitularesVisitante.map((j: Atleta) => convertToEstatisticaAtleta(j, jogo))}
                    titulares={true} />
       
 
-      <PlayerStats atletas={timeSelecionado === 'MAN' ? atletasReservasMandante.map((j: Atleta) => convertToEstatisticaAtleta(j)) :
-                                                        atletasReservasVisitante.map((j: Atleta) => convertToEstatisticaAtleta(j))}
+      <PlayerStats atletas={timeSelecionado === 'MAN' ? atletasReservasMandante.map((j: Atleta) => convertToEstatisticaAtleta(j, jogo)) :
+                                                        atletasReservasVisitante.map((j: Atleta) => convertToEstatisticaAtleta(j, jogo))}
                    titulares={false} />
 
       </YStack>
