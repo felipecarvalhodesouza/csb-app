@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, use } from 'react'
 import { useRouter, useLocalSearchParams } from 'expo-router'
 import {
     YStack, Text, Button, Input,
     Label,
 } from 'tamagui'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { format } from 'date-fns'
+import { format, set } from 'date-fns'
 import { API_BASE_URL } from '../../utils/config'
 import { apiFetch } from '../utils/api'
 import { GenericPicker } from '../componente/GenericPicker'
@@ -50,6 +50,15 @@ export default function EditarJogoScreen() {
 
     const [youtubeLink, setYoutubeLink] = useState('')
 
+    const [fases, setFases] = useState<any[]>([])
+    const [faseSelecionada, setFaseSelecionada] = useState<string | null>(null)
+
+    const [chaves, setChaves] = useState<any[]>([])
+    const [chaveSelecionada, setChaveSelecionada] = useState<string | null>(null)
+
+    const [chaveDisabled, setChaveDisabled] = useState(false)
+    const [faseDisabled, setFaseDisabled] = useState(false)
+
     const [showDialog, setShowDialog] = useState(false)
     const [message, setMessage] = useState<string | null>(null)
     const [error, setError] = useState<boolean | null>(null)
@@ -66,21 +75,31 @@ export default function EditarJogoScreen() {
     const loadJogo = async () => {
         try {
 
-            const jogo = await apiFetch<any>(`${API_BASE_URL}/jogos/${jogoId}`)
+            const jogo = await apiFetch<any>(`${API_BASE_URL}/jogos/v2/${jogoId}`)
             setJogo(jogo)
 
-            setTecnicoMandante(jogo.tecnicoMandante?.id?.toString() || null)
-            setTecnicoVisitante(jogo.tecnicoVisitante?.id?.toString() || null)
+            setTecnicoMandante(jogo.tecnicoMandanteId?.toString() || null)
+            setTecnicoVisitante(jogo.tecnicoVisitanteId?.toString() || null)
 
-            setLocalSelecionado(jogo.local?.id?.toString() || null)
+            setLocalSelecionado(jogo.localId?.toString() || null)
 
-            setArbitroSelecionado(jogo.arbitroPrincipal?.id?.toString() || null)
-            setArbitroAuxiliar(jogo.arbitroAuxiliar?.id?.toString() || null)
+            setArbitroSelecionado(jogo.arbitroPrincipalId?.toString() || null)
+            setArbitroAuxiliar(jogo.arbitroAuxiliarId?.toString() || null)
 
-            setEstatisticoSelecionado(jogo.estatistico?.id?.toString() || null)
-            setMesarioSelecionado(jogo.mesario?.id?.toString() || null)
+            setEstatisticoSelecionado(jogo.estatisticoId?.toString() || null)
+            setMesarioSelecionado(jogo.mesarioId?.toString() || null)
 
             setYoutubeLink(jogo.streamUrl || '')
+
+            if (jogo.chaveId) {
+                setChaveSelecionada(jogo.chaveId?.toString() || null)
+                setChaveDisabled(true)
+            }
+
+            if (jogo.faseId) {
+                setFaseSelecionada(jogo.faseId?.toString() || null)
+                setFaseDisabled(true)
+            }
 
             if (jogo.data) {
                 const data = new Date(jogo.data)
@@ -150,6 +169,37 @@ export default function EditarJogoScreen() {
     }
   }
 
+  const loadFases = async (torneioId: string, categoriaId: string) => {
+    try {
+      apiFetch<any[]>(`${API_BASE_URL}/torneios/${torneioId}/categorias/${categoriaId}/fases`)
+        .then(data => setFases(data))
+
+        if(!fases || fases.length === 0){
+            setFaseDisabled(true)
+            setChaveDisabled(true)
+        }
+    } catch (error) {
+      setError(true)
+      setMessage(error.message || 'Erro ao carregar fases.')
+      setShowDialog(true)
+    }
+  }
+
+  const loadChaves = async (torneioId: string, categoriaId: string, faseId: string) => {
+    try {
+      const fase = await apiFetch<any[]>(`${API_BASE_URL}/torneios/${torneioId}/categorias/${categoriaId}/fases/${faseId}`)
+      setChaves(fase.chaves || [])
+      if(!fase.chaves || fase.chaves.length === 0){
+        setChaveDisabled(true)
+      }
+
+    } catch (error) {
+      setError(true)
+      setMessage(error.message || 'Erro ao carregar fases.')
+      setShowDialog(true)
+    }
+  }
+
   const loadTecnicos = async (equipeId: string, isMandante: boolean) => {
     if(equipeId == null || "Selecione uma equipe" == equipeId){
         if (isMandante) {
@@ -178,13 +228,13 @@ export default function EditarJogoScreen() {
 
     useEffect(() => {
         if(jogo){
-            loadTecnicos(jogo.mandante?.id, true) 
+            loadTecnicos(jogo.mandanteId, true) 
         }
         }, [jogo])
 
     useEffect(() => {
         if(jogo){
-            loadTecnicos(jogo.visitante?.id, false) 
+            loadTecnicos(jogo.visitanteId, false) 
         }
     }, [jogo])
 
@@ -200,6 +250,17 @@ export default function EditarJogoScreen() {
     fetchTorneiosELocais()
   }, [])
 
+  useEffect(() => {
+    if (jogo && faseSelecionada && faseSelecionada !== "Selecione uma opção") {
+      loadChaves(jogo.torneioId, jogo.categoriaId, faseSelecionada)
+    } 
+  }, [jogo, faseSelecionada])
+
+  useEffect(() => {
+    if(jogo){
+        loadFases(jogo.torneioId, jogo.categoriaId)
+    }
+  }, [jogo])
 
     const handleSalvar = async () => {
 
@@ -241,6 +302,8 @@ export default function EditarJogoScreen() {
 
                 estatistico: estatisticoSelecionado != null && estatisticoSelecionado !== "Selecione uma opção" ? { id: Number(estatisticoSelecionado) } : null,
                 mesario: mesarioSelecionado != null && mesarioSelecionado !== "Selecione uma opção" ? { id: Number(mesarioSelecionado) } : null,
+
+                chave: chaveSelecionada != null && chaveSelecionada !== "Selecione uma opção" ? { id: Number(chaveSelecionada) } : null,
 
                 streamUrl: youtubeLink || null
 
@@ -302,7 +365,7 @@ export default function EditarJogoScreen() {
                 <YStack space="$1">
                 <Text color="$gray10">Equipe Mandante</Text>
                 <Text fontSize="$5" fontWeight="600">
-                    {jogo.mandante.nome}
+                    {jogo.mandanteNome}
                 </Text>
                 </YStack>
 
@@ -323,7 +386,7 @@ export default function EditarJogoScreen() {
                 <YStack space="$1">
                 <Text color="$gray10">Equipe Visitante</Text>
                 <Text fontSize="$5" fontWeight="600">
-                    {jogo.visitante.nome}
+                    {jogo.visitanteNome}
                 </Text>
                 </YStack>
 
@@ -336,6 +399,45 @@ export default function EditarJogoScreen() {
                         onChange={setTecnicoVisitante}
                         getLabel={(t) => t.nome}
                         getValue={(t) => t.id}
+                        enabled={true}
+                    />
+                </YStack>
+
+                {/* Fase */}
+                <YStack space="$1">
+                    <Text>Fase</Text>
+                    <GenericPicker
+                        items={fases}
+                        value={faseSelecionada}
+                        onChange={setFaseSelecionada}
+                        getLabel={(f) => f.nome}
+                        getValue={(f) => f.id}
+                        enabled={faseDisabled === false}
+                    />
+                </YStack>
+
+                {/* Chave */}
+                <YStack space="$1">
+                    <Text>Chave</Text>
+                    <GenericPicker
+                        items={chaves}
+                        value={chaveSelecionada}
+                        onChange={setChaveSelecionada}
+                        getLabel={(c) => c.nome}
+                        getValue={(c) => c.id}
+                        enabled={chaveDisabled === false}
+                    />
+                </YStack>
+
+                {/* Estatístico */}
+                <YStack space="$1">
+                    <Text>Estatístico</Text>
+                    <GenericPicker
+                        items={estatisticos}
+                        value={estatisticoSelecionado}
+                        onChange={setEstatisticoSelecionado}
+                        getLabel={(e) => e.nome}
+                        getValue={(e) => e.id}
                         enabled={true}
                     />
                 </YStack>
