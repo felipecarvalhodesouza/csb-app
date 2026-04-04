@@ -3,6 +3,10 @@
   "outputDirectory": "dist",
   "rewrites": [
     {
+      "source": "/confirmar-email",
+      "destination": "/confirmar-email"
+    },
+    {
       "source": "/(.*)",
       "destination": "/"
     }
