@@ -19,8 +19,6 @@ export default function IncluirAtletaScreen() {
 
   const [nome, setNome] = useState('')
   const [dataNascimento, setDataNascimento] = useState<Date | null>(null)
-  const [altura, setAltura] = useState('')
-  const [peso, setPeso] = useState('')
   const [numeroCamisa, setNumeroCamisa] = useState('')
 
   const [modalidade, setModalidade] = useState<string | null>(null)
@@ -141,8 +139,6 @@ export default function IncluirAtletaScreen() {
         const novoAtleta = {
           nome,
           dataNascimento,
-          altura: parseFloat(altura),
-          peso: parseFloat(peso),
           equipes: [{
             id: Number(equipeSelecionada)
           }],
@@ -165,13 +161,11 @@ export default function IncluirAtletaScreen() {
   }
 
   const isFormValid =
-    nome && dataNascimento && altura && peso && modalidade && torneioSelecionado && equipeSelecionada
+    nome && dataNascimento && modalidade && torneioSelecionado && equipeSelecionada
 
   function handleLimparForm(event: GestureResponderEvent): void {
     setNome('')
     setDataNascimento(null)
-    setAltura('')
-    setPeso('')
     setModalidade("Selecione uma opção")
     setTorneios([])
     setTorneioSelecionado(null)
@@ -235,34 +229,6 @@ export default function IncluirAtletaScreen() {
                 setShowDatePicker(false)
                 setDataNascimento(date)
               }}
-            />
-          </YStack>
-
-          {/* Altura */}
-          <YStack space="$1">
-            <Text fontSize={14} color="$gray10">Altura (cm)</Text>
-            <Input
-              placeholder="Ex: 180"
-              keyboardType="numeric"
-              value={altura}
-              onChangeText={setAltura}
-              bg="$color2"
-              borderRadius="$3"
-              p="$3"
-            />
-          </YStack>
-
-          {/* Peso */}
-          <YStack space="$1">
-            <Text fontSize={14} color="$gray10">Peso (kg)</Text>
-            <Input
-              placeholder="Ex: 75"
-              keyboardType="numeric"
-              value={peso}
-              onChangeText={setPeso}
-              bg="$color2"
-              borderRadius="$3"
-              p="$3"
             />
           </YStack>
 
