@@ -3,6 +3,7 @@ import Equipe from "./equipe";
 export interface Atleta {
   id: number;
   nome: string;
+  apelido?: string;
   numero: number;
   numeroCamisa: number;
   dataNascimento: Date;

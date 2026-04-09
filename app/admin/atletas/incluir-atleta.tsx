@@ -18,6 +18,7 @@ export default function IncluirAtletaScreen() {
   const router = useRouter()
 
   const [nome, setNome] = useState('')
+  const [apelido, setApelido] = useState('')
   const [dataNascimento, setDataNascimento] = useState<Date | null>(null)
   const [numeroCamisa, setNumeroCamisa] = useState('')
 
@@ -138,6 +139,7 @@ export default function IncluirAtletaScreen() {
       try {
         const novoAtleta = {
           nome,
+          apelido,
           dataNascimento,
           equipes: [{
             id: Number(equipeSelecionada)
@@ -165,6 +167,7 @@ export default function IncluirAtletaScreen() {
 
   function handleLimparForm(event: GestureResponderEvent): void {
     setNome('')
+    setApelido('')
     setDataNascimento(null)
     setModalidade("Selecione uma opção")
     setTorneios([])
@@ -195,7 +198,18 @@ export default function IncluirAtletaScreen() {
               p="$3"
             />
           </YStack>
-
+          {/* Apelido */}
+          <YStack space="$1">
+            <Text fontSize={14} color="$gray10">Apelido</Text>
+            <Input
+              placeholder="Digite o apelido"
+              value={apelido}
+              onChangeText={setApelido}
+              bg="$color2"
+              borderRadius="$3"
+              p="$3"
+            />
+          </YStack>
           {/* Número da Camisa */}
           <YStack space="$1">
             <Text fontSize={14} color="$gray10">Número da Camisa</Text>
