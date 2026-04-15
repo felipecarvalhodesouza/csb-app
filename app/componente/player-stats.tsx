@@ -44,7 +44,7 @@ export default function PlayerStats({
 
           <Text {...COL.stat} textAlign="center" fontWeight="600">PTS</Text>
           <Text {...COL.stat} textAlign="center" fontWeight="600">REB</Text>
-          <Text {...COL.stat} textAlign="center" fontWeight="600">ASS</Text>
+          <Text {...COL.stat} textAlign="center" fontWeight="600">AST</Text>
           <Text {...COL.stat} textAlign="center" fontWeight="600">F</Text>
           <Text {...COL.stat} textAlign="center" fontWeight="600">3PT</Text>
           <Text {...COL.stat} textAlign="center" fontWeight="600">2PT</Text>
