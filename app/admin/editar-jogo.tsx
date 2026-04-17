@@ -171,13 +171,18 @@ export default function EditarJogoScreen() {
 
   const loadFases = async (torneioId: string, categoriaId: string) => {
     try {
-      apiFetch<any[]>(`${API_BASE_URL}/torneios/${torneioId}/categorias/${categoriaId}/fases`)
-        .then(data => setFases(data))
+      
+      const data = await apiFetch<any[]>(`${API_BASE_URL}/torneios/${torneioId}/categorias/${categoriaId}/fases`)
+      setFases(data)
 
-        if(!fases || fases.length === 0){
-            setFaseDisabled(true)
-            setChaveDisabled(true)
-        }
+      if (!data || data.length === 0) {
+        setFaseDisabled(true)
+        setChaveDisabled(true)
+      } else if(jogo && jogo.faseId == null) {
+        setFaseDisabled(false)
+        setChaveDisabled(true)
+      }
+
     } catch (error) {
       setError(true)
       setMessage(error.message || 'Erro ao carregar fases.')
@@ -189,8 +194,10 @@ export default function EditarJogoScreen() {
     try {
       const fase = await apiFetch<any[]>(`${API_BASE_URL}/torneios/${torneioId}/categorias/${categoriaId}/fases/${faseId}`)
       setChaves(fase.chaves || [])
-      if(!fase.chaves || fase.chaves.length === 0){
+      if (!fase.chaves || fase.chaves.length === 0) {
         setChaveDisabled(true)
+      } else if(jogo && jogo.chaveId == null) {
+        setChaveDisabled(false)
       }
 
     } catch (error) {
@@ -253,17 +260,20 @@ export default function EditarJogoScreen() {
   useEffect(() => {
     if (jogo && faseSelecionada && faseSelecionada !== "Selecione uma opção") {
       loadChaves(jogo.torneioId, jogo.categoriaId, faseSelecionada)
-    } 
+    } else {
+      setChaves([])
+      setChaveSelecionada(null)
+      setChaveDisabled(true)
+    }
   }, [jogo, faseSelecionada])
 
   useEffect(() => {
-    if(jogo){
+    if(jogo && jogo.torneioId && jogo.categoriaId){
         loadFases(jogo.torneioId, jogo.categoriaId)
     }
   }, [jogo])
 
     const handleSalvar = async () => {
-
 
         if (!isValidYoutubeUrl(youtubeLink)) {
             setError(true)
