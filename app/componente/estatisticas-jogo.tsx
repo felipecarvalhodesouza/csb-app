@@ -19,6 +19,7 @@ export default function EstatisticasJogo({ timeSelecionado, setTimeSelecionado, 
 
   function convertToEstatisticaAtleta(atleta: Atleta, jogo: Jogo | null) {
     return {
+      numero: atleta.numeroCamisaJogo,
       id: String(atleta.id),
       nome: atleta.atleta?.nome ?? 'Sem nome',
       pontos: atleta.pontos ?? 0,
@@ -37,9 +38,14 @@ export default function EstatisticasJogo({ timeSelecionado, setTimeSelecionado, 
   return (
     <>
       {/* Team Tabs */}
-      <Tabs value={timeSelecionado} onValueChange={v => setTimeSelecionado(v as 'MAN' | 'VIS')} ml={"$4"} mr={"$4"}>
+      <Tabs value={timeSelecionado} onValueChange={v => setTimeSelecionado(v as 'MAN' | 'VIS')}>
 
-        <Tabs.List width="100%" justifyContent="space-between" alignItems="center" mb="$2">
+        <Tabs.List
+          width="100%"
+          justifyContent="space-between"
+          alignItems="center"
+          mb="$2"
+        >
           <Tabs.Tab value="MAN" flex={1}>
             <Text>{String(jogo.mandante.nome)}</Text>
           </Tabs.Tab>

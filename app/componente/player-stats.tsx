@@ -1,6 +1,7 @@
 import { YStack, XStack, Text, ScrollView } from 'tamagui'
 
 type EstatisticaAtleta = {
+  numero?: number;
   id: string;
   nome: string;
   pontos: number;
@@ -38,6 +39,8 @@ export default function PlayerStats({
 
         {/* HEADER */}
         <XStack bg="$gray5" p="$2">
+          <Text {...COL.stat} textAlign="center" ml={-20} fontWeight="600">Nº</Text>
+
           <Text {...COL.name} fontWeight="600">
             {titulares ? 'Titulares' : 'Reservas'}
           </Text>
@@ -61,6 +64,10 @@ export default function PlayerStats({
             p="$2"
             bg={i % 2 === 0 ? '$background' : '$gray2'}
           >
+            <Text {...COL.stat} textAlign="center" ml={-20}>
+              {jogador.numero}
+            </Text>
+
             <Text
               {...COL.name}
               numberOfLines={1}
