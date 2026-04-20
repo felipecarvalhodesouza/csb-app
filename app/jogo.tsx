@@ -196,11 +196,11 @@ export default function TelaJogo() {
           <LanceALance eventos={jogo.eventos} mandanteId={jogo.mandante.id} />
         )}
 
-        {aba === 'Líderes' && (
+        {/* {aba === 'Líderes' && (
           <YStack ai="center" mt="$4" mb="$4">
             <Text fontSize={16} color="$gray10">Líderes do jogo (adicione conteúdo aqui)</Text>
           </YStack>
-        )}
+        )}*/}
 
       <FloatingActionButton
         actions={[{
