@@ -3,10 +3,11 @@ import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { YStack, Text, Spinner, View, Button, ScrollView } from 'tamagui';
 import { API_BASE_URL } from '../../../utils/config';
 import { Tela } from '../../componente/layout/tela';
-import { apiFetch, apiPost } from '../../utils/api';
+import { apiDelete, apiFetch, apiPost } from '../../utils/api';
 import Fase from '../../domain/fase';
 import FloatingActionButton from '../../componente/FloatingActionButton';
 import { MaterialCommunityIcons } from '@expo/vector-icons'
+import Dialog from '../../componente/dialog-error';
 
 export default function FaseConsultaScreen() {
   const { faseId, torneioId, categoriaId } = useLocalSearchParams<{ faseId: string, torneioId: string, categoriaId: string }>();
@@ -15,6 +16,21 @@ export default function FaseConsultaScreen() {
   const router = useRouter();
   const [fase, setFase] = useState<Fase | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const [showDialog, setShowDialog] = useState(false)
+  const [message, setMessage] = useState<string | null>(null)
+  const [error, setError] = useState<boolean | null>(null)
+
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+
+
+  const handleCloseDialog = () => {
+    setShowDialog(false)
+    if(!error){
+      router.back()
+    }
+    setError(null)
+  }
 
   const fetchFase = useCallback(async () => {
     async function fetchFase() {
@@ -31,6 +47,21 @@ export default function FaseConsultaScreen() {
     if (faseId && torneioId && categoriaId) fetchFase();
   }, [faseId, torneioId, categoriaId]);
 
+  const excluirFase = async () => {
+    try {
+      await apiDelete(`${API_BASE_URL}/torneios/${torneioId}/categorias/${categoriaId}/fases/${faseId}`)
+      setShowDeleteDialog(false)
+      setShowDialog(true)
+      setMessage("Fase excluída com sucesso!")
+    } catch (error: Error | any) {
+      console.log(typeof error)
+      setShowDeleteDialog(false)
+      setShowDialog(true)
+      setError(true)
+      setMessage(error?.message || "Não foi possível excluir a fase.")
+    }
+  }
+
   useFocusEffect(
     useCallback(() => {
       fetchFase()
@@ -38,6 +69,7 @@ export default function FaseConsultaScreen() {
   )
 
   return (
+    <>
     <Tela title={`Gerenciar Fase`} scroll={false}>
       <YStack f={1}>
         {loading ? (
@@ -116,6 +148,49 @@ export default function FaseConsultaScreen() {
         }]}
         position={{ bottom: 15, right: 24 }}
       />
+
+    <FloatingActionButton
+      actions={[
+        {
+          icon: (
+            <MaterialCommunityIcons
+              name="delete-forever"
+              size={28}
+              color="$gray12"
+            />
+          ),
+          onPress: () => setShowDeleteDialog(true),
+        },
+      ]}
+      position={{ bottom: 15, right: 85 }}
+    />
     </Tela>
+
+      <Dialog
+        open={showDeleteDialog}
+        onClose={() => setShowDeleteDialog(false)}
+        title="Excluir fase"
+        message="Tem certeza que deseja excluir esta fase? Essa ação não poderá ser desfeita."
+        extra={
+          <Button
+            mt="$2"
+            bg="$red10"
+            color="white"
+            onPress={async () => {
+              excluirFase()
+            }}
+          >
+            Excluir
+          </Button>
+        }
+      />
+
+      <Dialog
+        open={showDialog}
+        onClose={handleCloseDialog}
+        message={message}
+        type={error ? 'error' : 'success'}
+      />
+    </>
   );
 }

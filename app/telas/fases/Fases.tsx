@@ -112,7 +112,7 @@ export default function FaseScreen() {
                         icon: <MaterialCommunityIcons name="plus" size={28} color="$gray12" />,
                         label: 'Criar Fase',
                         onPress: () => router.push(`/telas/criar-fase/CriarFase?torneioId=${torneioId}&categoriaId=${categoriaId}`)
-                    }]} position={{ bottom: 30, right: 24 }}
+                    }]} position={{ bottom: 15, right: 24 }}
                 />
             </Tela>
             <Dialog

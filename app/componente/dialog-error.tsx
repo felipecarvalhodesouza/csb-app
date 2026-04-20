@@ -4,7 +4,7 @@ type DialogProps = {
   open: boolean
   onClose: () => void
   message: string | null
-  type?: 'error' | 'success'
+  type?: 'error' | 'success' | 'confirmation'
   title?: string
   extra?: React.ReactNode
 }
@@ -13,7 +13,8 @@ export default function Dialog({ open, onClose, message, type = 'error', title, 
   if (!message || !open) return null
 
   const isSuccess = type === 'success'
-  const defaultTitle = isSuccess ? 'Sucesso' : 'Erro'
+  const isConfirmation = type === 'confirmation'
+  const defaultTitle = isSuccess ? 'Sucesso' : isConfirmation ? 'Confirme a ação' : 'Erro'
   const titleColor = isSuccess ? '$green10' : '$red10'
 
   return (
@@ -46,6 +47,7 @@ export default function Dialog({ open, onClose, message, type = 'error', title, 
             resizeMode="contain"
           />
         )}
+
         <Text fontWeight="700" fontSize="$4" textAlign="center" color={titleColor}>
           {title || defaultTitle}
         </Text>
