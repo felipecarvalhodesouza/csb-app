@@ -291,7 +291,7 @@ export default function EditarJogoScreen() {
                 'Content-Type': 'application/json',
             }
 
-            const data = new Date(
+            const data =  dataJogo == null ? null : new Date(
                 dataJogo!.getFullYear(),
                 dataJogo!.getMonth(),
                 dataJogo!.getDate(),
@@ -299,7 +299,7 @@ export default function EditarJogoScreen() {
                 horaJogo!.getMinutes()
             )
 
-            const dataHoraString = format(data, "yyyy-MM-dd'T'HH:mm:ss")
+            const dataHoraString = data ? format(data, "yyyy-MM-dd'T'HH:mm:ss") : null;
 
             const jogoAtualizado: any = {
                 id: jogo.id,

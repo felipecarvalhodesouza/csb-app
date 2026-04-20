@@ -6,6 +6,7 @@ import { API_BASE_URL } from '../../../utils/config';
 import { Tela } from '../../componente/layout/tela';
 import { apiFetch, apiPost } from '../../utils/api';
 import Fase from '../../domain/fase';
+import { id } from 'react-native-paper-dates';
 
 interface Chave {
     id: number;
@@ -34,13 +35,29 @@ export default function VincularEquipesScreen() {
                 const equipesData = await apiFetch<Equipe[]>(`${API_BASE_URL}/torneios/${torneioId}/categorias/${categoriaId}/equipes`);
                 setChaves(fase.chaves || []);
                 setEquipes(equipesData);
+
                 // Inicializa vinculos
                 const initialVinculos: Record<number, number[]> = {};
                 (fase.chaves || []).forEach(chave => { initialVinculos[chave.id] = []; });
                 setVinculos(initialVinculos);
                 // Inicializa seleção
                 const initialSelected: Record<number, number | null> = {};
-                equipesData.forEach(eq => { initialSelected[eq.id] = null; });
+                equipesData.forEach(eq => {
+
+                    initialSelected[eq.id] = null;
+
+                    fase.chaves?.forEach(c => {
+
+                        for (let e of c.equipes || []) {
+                            if (e.id === eq.id) {
+                                initialSelected[eq.id] = c.id;
+                                initialVinculos[c.id] = [...(initialVinculos[c.id] || []), eq.id];
+                                break;
+                            }
+                        }
+                    });
+
+                });
                 setSelectedEquipe(initialSelected);
             } catch (error) {
                 console.error(error);
@@ -53,13 +70,17 @@ export default function VincularEquipesScreen() {
 
     // Handler para selecionar chave para equipe
     const handleSelectChave = (equipeId: number, chaveId: number) => {
+
         // Remove equipe de todas as chaves
         const newVinculos: Record<number, number[]> = { ...vinculos };
         Object.keys(newVinculos).forEach(cid => {
             newVinculos[Number(cid)] = newVinculos[Number(cid)].filter(eid => eid !== equipeId);
         });
         // Adiciona equipe à nova chave
-        newVinculos[chaveId] = [...newVinculos[chaveId], equipeId];
+
+        if(chaveId !== null) {
+            newVinculos[chaveId] = [...newVinculos[chaveId], equipeId];
+        }
         setVinculos(newVinculos);
         setSelectedEquipe({ ...selectedEquipe, [equipeId]: chaveId });
     };
@@ -98,7 +119,11 @@ export default function VincularEquipesScreen() {
                                 items={chaves}
                                 value={selectedEquipe[equipe.id] ?? null}
                                 onChange={chaveId => {
-                                    if (chaveId) handleSelectChave(equipe.id, chaveId);
+                                    if (chaveId && chaveId !== "Selecione a chave")
+                                        handleSelectChave(equipe.id, chaveId);
+                                    else {
+                                        handleSelectChave(equipe.id, null);
+                                    }
                                 }}
                                 getLabel={item => item.nome}
                                 getValue={item => item.id}

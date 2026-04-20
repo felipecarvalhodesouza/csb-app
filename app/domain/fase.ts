@@ -1,3 +1,5 @@
+import Chave from "./chave";
+
 export default interface Fase {
     id?: number;
     nome?: string | null;
@@ -8,5 +10,5 @@ export default interface Fase {
     melhorDe?: any | null;
     ordem?: any | null;
     status?: any | null;
-    chaves?: any[] | null;
+    chaves?: Chave[] | null;
 }

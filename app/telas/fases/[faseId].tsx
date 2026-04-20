@@ -69,7 +69,7 @@ export default function FaseConsultaScreen() {
                       {chave.equipes && chave.equipes.length > 0 ? (
                         <YStack space="$1">
                           {chave.equipes.map((equipe, idx) => (
-                            <Text key={idx} fontSize={15} color="$gray10" numberOfLines={1} ellipsizeMode="tail">{equipe}</Text>
+                            <Text key={idx} fontSize={15} color="$gray10" numberOfLines={1} ellipsizeMode="tail">{equipe.nome}</Text>
                           ))}
                         </YStack>
                       ) : (
