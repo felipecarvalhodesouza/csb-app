@@ -2,12 +2,8 @@ import { Dispatch, SetStateAction } from 'react'
 import {
   XStack,
   YStack,
-  Text,
-  Select,
-  Adapt,
-  Sheet,
+  Text
 } from 'tamagui'
-import { ChevronDown } from '@tamagui/lucide-icons'
 import { GenericPicker } from './GenericPicker'
 import { TextStyle } from 'tamagui'
 
