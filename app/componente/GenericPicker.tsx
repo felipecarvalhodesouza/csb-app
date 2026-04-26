@@ -12,6 +12,7 @@ interface GenericPickerProps<T> {
   placeholder?: string
   filter?: (item: T) => boolean
   enabled?: boolean
+  overrideStyle?: any
 }
 
 export function GenericPicker<T>({
@@ -23,6 +24,7 @@ export function GenericPicker<T>({
   placeholder = 'Selecione uma opção',
   filter,
   enabled = true,
+  overrideStyle
 }: GenericPickerProps<T>) {
 
 const filteredItems = filter ? items.filter(filter) : items
@@ -40,7 +42,7 @@ const nativeStyle: TextStyle = {
   fontWeight: '500',
 }
 
-const pickerStyle = Platform.OS === 'web' ? webStyle : nativeStyle
+const pickerStyle =  overrideStyle ? overrideStyle : Platform.OS === 'web' ? webStyle : nativeStyle
 
   return (
     <YStack

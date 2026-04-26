@@ -14,6 +14,7 @@ import { apiFetch } from './utils/api'
 import { API_BASE_URL } from '../utils/config'
 import { Tela } from './componente/layout/tela'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import FiltroJogos from './componente/FiltroJogo'
 
 export default function CategoriaJogosScreen() {
       const COL = {
@@ -33,7 +34,35 @@ export default function CategoriaJogosScreen() {
   const [isAdmin, setIsAdmin] = useState(false)
   const [userId, setUserId] = useState<string | null>(null)
   const [estatisticoId, setEstatisticoId] = useState<string | null>(null)
+
+  const [equipeId, setEquipeId] = useState('')
+  const [ordenacao, setOrdenacao] = useState<'asc' | 'desc'>('desc')
+
+  const [pagina, setPagina] = useState(0)
+  const [temMais, setTemMais] = useState(true)
+  const [equipes, setEquipes] = useState([])
   
+  useEffect(() => {
+    fetchJogos(0)
+  }, [equipeId, ordenacao])
+
+    useEffect(() => {
+    async function carregarEquipes() {
+      try {
+        const data = await apiFetch(
+          `${API_BASE_URL}/torneios/${torneioId}/categorias/${categoriaId}/equipes`
+        )
+
+        setEquipes(data)
+      } catch (e) {
+        console.log(e)
+      }
+    }
+
+  carregarEquipes()
+}, [torneioId, categoriaId])
+
+
   useEffect(() => {
     if(!userId) {
       return;
@@ -77,17 +106,37 @@ export default function CategoriaJogosScreen() {
     }
   }
 
-  const fetchJogos = useCallback(async (options: RequestInit = {}) => {
-        try {
-          setLoading(true)
-          const data = await apiFetch<Jogo[]>(`${API_BASE_URL}/torneios/${torneioId}/categorias/${categoriaId}/jogos`)
-          setJogos(data)
-        } catch (err: any) {
-          setError(err.message || 'Erro desconhecido.')
-        } finally {
-          setLoading(false)
-        }
-  }, [torneioId, categoriaId])
+  const fetchJogos = useCallback(async (page = 0) => {
+    try {
+      setLoading(true)
+
+      const params = new URLSearchParams()
+
+      params.append('page', String(page))
+      params.append('size', '10')
+      params.append('sort', `data,${ordenacao}`)
+
+      if (equipeId) {
+        params.append('equipeId', equipeId)
+      }
+
+      const response = await apiFetch<any>(
+        `${API_BASE_URL}/torneios/${torneioId}/categorias/${categoriaId}/jogos/v2?${params.toString()}`
+      )
+
+      if (page === 0) {
+        setJogos(response.content)
+      } else {
+        setJogos(prev => [...prev, ...response.content])
+      }
+
+      setTemMais(!response.last)
+      setPagina(page)
+
+    } finally {
+      setLoading(false)
+    }
+  }, [torneioId, categoriaId, equipeId, ordenacao])
 
   useFocusEffect(
     useCallback(() => {
@@ -106,9 +155,6 @@ export default function CategoriaJogosScreen() {
         .finally(() => setLoadingClassificacao(false));
     }
   }, [tab, categoriaId, torneioId]);
-
-  const jogosAoVivo = jogos.filter((jogo) => jogo.transmissao?.toLowerCase() === 'live')
-  const jogosNormais = jogos.filter((jogo) => jogo.transmissao?.toLowerCase() !== 'live')
 
   function handleLongPress(jogo: Jogo) {
       if(jogo.status == 'PREVISTO'){
@@ -156,30 +202,18 @@ export default function CategoriaJogosScreen() {
         </Tabs.List>
       </Tabs>
 
-      {tab === 'jogos' && jogosAoVivo.length > 0 && (
-          <YStack mb="$4" space>
-            <Text fontSize={16} fontWeight="600" color="$red10">
-              AO VIVO
-            </Text>
-            {jogosAoVivo.map((jogo) => (
-              <GameCard
-                key={jogo.id}
-                jogo={jogo}
-                onPress={() =>
-                  router.push({
-                    pathname: '/splash-patrocinador',
-                    params: { next: `/jogo?jogoId=${jogo.id}` },
-                  })
-                }
-                onLongPress={() => handleLongPress(jogo)}
-                isAdmin={isAdmin || (jogo.estatistico && jogo.estatistico.id == estatisticoId)}
-              />
-            ))}
-          </YStack>
-        )}
+      {tab === 'jogos' && (
+            <FiltroJogos
+              equipes={equipes}
+              equipeId={equipeId}
+              setEquipeId={setEquipeId}
+              ordenacao={ordenacao}
+              setOrdenacao={setOrdenacao}
+            />
+      )}
 
-        {tab === 'jogos' && jogosNormais.length > 0 ? (
-          jogosNormais.map((jogo) => (
+        {tab === 'jogos' && jogos.length > 0 ? (
+          jogos.map((jogo) => (
             <GameCard
               key={jogo.id}
               jogo={jogo}
