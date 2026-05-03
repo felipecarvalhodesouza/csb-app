@@ -8,6 +8,7 @@ import {
   ScrollView,
   Spinner,
   Button,
+  Input,
 } from 'tamagui'
 import { MaterialIcons } from '@expo/vector-icons'
 import AsyncStorage from '@react-native-async-storage/async-storage'
@@ -25,6 +26,7 @@ export default function EquipeDetalhesScreen() {
   const [loading, setLoading] = useState(true)
   const [perfil, setPerfil] = useState<string | null>(null)
   const [categoriasAbertas, setCategoriasAbertas] = useState<Record<number, boolean>>({})
+  const [busca, setBusca] = useState('')
 
   const router = useRouter()
 
@@ -97,8 +99,13 @@ export default function EquipeDetalhesScreen() {
     }))
   }
 
+  // 🔍 FILTRO DE BUSCA
+  const atletasFiltrados = atletas.filter((atleta: any) =>
+    atleta.nome?.toLowerCase().includes(busca.toLowerCase())
+  )
+
   // 🔥 AGRUPAMENTO POR CATEGORIA
-  const atletasPorCategoria = atletas.reduce((acc: any, atleta: any) => {
+  const atletasPorCategoria = atletasFiltrados.reduce((acc: any, atleta: any) => {
     if (!atleta.categorias) return acc
 
     atleta.categorias.forEach((cat: any) => {
@@ -129,11 +136,20 @@ export default function EquipeDetalhesScreen() {
             Atletas
           </Text>
 
+          {/* 🔍 INPUT DE BUSCA */}
+          <Input
+            mt="$3"
+            placeholder="Buscar atleta..."
+            value={busca}
+            onChangeText={setBusca}
+            bg="$color1"
+            color="white"
+          />
+
           {Object.keys(atletasPorCategoria).length > 0 ? (
             Object.entries(atletasPorCategoria).map(([catId, cat]: any) => (
               <YStack key={catId} space="$2" mt="$3">
                 
-                {/* HEADER CATEGORIA */}
                 <XStack
                   onPress={() => toggleCategoria(Number(catId))}
                   ai="center"
@@ -150,7 +166,6 @@ export default function EquipeDetalhesScreen() {
                   />
                 </XStack>
 
-                {/* ATLETAS */}
                 {categoriasAbertas[catId] &&
                   cat.atletas.map((atleta: any) => (
                     <XStack
@@ -173,7 +188,7 @@ export default function EquipeDetalhesScreen() {
             ))
           ) : (
             <Text color="$gray10" mt="$2">
-              Nenhum atleta cadastrado.
+              Nenhum atleta encontrado.
             </Text>
           )}
         </ScrollView>
