@@ -18,13 +18,15 @@ import { GestureResponderEvent } from 'react-native'
 import { Tela } from './componente/layout/tela'
 
 export default function EquipeDetalhesScreen() {
-const { id, nome } = useLocalSearchParams()
-const nomeEquipe = Array.isArray(nome) ? nome[0] : nome
+  const { id, nome } = useLocalSearchParams()
+  const nomeEquipe = Array.isArray(nome) ? nome[0] : nome
 
-const [atletas, setAtletas] = useState<Atleta[]>([])
-const [loading, setLoading] = useState(true)
-const [perfil, setPerfil] = useState<string | null>(null)
-const router = useRouter()
+  const [atletas, setAtletas] = useState<Atleta[]>([])
+  const [loading, setLoading] = useState(true)
+  const [perfil, setPerfil] = useState<string | null>(null)
+  const [categoriasAbertas, setCategoriasAbertas] = useState<Record<number, boolean>>({})
+
+  const router = useRouter()
 
   useEffect(() => {
     const fetchPerfil = async () => {
@@ -40,9 +42,7 @@ const router = useRouter()
   useEffect(() => {
     const fetchAtletas = async () => {
       try {
-        if (!id){
-            return
-        }
+        if (!id) return
 
         const user = await AsyncStorage.getItem('session_user')
         if (!user) {
@@ -73,6 +73,10 @@ const router = useRouter()
     fetchAtletas()
   }, [id])
 
+  function handleEditar(event: GestureResponderEvent): void {
+    router.push(`admin/editar-equipe?id=${id}`)
+  }
+
   const getHeaderProps = () => {
     let headerProps: { title: string; button?: React.ReactNode } = {
       title: nomeEquipe || 'Detalhes da Equipe',
@@ -86,49 +90,94 @@ const router = useRouter()
     return headerProps
   }
 
-  function handleEditar(event: GestureResponderEvent): void {
-    router.push(`admin/editar-equipe?id=${id}`)
+  const toggleCategoria = (id: number) => {
+    setCategoriasAbertas(prev => ({
+      ...prev,
+      [id]: !prev[id],
+    }))
   }
+
+  // 🔥 AGRUPAMENTO POR CATEGORIA
+  const atletasPorCategoria = atletas.reduce((acc: any, atleta: any) => {
+    if (!atleta.categorias) return acc
+
+    atleta.categorias.forEach((cat: any) => {
+      if (!acc[cat.id]) {
+        acc[cat.id] = {
+          nome: cat.nome,
+          atletas: [],
+        }
+      }
+
+      acc[cat.id].atletas.push(atleta)
+    })
+
+    return acc
+  }, {})
 
   return (
     <Tela {...getHeaderProps()} scroll={false}>
+      {loading ? (
+        <YStack f={1} jc="center" ai="center">
+          <Spinner size="large" color="$blue10" />
+        </YStack>
+      ) : (
+        <ScrollView
+          contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32 }}
+        >
+          <Text mt="$4" fontSize={16} color="white">
+            Atletas
+          </Text>
 
-        {loading ? (
-          <YStack f={1} jc="center" ai="center">
-            <Spinner size="large" color="$blue10" />
-          </YStack>
-        ) : (
-          <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32 }} space="$4">
-            <Text mt="$4" fontSize={16} color="white">
-              Atletas
-            </Text>
-
-            {atletas.length > 0 ? (
-              atletas.map((atleta: any) => (
+          {Object.keys(atletasPorCategoria).length > 0 ? (
+            Object.entries(atletasPorCategoria).map(([catId, cat]: any) => (
+              <YStack key={catId} space="$2" mt="$3">
+                
+                {/* HEADER CATEGORIA */}
                 <XStack
-                  key={atleta.id}
-                  bg="$color1"
+                  onPress={() => toggleCategoria(Number(catId))}
+                  ai="center"
+                  jc="space-between"
+                  bg="$color2"
                   p="$3"
                   br="$4"
-                  ai="center"
-                  space="$3"
-                  //onPress={() => router.push(`/atletas/${atleta.id}`)}
                 >
-                  <MaterialIcons name="person" size={24} color="white" />
-                  <Text color="white">{atleta.nome}</Text>
-                  <View f={1} />
-                  <Text fontSize={12} color="$gray10">
-                    #{atleta.numero}
-                  </Text>
+                  <Text color="white">{cat.nome}</Text>
+                  <MaterialIcons
+                    name={categoriasAbertas[catId] ? 'expand-less' : 'expand-more'}
+                    size={20}
+                    color="white"
+                  />
                 </XStack>
-              ))
-            ) : (
-              <Text color="$gray10" mt="$2">
-                Nenhum atleta cadastrado.
-              </Text>
-            )}
-          </ScrollView>
-        )}
+
+                {/* ATLETAS */}
+                {categoriasAbertas[catId] &&
+                  cat.atletas.map((atleta: any) => (
+                    <XStack
+                      key={`${catId}-${atleta.id}`}
+                      bg="$color1"
+                      p="$3"
+                      br="$4"
+                      ai="center"
+                      space="$3"
+                    >
+                      <MaterialIcons name="person" size={24} color="white" />
+                      <Text color="white">{atleta.nome}</Text>
+                      <View f={1} />
+                      <Text fontSize={12} color="$gray10">
+                        #{atleta.numero}
+                      </Text>
+                    </XStack>
+                  ))}
+              </YStack>
+            ))
+          ) : (
+            <Text color="$gray10" mt="$2">
+              Nenhum atleta cadastrado.
+            </Text>
+          )}
+        </ScrollView>
+      )}
     </Tela>
   )
 }
