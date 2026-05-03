@@ -309,7 +309,17 @@ export default function CategoriaJogosScreen() {
                             bg={i % 2 === 0 ? '$background' : '$gray2'}
                           >
                             <Text {...COL.pos} textAlign="center">{item.posicao}</Text>
-                            <Text {...COL.name} numberOfLines={1} ellipsizeMode="tail">
+                            <Text
+                              {...COL.name}
+                              numberOfLines={1}
+                              ellipsizeMode="tail"
+                              onPress={() => {
+                                setEquipeId(String(item.equipeId))
+                                setTab('jogos')
+                                setPagina(0)
+                                setJogos([])
+                              }}
+                            >
                               {item.equipe}
                             </Text>
                             <Text {...COL.stat} textAlign="center">{item.jogos}</Text>
