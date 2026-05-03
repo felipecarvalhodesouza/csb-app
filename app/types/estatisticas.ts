@@ -3,6 +3,7 @@ export interface EstatisticaItem {
   nome: string
   equipe: string
   valor: number
+  media?: number
 }
 
 export const ESTATISTICA_TIPOS = {
