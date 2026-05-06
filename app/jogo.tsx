@@ -4,7 +4,8 @@ import {
   Text,
   ScrollView,
   Theme,
-  Spinner
+  Spinner,
+  Button
 } from 'tamagui'
 import FloatingActionButton from './componente/FloatingActionButton'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
@@ -13,15 +14,15 @@ import { useCallback, useState } from 'react'
 import YoutubePlayer from 'react-native-youtube-iframe'
 import { Pressable } from 'react-native'
 import { useLocalSearchParams } from 'expo-router'
-import { apiFetch } from './utils/api'
+import { apiDelete, apiFetch } from './utils/api'
 import Jogo from './domain/jogo'
 import ResumoJogo from './componente/resumo-jogo'
 import EstatisticasJogo from './componente/estatisticas-jogo'
-import { useEffect } from 'react'
 import { API_BASE_URL } from '../utils/config'
 import LanceALance from './componente/lance-a-lance'
 import { TeamScore } from './componente/team-score'
 import { Tela } from './componente/layout/tela'
+import Dialog from './componente/dialog-error'
 
 function extractYouTubeVideoId(videoUrl: string | null | undefined): string | null {
   if (!videoUrl) return null
@@ -71,6 +72,33 @@ export default function TelaJogo() {
   const [jogo, setJogo] = useState<Jogo>()
   const [aba, setAba] = useState<'Resumo' | 'Estatísticas' | 'Lances' | 'Líderes'>('Resumo')
 
+  const [showDialog, setShowDialog] = useState(false)
+  const [message, setMessage] = useState<string | null>(null)
+  const [errorDialog, setErrorDialog] = useState<boolean | null>(null)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+
+  const handleCloseDialog = () => {
+    setShowDialog(false)
+    if (!errorDialog) {
+      router.back()
+    }
+    setErrorDialog(null)
+  }
+
+  const excluirJogo = async () => {
+    try {
+      await apiDelete(`${API_BASE_URL}/jogos/${jogoId}`)
+      setShowDeleteDialog(false)
+      setShowDialog(true)
+      setMessage("Jogo excluído com sucesso!")
+    } catch (error: Error | any) {
+      setShowDeleteDialog(false)
+      setShowDialog(true)
+      setErrorDialog(true)
+      setMessage(error?.message || "Não foi possível excluir o jogo.")
+    }
+  }
+
   const fetchJogo = useCallback(async () => {
     try {
       const data = await apiFetch<Jogo>(`${API_BASE_URL}/jogos/${jogoId}`)
@@ -106,6 +134,7 @@ export default function TelaJogo() {
   }
 
   return (
+    <>
     <Tela title={jogo.mandante.nome + ' vs ' + jogo.visitante.nome}>
       {/* Botão flutuante de edição, apenas para ADM */}
 
@@ -201,7 +230,7 @@ export default function TelaJogo() {
             <Text fontSize={16} color="$gray10">Líderes do jogo (adicione conteúdo aqui)</Text>
           </YStack>
         )}*/}
-
+    </Tela>
       <FloatingActionButton
         actions={[{
           icon: <MaterialCommunityIcons name="pencil" size={28} color="$gray12" />,
@@ -209,8 +238,52 @@ export default function TelaJogo() {
           onPress: () => router.push(`/admin/editar-jogo?jogoId=${jogoId}`)
         }]}
         adminOnly={true}
-        position={{ bottom: 30, right: 24 }}
+        position={{ bottom: 85, right: 24 }}
       />
-    </Tela>
+
+    <FloatingActionButton
+      actions={[
+        {
+          icon: (
+            <MaterialCommunityIcons
+              name="delete-forever"
+              size={28}
+              color="$gray12"
+            />
+          ),
+          onPress: () => setShowDeleteDialog(true),
+        },
+      ]}
+      adminOnly={true}
+      position={{ bottom: 85, right: 85 }}
+    />
+
+
+      <Dialog
+        open={showDeleteDialog}
+        onClose={() => setShowDeleteDialog(false)}
+        title="Excluir jogo"
+        message="Tem certeza que deseja excluir este jogo? Essa ação não poderá ser desfeita."
+        extra={
+          <Button
+            mt="$2"
+            bg="$red10"
+            color="white"
+            onPress={async () => {
+              excluirJogo()
+            }}
+          >
+            Excluir
+          </Button>
+        }
+      />
+
+      <Dialog
+        open={showDialog}
+        onClose={handleCloseDialog}
+        message={message}
+        type={errorDialog ? 'error' : 'success'}
+      />
+    </>
   )
 }
